@@ -57,20 +57,15 @@ function Status({ state }: { state: EditorState }) {
 }
 
 function FieldGroup({
-  label,
   title,
   children,
 }: {
-  label: string;
   title: string;
   children: ReactNode;
 }) {
   return (
     <section className={styles.fieldGroup}>
-      <header className={styles.fieldGroupHead}>
-        <p className={styles.sectionLabel}>{label}</p>
-        <h2 className={styles.sectionHeading}>{title}</h2>
-      </header>
+      <h2 className={styles.sectionHeading}>{title}</h2>
       <div className={styles.fieldGroupBody}>{children}</div>
     </section>
   );
@@ -81,7 +76,7 @@ function CreateForm() {
 
   return (
     <form className={styles.createForm} action={action}>
-      <FieldGroup label="Başla" title="Yeni mənzil">
+      <FieldGroup title="Yeni mənzil">
         <label className={styles.label}>
           Brend adı
           <input
@@ -126,15 +121,13 @@ function PhotoPanel({
   );
   const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
   const main = sorted[0] ?? null;
+  const hasPhotos = sorted.length > 0;
 
   return (
     <aside className={styles.photoPanel}>
       <header className={styles.photoPanelHead}>
-        <p className={styles.sectionLabel}>Qalereya</p>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
-        <p className={styles.hint}>
-          Əsas foto hero-dur. Max 5MB · jpg / png / webp
-        </p>
+        <p className={styles.hint}>Əsas foto hero olur · max 5MB</p>
       </header>
 
       {main ? (
@@ -143,11 +136,9 @@ function PhotoPanel({
           <img src={resolvePhotoSrc(main.storage_path)} alt={main.alt || ""} />
           <span className={styles.mainBadge}>Əsas</span>
         </div>
-      ) : (
-        <div className={styles.mainEmpty}>Hələ foto yoxdur</div>
-      )}
+      ) : null}
 
-      {sorted.length > 0 ? (
+      {hasPhotos ? (
         <div className={styles.thumbRail} role="list">
           {sorted.map((photo, index) => {
             const isMain = index === 0;
@@ -164,18 +155,17 @@ function PhotoPanel({
                   src={resolvePhotoSrc(photo.storage_path)}
                   alt={photo.alt || `Foto ${index + 1}`}
                 />
-                <div className={styles.thumbMeta}>
-                  <span>{isMain ? "Əsas" : `#${index + 1}`}</span>
-                </div>
                 <div className={styles.thumbActions}>
                   {!isMain ? (
                     <form action={setMainPhoto}>
                       <input type="hidden" name="photo_id" value={photo.id} />
                       <button className={styles.thumbMainBtn} type="submit">
-                        Əsas et
+                        Əsas
                       </button>
                     </form>
-                  ) : null}
+                  ) : (
+                    <span className={styles.thumbMeta}>Əsas</span>
+                  )}
                   <form action={movePhoto}>
                     <input type="hidden" name="photo_id" value={photo.id} />
                     <input type="hidden" name="direction" value="up" />
@@ -213,11 +203,16 @@ function PhotoPanel({
         </div>
       ) : null}
 
-      <form className={styles.dropZone} action={uploadAction}>
+      <form
+        className={hasPhotos ? styles.dropZone : styles.dropZoneEmpty}
+        action={uploadAction}
+      >
         <input type="hidden" name="property_id" value={propertyId} />
         <label className={styles.dropLabel}>
-          <span className={styles.dropTitle}>Foto əlavə et</span>
-          <span className={styles.dropHint}>Fayl seç və ya bura at</span>
+          <span className={styles.dropTitle}>
+            {hasPhotos ? "Foto əlavə et" : "İlk fotonu yüklə"}
+          </span>
+          <span className={styles.dropHint}>jpg / png / webp · max 5MB</span>
           <input
             className={styles.dropFile}
             type="file"
@@ -226,11 +221,15 @@ function PhotoPanel({
             required
           />
         </label>
-        <input
-          className={styles.input}
-          name="alt"
-          placeholder="Qısa alt mətn (istəyə görə)"
-        />
+        {hasPhotos ? (
+          <input
+            className={styles.input}
+            name="alt"
+            placeholder="Alt mətn (istəyə görə)"
+          />
+        ) : (
+          <input type="hidden" name="alt" value="" />
+        )}
         <Status state={uploadState} />
         <button
           className={styles.submitSecondary}
@@ -260,35 +259,34 @@ function EditForm({
 
   return (
     <div className={styles.editorStack}>
-      <div className={styles.liveBar}>
-        <div className={styles.liveCopy}>
-          <p className={styles.sectionLabel}>Canlı səhifə</p>
-          <a
-            className={styles.liveLink}
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {url}
-          </a>
-        </div>
-        <span
-          className={
-            property.published ? styles.statusLive : styles.statusDraft
-          }
-        >
-          {property.published ? "Published" : "Draft"}
-        </span>
-      </div>
-
       <div className={styles.editorSplit}>
         <form className={styles.form} action={saveAction}>
           <input type="hidden" name="id" value={property.id} />
 
-          <FieldGroup label="Kimlik" title="Brend və ünvan">
+          <div className={styles.liveBar}>
+            <div className={styles.liveCopy}>
+              <a
+                className={styles.liveLink}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {url.replace(/^https?:\/\//, "")}
+              </a>
+            </div>
+            <span
+              className={
+                property.published ? styles.statusLive : styles.statusDraft
+              }
+            >
+              {property.published ? "Published" : "Draft"}
+            </span>
+          </div>
+
+          <FieldGroup title="Brend">
             <div className={styles.grid2}>
               <label className={styles.label}>
-                Brend
+                Ad
                 <input
                   className={styles.input}
                   name="brand_name"
@@ -309,10 +307,10 @@ function EditForm({
             </div>
           </FieldGroup>
 
-          <FieldGroup label="Mətn" title="Başlıq və təsvir">
+          <FieldGroup title="Başlıq">
             <div className={styles.grid2}>
               <label className={styles.label}>
-                Başlıq (AZ)
+                AZ
                 <input
                   className={styles.input}
                   name="title_az"
@@ -320,7 +318,7 @@ function EditForm({
                 />
               </label>
               <label className={styles.label}>
-                Başlıq (RU)
+                RU
                 <input
                   className={styles.input}
                   name="title_ru"
@@ -328,27 +326,29 @@ function EditForm({
                 />
               </label>
             </div>
-            <label className={styles.label}>
-              Lead (AZ)
-              <textarea
-                className={styles.textarea}
-                name="lead_az"
-                rows={2}
-                defaultValue={property.lead_az}
-              />
-            </label>
-            <label className={styles.label}>
-              Lead (RU)
-              <textarea
-                className={styles.textarea}
-                name="lead_ru"
-                rows={2}
-                defaultValue={property.lead_ru}
-              />
-            </label>
+            <div className={styles.grid2}>
+              <label className={styles.label}>
+                Lead AZ
+                <textarea
+                  className={styles.textarea}
+                  name="lead_az"
+                  rows={3}
+                  defaultValue={property.lead_az}
+                />
+              </label>
+              <label className={styles.label}>
+                Lead RU
+                <textarea
+                  className={styles.textarea}
+                  name="lead_ru"
+                  rows={3}
+                  defaultValue={property.lead_ru}
+                />
+              </label>
+            </div>
           </FieldGroup>
 
-          <FieldGroup label="Yerləşmə" title="Zona və əlaqə">
+          <FieldGroup title="Yerləşmə">
             <div className={styles.grid2}>
               <label className={styles.label}>
                 Zona
@@ -379,7 +379,7 @@ function EditForm({
             </label>
           </FieldGroup>
 
-          <FieldGroup label="Qiymət" title="Gecəlik və şərtlər">
+          <FieldGroup title="Qiymət">
             <div className={styles.grid4}>
               <label className={styles.label}>
                 Otaq
@@ -402,7 +402,7 @@ function EditForm({
                 />
               </label>
               <label className={styles.label}>
-                Qiymət / gecə
+                Gecəlik
                 <input
                   className={styles.input}
                   type="number"
@@ -445,32 +445,32 @@ function EditForm({
             </div>
           </FieldGroup>
 
-          <FieldGroup label="Detallar" title="Təchizat və qaydalar">
-            <label className={styles.label}>
-              Təchizat
-              <textarea
-                className={styles.textarea}
-                name="amenities"
-                rows={3}
-                defaultValue={amenitiesToText(property.amenities)}
-              />
-              <span className={styles.fieldHint}>
-                Hər sətir: Başlıq | alt mətn
-              </span>
-            </label>
-            <label className={styles.label}>
-              Qaydalar
-              <textarea
-                className={styles.textarea}
-                name="rules"
-                rows={3}
-                defaultValue={rulesToText(property.rules)}
-              />
-              <span className={styles.fieldHint}>Hər sətir bir qayda</span>
-            </label>
+          <FieldGroup title="Detallar">
             <div className={styles.grid2}>
               <label className={styles.label}>
-                Default dil
+                Təchizat
+                <textarea
+                  className={styles.textarea}
+                  name="amenities"
+                  rows={4}
+                  defaultValue={amenitiesToText(property.amenities)}
+                />
+                <span className={styles.fieldHint}>Başlıq | alt mətn</span>
+              </label>
+              <label className={styles.label}>
+                Qaydalar
+                <textarea
+                  className={styles.textarea}
+                  name="rules"
+                  rows={4}
+                  defaultValue={rulesToText(property.rules)}
+                />
+                <span className={styles.fieldHint}>Hər sətir bir qayda</span>
+              </label>
+            </div>
+            <div className={styles.grid2}>
+              <label className={styles.label}>
+                Dil
                 <select
                   className={styles.input}
                   name="locale_default"
@@ -488,7 +488,7 @@ function EditForm({
                 />
                 <span>
                   <strong>Publish</strong>
-                  <em>İctimai səhifə açıq olsun</em>
+                  <em>Canlı səhifə açıq</em>
                 </span>
               </label>
             </div>
@@ -516,15 +516,12 @@ export function PropertyEditor({ property, photos, email }: Props) {
   return (
     <div className={styles.panelWide}>
       <header className={styles.panelHeader}>
-        <h1 className={styles.title}>
-          {property ? property.brand_name || "Mənzil redaktəsi" : "İlk mənzil"}
-        </h1>
-        <p className={styles.meta}>
-          {property
-            ? "Mətn, qiymət və fotoları yenilə — publish edəndə canlı səhifə dəyişir."
-            : "Brend adı və slug ilə başla; sonra məzmunu dolduracaqsan."}
-        </p>
-        <p className={styles.emailLine}>{email}</p>
+        <div className={styles.panelHeaderRow}>
+          <h1 className={styles.title}>
+            {property ? property.brand_name || "Mənzil" : "İlk mənzil"}
+          </h1>
+          <p className={styles.emailLine}>{email}</p>
+        </div>
       </header>
 
       {property ? (
