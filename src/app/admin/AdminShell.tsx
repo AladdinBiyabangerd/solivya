@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { signOut } from "./actions";
 import styles from "./admin.module.css";
 
 export type AdminNav = "home" | "new" | "profile" | "edit";
@@ -9,33 +8,49 @@ type Props = {
   children: React.ReactNode;
 };
 
+function ProfileGlyph() {
+  return (
+    <svg
+      className={styles.profileGlyph}
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="12" cy="8" r="3.25" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M5.5 18.75c1.35-2.85 3.55-4.25 6.5-4.25s5.15 1.4 6.5 4.25"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function AdminShell({ active, children }: Props) {
   return (
     <main className={styles.shellTop}>
       <header className={styles.topBar}>
-        <Link href="/" className={styles.topBrand}>
-          Solivya
-        </Link>
-        <nav className={styles.topNav} aria-label="Admin">
-          <Link
-            href="/"
-            className={
-              active === "home" || active === "edit"
-                ? styles.topNavActive
-                : styles.topNavLink
-            }
-          >
-            Mənzillər
+        <div className={styles.topLeft}>
+          <Link href="/" className={styles.topBrand}>
+            Solivya
           </Link>
-          <Link
-            href="/profile"
-            className={
-              active === "profile" ? styles.topNavActive : styles.topNavLink
-            }
-          >
-            Profil
-          </Link>
-        </nav>
+          <nav className={styles.topNav} aria-label="Admin">
+            <Link
+              href="/"
+              className={
+                active === "home" || active === "edit"
+                  ? styles.topNavActive
+                  : styles.topNavLink
+              }
+            >
+              Mənzillər
+            </Link>
+          </nav>
+        </div>
         <div className={styles.topActions}>
           <Link
             href="/new"
@@ -45,11 +60,18 @@ export function AdminShell({ active, children }: Props) {
           >
             Yeni
           </Link>
-          <form action={signOut}>
-            <button className={styles.ghost} type="submit">
-              Çıxış
-            </button>
-          </form>
+          <Link
+            href="/profile"
+            className={
+              active === "profile"
+                ? styles.profileIconActive
+                : styles.profileIcon
+            }
+            aria-label="Profil"
+            title="Profil"
+          >
+            <ProfileGlyph />
+          </Link>
         </div>
       </header>
       {children}

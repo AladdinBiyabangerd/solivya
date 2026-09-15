@@ -274,6 +274,14 @@
   border-bottom: 1px solid var(--line);
 }
 
+.topLeft {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .topBrand {
   font-family: var(--font-display);
   font-size: 1.2rem;
@@ -292,9 +300,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem 1rem;
-  flex: 1 1 auto;
   min-width: 0;
-  justify-content: center;
 }
 
 .topNavLink,
@@ -354,6 +360,50 @@
   align-items: center;
   gap: 0.65rem;
   flex-shrink: 0;
+  margin-left: auto;
+}
+
+.profileIcon,
+.profileIconActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.profileIcon {
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.profileIcon:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.profileIconActive {
+  color: var(--white);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.profileGlyph {
+  display: block;
+}
+
+.profileSignOut {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
 }
 
 .dashLead {
@@ -2037,6 +2087,10 @@
   .topBar,
   .panelWide {
     width: min(1180px, calc(100% - 1.5rem));
+  }
+
+  .topLeft {
+    gap: 0.85rem;
   }
 
   .topNav {

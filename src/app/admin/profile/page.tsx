@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { AdminShell } from "../AdminShell";
+import { signOut } from "../actions";
 import { ProfileForm } from "./ProfileForm";
 import styles from "../admin.module.css";
 
@@ -44,6 +45,11 @@ export default async function ProfilePage() {
           ) : null}
         </header>
         <ProfileForm email={user?.email ?? ""} phone={phone} />
+        <form className={styles.profileSignOut} action={signOut}>
+          <button className={styles.ghost} type="submit">
+            Çıxış
+          </button>
+        </form>
       </div>
     </AdminShell>
   );
