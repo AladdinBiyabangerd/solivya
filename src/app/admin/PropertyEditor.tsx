@@ -3,7 +3,9 @@
 import {
   useActionState,
   useEffect,
+  useRef,
   useState,
+  type FormEvent,
   type ReactNode,
 } from "react";
 import type { Photo, Property } from "@/types/database";
@@ -139,6 +141,12 @@ function CreateForm() {
   );
 }
 
+type PendingFile = {
+  key: string;
+  file: File;
+  url: string;
+};
+
 function PhotoPanel({
   propertyId,
   photos,
@@ -150,16 +158,88 @@ function PhotoPanel({
     uploadPhoto,
     empty,
   );
+  const [pending, setPending] = useState<PendingFile[]>([]);
+  const [pickError, setPickError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingRef = useRef(pending);
+  pendingRef.current = pending;
   const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
   const main = sorted[0] ?? null;
   const hasPhotos = sorted.length > 0;
+
+  useEffect(() => {
+    return () => {
+      pendingRef.current.forEach((item) => URL.revokeObjectURL(item.url));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!uploadState.ok) return;
+    setPending((prev) => {
+      prev.forEach((item) => URL.revokeObjectURL(item.url));
+      return [];
+    });
+    setPickError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [uploadState.ok]);
+
+  const addFiles = (list: FileList | null) => {
+    if (!list?.length) return;
+    setPickError(null);
+    const next: PendingFile[] = [];
+    for (const file of Array.from(list)) {
+      if (file.size > 5 * 1024 * 1024) {
+        setPickError(`"${file.name}" 5MB-dan böyükdür.`);
+        continue;
+      }
+      next.push({
+        key: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
+        file,
+        url: URL.createObjectURL(file),
+      });
+    }
+    setPending((prev) => {
+      const merged = [...prev, ...next];
+      if (merged.length > 12) {
+        setPickError("Maksimum 12 foto seçin.");
+        const kept = merged.slice(0, 12);
+        merged.slice(12).forEach((item) => URL.revokeObjectURL(item.url));
+        return kept;
+      }
+      return merged;
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removePending = (key: string) => {
+    setPending((prev) => {
+      const target = prev.find((item) => item.key === key);
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((item) => item.key !== key);
+    });
+    setPickError(null);
+  };
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (pending.length === 0) {
+      setPickError("Əvvəl foto seç.");
+      return;
+    }
+    const formData = new FormData();
+    formData.set("property_id", propertyId);
+    for (const item of pending) {
+      formData.append("files", item.file);
+    }
+    uploadAction(formData);
+  };
 
   return (
     <aside className={styles.photoPanel}>
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Bir neçə foto seç · üzərinə kliklə → əsas · max 5MB
+          Seç · X ilə çıxar · yüklə · kliklə → əsas · max 5MB
         </p>
       </header>
 
@@ -225,32 +305,61 @@ function PhotoPanel({
 
       <form
         className={hasPhotos ? styles.dropZone : styles.dropZoneEmpty}
-        action={uploadAction}
+        onSubmit={onSubmit}
       >
-        <input type="hidden" name="property_id" value={propertyId} />
         <label className={styles.dropLabel}>
           <span className={styles.dropTitle}>
-            {hasPhotos ? "Foto əlavə et" : "Fotoları yüklə"}
+            {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Eyni anda bir neçə · jpg / png / webp · max 5MB
+            Əvvəl bax · X ilə çıxar · sonra yüklə
           </span>
           <input
+            ref={fileInputRef}
             className={styles.dropFile}
             type="file"
-            name="files"
             accept="image/jpeg,image/png,image/webp,image/gif"
             multiple
-            required
+            onChange={(event) => addFiles(event.target.files)}
           />
         </label>
+
+        {pending.length > 0 ? (
+          <div className={styles.pendingRail} role="list">
+            {pending.map((item) => (
+              <figure
+                key={item.key}
+                className={styles.pendingThumb}
+                role="listitem"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.url} alt={item.file.name} />
+                <button
+                  type="button"
+                  className={styles.pendingRemove}
+                  onClick={() => removePending(item.key)}
+                  aria-label={`${item.file.name} sil`}
+                  title="Çıxar"
+                >
+                  ×
+                </button>
+              </figure>
+            ))}
+          </div>
+        ) : null}
+
+        {pickError ? <p className={styles.error}>{pickError}</p> : null}
         <Status state={uploadState} />
         <button
           className={styles.submitSecondary}
           type="submit"
-          disabled={uploadPending}
+          disabled={uploadPending || pending.length === 0}
         >
-          {uploadPending ? "Yüklənir…" : "Yüklə"}
+          {uploadPending
+            ? "Yüklənir…"
+            : pending.length > 0
+              ? `${pending.length} foto yüklə`
+              : "Yüklə"}
         </button>
       </form>
     </aside>

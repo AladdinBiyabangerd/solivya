@@ -719,6 +719,52 @@
   color: var(--muted);
 }
 
+.pendingRail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+}
+
+.pendingThumb {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+}
+
+.pendingThumb img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--bg-soft);
+  border: 1px dashed rgba(154, 123, 79, 0.45);
+  border-radius: var(--radius);
+}
+
+.pendingRemove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: rgba(28, 25, 23, 0.78);
+  color: #fafaf9;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pendingRemove:hover {
+  background: #7f1d1d;
+}
+
 .wizardNav {
   display: none;
 }
