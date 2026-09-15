@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import styles from "./site.module.css";
+import { SiteGallery } from "./SiteGallery";
 import {
   formatPriceAz,
   type SitePropertyView,
@@ -123,14 +124,14 @@ export function PropertySite({
 
       <section className={styles.gallery} id="qalereya">
         <div className={styles.wrap}>
-          <div className={styles.galleryGrid}>
-            {property.photos.slice(0, 5).map((photo) => (
-              <figure key={photo.src}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.src} alt={photo.alt} />
-              </figure>
-            ))}
-          </div>
+          <SiteGallery
+            photos={property.photos}
+            brandName={property.brandName}
+            closeLabel={ui.closeViewer}
+            viewerLabel={ui.photoViewer}
+            prevLabel={ui.prevPhoto}
+            nextLabel={ui.nextPhoto}
+          />
         </div>
       </section>
 

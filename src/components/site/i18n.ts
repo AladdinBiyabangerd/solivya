@@ -17,6 +17,10 @@ export type SiteUiCopy = {
   mapAria: string;
   langAz: string;
   langRu: string;
+  photoViewer: string;
+  closeViewer: string;
+  prevPhoto: string;
+  nextPhoto: string;
 };
 
 export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
@@ -37,6 +41,10 @@ export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
     mapAria: "Yerləşmə vizualı",
     langAz: "AZ",
     langRu: "RU",
+    photoViewer: "Foto baxışı",
+    closeViewer: "Bağla",
+    prevPhoto: "Əvvəlki foto",
+    nextPhoto: "Növbəti foto",
   },
   ru: {
     contact: "Контакты",
@@ -55,6 +63,10 @@ export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
     mapAria: "Карта района",
     langAz: "AZ",
     langRu: "RU",
+    photoViewer: "Просмотр фото",
+    closeViewer: "Закрыть",
+    prevPhoto: "Предыдущее фото",
+    nextPhoto: "Следующее фото",
   },
 };
 
