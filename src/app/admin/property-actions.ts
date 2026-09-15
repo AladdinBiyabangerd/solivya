@@ -224,6 +224,11 @@ export async function uploadPhoto(
     .eq("property_id", propertyId);
 
   const existingCount = count ?? 0;
+  if (existingCount + files.length > MAX_SITE_PHOTOS) {
+    return {
+      error: `Maksimum ${MAX_SITE_PHOTOS} foto (əsas daxil). İndi: ${existingCount}, əlavə: ${files.length}.`,
+    };
+  }
   const makeFirstMain = formData.get("make_first_main") === "1";
   const originals = formData
     .getAll("originals")

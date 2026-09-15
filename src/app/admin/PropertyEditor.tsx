@@ -641,8 +641,8 @@ const PhotoPanel = forwardRef<
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Min {MIN_SITE_PHOTOS} · maks {MAX_SITE_PHOTOS} (əsas daxil) · 1
-          əsas + əlavələr
+          Min {MIN_SITE_PHOTOS} · maks {MAX_SITE_PHOTOS} · əsasdan başqa ən
+          çox {MAX_SITE_PHOTOS - 1}
           {plan.map ? " · +xəritə" : ""}
           {plan.spare > 0 ? ` · +${plan.spare} ehtiyat` : ""}
         </p>
@@ -1261,7 +1261,8 @@ function EditForm({
                   <span>
                     <strong>Publish</strong>
                     <em>
-                      Canlı səhifə · ən azı {MIN_SITE_PHOTOS} foto
+                      Canlı səhifə · {MIN_SITE_PHOTOS}–{MAX_SITE_PHOTOS}{" "}
+                      foto
                     </em>
                   </span>
                 </label>
