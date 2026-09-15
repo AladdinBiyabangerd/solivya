@@ -209,8 +209,11 @@ export async function uploadPhoto(
     .select("*", { count: "exact", head: true })
     .eq("property_id", propertyId);
 
-  let nextOrder = count ?? 0;
+  const existingCount = count ?? 0;
+  const makeFirstMain = formData.get("make_first_main") === "1";
+  let nextOrder = existingCount;
   let uploaded = 0;
+  let mainCandidateId: string | null = null;
   const alt = String(formData.get("alt") ?? "").trim();
 
   for (const file of files) {
@@ -233,20 +236,61 @@ export async function uploadPhoto(
       break;
     }
 
-    const { error: insertError } = await supabase.from("photos").insert({
-      property_id: propertyId,
-      storage_path: path,
-      alt: uploaded === 0 ? alt : "",
-      sort_order: nextOrder,
-    });
+    const { data: inserted, error: insertError } = await supabase
+      .from("photos")
+      .insert({
+        property_id: propertyId,
+        storage_path: path,
+        alt: uploaded === 0 ? alt : "",
+        sort_order: nextOrder,
+      })
+      .select("id")
+      .single();
 
-    if (insertError) {
-      if (uploaded === 0) return { error: insertError.message };
+    if (insertError || !inserted) {
+      if (uploaded === 0) {
+        return { error: insertError?.message ?? "Foto yazılmadı." };
+      }
       break;
+    }
+
+    if (uploaded === 0 && makeFirstMain) {
+      mainCandidateId = inserted.id;
     }
 
     nextOrder += 1;
     uploaded += 1;
+  }
+
+  if (
+    makeFirstMain &&
+    mainCandidateId &&
+    existingCount > 0
+  ) {
+    const { data: siblings } = await supabase
+      .from("photos")
+      .select("id, sort_order")
+      .eq("property_id", propertyId)
+      .order("sort_order", { ascending: true });
+
+    const target = siblings?.find((row) => row.id === mainCandidateId);
+    if (target && target.sort_order !== 0 && siblings) {
+      const before = siblings.filter(
+        (row) => row.sort_order < target.sort_order,
+      );
+      await Promise.all(
+        before.map((row) =>
+          supabase
+            .from("photos")
+            .update({ sort_order: row.sort_order + 1 })
+            .eq("id", row.id),
+        ),
+      );
+      await supabase
+        .from("photos")
+        .update({ sort_order: 0 })
+        .eq("id", mainCandidateId);
+    }
   }
 
   revalidatePath("/admin");
@@ -254,6 +298,15 @@ export async function uploadPhoto(
 
   if (uploaded === 0) {
     return { error: "Foto yüklənmədi." };
+  }
+
+  if (makeFirstMain && mainCandidateId) {
+    return {
+      ok:
+        uploaded === 1
+          ? "Əsas foto yükləndi."
+          : `${uploaded} foto yükləndi · əsas seçildi.`,
+    };
   }
 
   return {

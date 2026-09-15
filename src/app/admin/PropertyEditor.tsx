@@ -159,6 +159,7 @@ function PhotoPanel({
     empty,
   );
   const [pending, setPending] = useState<PendingFile[]>([]);
+  const [mainKey, setMainKey] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingRef = useRef(pending);
@@ -179,9 +180,19 @@ function PhotoPanel({
       prev.forEach((item) => URL.revokeObjectURL(item.url));
       return [];
     });
+    setMainKey(null);
     setPickError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [uploadState.ok]);
+
+  useEffect(() => {
+    if (pending.length === 0) {
+      setMainKey(null);
+      return;
+    }
+    if (mainKey && pending.some((item) => item.key === mainKey)) return;
+    setMainKey(hasPhotos ? null : pending[0].key);
+  }, [pending, hasPhotos, mainKey]);
 
   const addFiles = (list: FileList | null) => {
     if (!list?.length) return;
@@ -226,9 +237,16 @@ function PhotoPanel({
       setPickError("Əvvəl foto seç.");
       return;
     }
+    const ordered = mainKey
+      ? [
+          ...pending.filter((item) => item.key === mainKey),
+          ...pending.filter((item) => item.key !== mainKey),
+        ]
+      : pending;
     const formData = new FormData();
     formData.set("property_id", propertyId);
-    for (const item of pending) {
+    if (mainKey) formData.set("make_first_main", "1");
+    for (const item of ordered) {
       formData.append("files", item.file);
     }
     uploadAction(formData);
@@ -239,7 +257,7 @@ function PhotoPanel({
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Seç · X ilə çıxar · yüklə · kliklə → əsas · max 5MB
+          Seç · kliklə əsas · X ilə çıxar · yüklə · max 5MB
         </p>
       </header>
 
@@ -312,7 +330,7 @@ function PhotoPanel({
             {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Əvvəl bax · X ilə çıxar · sonra yüklə
+            Üzərinə kliklə → əsas · X → çıxar · sonra yüklə
           </span>
           <input
             ref={fileInputRef}
@@ -326,25 +344,48 @@ function PhotoPanel({
 
         {pending.length > 0 ? (
           <div className={styles.pendingRail} role="list">
-            {pending.map((item) => (
-              <figure
-                key={item.key}
-                className={styles.pendingThumb}
-                role="listitem"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.url} alt={item.file.name} />
-                <button
-                  type="button"
-                  className={styles.pendingRemove}
-                  onClick={() => removePending(item.key)}
-                  aria-label={`${item.file.name} sil`}
-                  title="Çıxar"
+            {pending.map((item) => {
+              const isPendingMain = item.key === mainKey;
+              return (
+                <figure
+                  key={item.key}
+                  className={
+                    isPendingMain
+                      ? `${styles.pendingThumb} ${styles.pendingThumbMain}`
+                      : styles.pendingThumb
+                  }
+                  role="listitem"
                 >
-                  ×
-                </button>
-              </figure>
-            ))}
+                  <button
+                    type="button"
+                    className={styles.pendingPick}
+                    onClick={() => setMainKey(item.key)}
+                    title="Əsas et"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.url} alt={item.file.name} />
+                    <span
+                      className={
+                        isPendingMain
+                          ? styles.pendingMainLabel
+                          : styles.pendingPickLabel
+                      }
+                    >
+                      {isPendingMain ? "Əsas" : "Əsas et"}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.pendingRemove}
+                    onClick={() => removePending(item.key)}
+                    aria-label={`${item.file.name} sil`}
+                    title="Çıxar"
+                  >
+                    ×
+                  </button>
+                </figure>
+              );
+            })}
           </div>
         ) : null}
 
