@@ -350,8 +350,8 @@ function PhotoLightbox({
 
 const PhotoPanel = forwardRef<
   PhotoPanelHandle,
-  { propertyId: string; photos: Photo[] }
->(function PhotoPanel({ propertyId, photos }, ref) {
+  { propertyId: string; photos: Photo[]; footer?: ReactNode }
+>(function PhotoPanel({ propertyId, photos, footer }, ref) {
   const router = useRouter();
   const [uploadState, setUploadState] = useState<EditorState>(empty);
   const [uploadPending, setUploadPending] = useState(false);
@@ -853,6 +853,8 @@ const PhotoPanel = forwardRef<
         <Status state={uploadState} />
         <Status state={mainCropState} />
       </div>
+
+      {footer ? <div className={styles.photoPanelFooter}>{footer}</div> : null}
 
       {lightboxIndex !== null && activeLightbox ? (
         <PhotoLightbox
@@ -1393,16 +1395,17 @@ function EditForm({
             ref={photoRef}
             propertyId={property.id}
             photos={photos}
+            footer={
+              !narrow && zonePath && mapPosition ? (
+                <MapLocationCard
+                  zonePath={zonePath}
+                  position={mapPosition}
+                  onEdit={() => setMapOpen(true)}
+                  onClear={() => setMapPosition(null)}
+                />
+              ) : null
+            }
           />
-          {!narrow && zonePath && mapPosition ? (
-            <MapLocationCard
-              className={styles.mapLocationCardInPhotos}
-              zonePath={zonePath}
-              position={mapPosition}
-              onEdit={() => setMapOpen(true)}
-              onClear={() => setMapPosition(null)}
-            />
-          ) : null}
         </div>
       </div>
 

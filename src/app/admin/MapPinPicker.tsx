@@ -108,11 +108,6 @@ function MapCanvas({
   );
 }
 
-function osmEmbedSrc(position: LatLng): string {
-  const { lat, lng } = position;
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01}%2C${lat - 0.007}%2C${lng + 0.01}%2C${lat + 0.007}&layer=mapnik&marker=${lat}%2C${lng}`;
-}
-
 export function MapLocationCard({
   zonePath,
   position,
@@ -120,24 +115,27 @@ export function MapLocationCard({
   onClear,
   className,
 }: CardProps) {
+  const mapsLink = `https://www.openstreetmap.org/?mlat=${position.lat}&mlon=${position.lng}#map=16/${position.lat}/${position.lng}`;
+
   return (
     <aside
       className={`${styles.mapLocationCard} ${className ?? ""}`.trim()}
       aria-label="Seçilmiş konum"
     >
-      <iframe
-        className={styles.mapLocationThumb}
-        title="Konum önizləmə"
-        src={osmEmbedSrc(position)}
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-      />
       <div className={styles.mapLocationBody}>
         <p className={styles.mapLocationLabel}>Konum</p>
         <p className={styles.mapLocationZone}>{zonePath}</p>
         <p className={styles.mapLocationCoords}>
           {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
         </p>
+        <a
+          className={styles.mapLocationLink}
+          href={mapsLink}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Xəritədə bax
+        </a>
         <div className={styles.mapLocationActions}>
           <button
             type="button"
