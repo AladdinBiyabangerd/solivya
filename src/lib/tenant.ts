@@ -5,10 +5,20 @@ export type TenantZone =
 
 const RESERVED = new Set(["www", "app", "api"]);
 
+/** Prefer proxy host on Vercel; fall back to Host. */
+export function requestHost(headers: {
+  get(name: string): string | null;
+}): string | null {
+  const raw = headers.get("x-forwarded-host") ?? headers.get("host");
+  if (!raw) return null;
+  return raw.split(",")[0]?.trim() || null;
+}
+
 /**
  * Resolve host → Solivya zone.
  * Local: localhost | app.localhost | {slug}.localhost
  * Prod:  solivya.homes | app.solivya.homes | {slug}.solivya.homes
+ * Vercel preview (*.vercel.app) → marketing
  */
 export function resolveTenant(
   hostHeader: string | null,
@@ -29,6 +39,11 @@ export function resolveTenant(
     if (slug && !RESERVED.has(slug) && !slug.includes(".")) {
       return { zone: "site", slug };
     }
+    return { zone: "marketing" };
+  }
+
+  // Default Vercel URL / previews — no tenant subdomains.
+  if (host === "vercel.app" || host.endsWith(".vercel.app")) {
     return { zone: "marketing" };
   }
 

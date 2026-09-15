@@ -1,5 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { tenantRewritePath, resolveTenant } from "@/lib/tenant";
+import {
+  tenantRewritePath,
+  resolveTenant,
+  requestHost,
+} from "@/lib/tenant";
 import { updateSession } from "@/utils/supabase/middleware";
 
 function copyCookies(from: NextResponse, to: NextResponse) {
@@ -31,7 +35,7 @@ function isRootSeoOrAssetPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const tenant = resolveTenant(request.headers.get("host"));
+  const tenant = resolveTenant(requestHost(request.headers));
   const pathname = request.nextUrl.pathname;
   const rewritePath = isRootSeoOrAssetPath(pathname)
     ? null
