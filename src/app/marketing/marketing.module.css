@@ -1,0 +1,275 @@
+.page {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  background: #2a241f;
+}
+
+.heroMedia {
+  position: absolute;
+  inset: 0;
+  animation: heroZoom 18s ease-out forwards;
+}
+
+.heroMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.68) saturate(1.05);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(28, 25, 23, 0.2) 0%,
+    rgba(28, 25, 23, 0.18) 40%,
+    rgba(28, 25, 23, 0.78) 100%
+  );
+}
+
+.topbar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  padding: 1.35rem 0;
+}
+
+.wrap {
+  width: min(1120px, calc(100% - 2.5rem));
+  margin-inline: auto;
+}
+
+.topInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--white);
+}
+
+.navBrand {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+
+.navLink {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.92;
+  border-bottom: 1px solid rgba(255, 252, 250, 0.35);
+  padding-bottom: 2px;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  padding: 0 0 4.75rem;
+  color: var(--white);
+  animation: rise 0.9s ease both;
+}
+
+.brandMark {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.1rem;
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3.2vw, 2.35rem);
+  font-weight: 500;
+  line-height: 1.2;
+  max-width: 18ch;
+  margin: 0 0 1rem;
+  color: rgba(255, 252, 250, 0.94);
+}
+
+.lead {
+  max-width: 36ch;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(255, 252, 250, 0.82);
+  margin: 0 0 1.85rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.85rem 1.4rem;
+  background: var(--accent);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.85rem 1.4rem;
+  background: transparent;
+  border: 1px solid rgba(255, 252, 250, 0.45);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btnGhost:hover {
+  background: rgba(255, 252, 250, 0.08);
+  transform: translateY(-1px);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.85rem 1.4rem;
+  background: transparent;
+  border: 1px solid rgba(28, 25, 23, 0.22);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btnSecondary:hover {
+  background: var(--bg-soft);
+  transform: translateY(-1px);
+}
+
+.pricing {
+  padding: 5rem 0 5.5rem;
+  background:
+    radial-gradient(ellipse at top, rgba(154, 123, 79, 0.08), transparent 55%),
+    var(--bg);
+  animation: rise 0.8s ease 0.15s both;
+}
+
+.sectionLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  max-width: 14ch;
+}
+
+.sectionText {
+  color: var(--muted);
+  max-width: 48ch;
+  font-size: 1.05rem;
+  margin: 0 0 2rem;
+  line-height: 1.55;
+}
+
+.priceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.5rem;
+  align-items: end;
+  margin-bottom: 2rem;
+}
+
+.priceBlock {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.priceBlock span {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.footerNote {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@keyframes heroZoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    width: min(1120px, calc(100% - 1.5rem));
+  }
+
+  .heroContent {
+    padding-bottom: 3.5rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
