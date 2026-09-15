@@ -69,6 +69,15 @@
   font-size: 0.9rem;
 }
 
+.success {
+  margin: 0;
+  color: var(--olive);
+  background: #e8f0ea;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
 .submit {
   min-height: 3rem;
   border: none;
@@ -87,6 +96,22 @@
 .submit:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+
+.switch {
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.switchLink {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(154, 123, 79, 0.35);
+}
+
+.switchLink:hover {
+  border-bottom-color: var(--accent);
 }
 
 .panel {

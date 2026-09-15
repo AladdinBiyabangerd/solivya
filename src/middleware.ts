@@ -18,16 +18,19 @@ export async function middleware(request: NextRequest) {
   const { response, user } = await updateSession(request, rewriteUrl);
 
   if (tenant.zone === "admin") {
-    const isLogin =
-      pathname === "/login" || pathname.startsWith("/login/");
+    const isPublicAuth =
+      pathname === "/login" ||
+      pathname.startsWith("/login/") ||
+      pathname === "/signup" ||
+      pathname.startsWith("/signup/");
 
-    if (!user && !isLogin) {
+    if (!user && !isPublicAuth) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
       return NextResponse.redirect(loginUrl);
     }
 
-    if (user && isLogin) {
+    if (user && isPublicAuth) {
       const homeUrl = request.nextUrl.clone();
       homeUrl.pathname = "/";
       return NextResponse.redirect(homeUrl);

@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { LoginForm } from "./LoginForm";
+import { SignupForm } from "./SignupForm";
 import styles from "../admin.module.css";
 
-export default function AdminLoginPage() {
+export default function AdminSignupPage() {
   return (
     <main className={styles.shell}>
       <div className={styles.card}>
         <p className={styles.eyebrow}>Solivya · admin</p>
-        <h1 className={styles.title}>Sahib girişi</h1>
+        <h1 className={styles.title}>Hesab yarat</h1>
         <p className={styles.lead}>
-          Mənzil səhifəni idarə etmək üçün daxil ol.
+          Günlük kirayə sahibləri üçün panelə qeydiyyat.
         </p>
-        <LoginForm />
+        <SignupForm />
         <p className={styles.switch}>
-          Hesabın yoxdur?{" "}
-          <Link className={styles.switchLink} href="/signup">
-            Qeydiyyat
+          Artıq hesabın var?{" "}
+          <Link className={styles.switchLink} href="/login">
+            Daxil ol
           </Link>
         </p>
       </div>

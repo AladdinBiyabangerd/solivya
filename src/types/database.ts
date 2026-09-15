@@ -58,7 +58,11 @@ export type Database = {
           phone?: string | null;
           created_at?: string;
         };
-        Update: Partial<Omit<Owner, "id" | "created_at">>;
+        Update: {
+          email?: string;
+          phone?: string | null;
+        };
+        Relationships: [];
       };
       properties: {
         Row: Property;
@@ -68,6 +72,15 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Omit<Property, "id" | "created_at">>;
+        Relationships: [
+          {
+            foreignKeyName: "properties_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "owners";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       photos: {
         Row: Photo;
@@ -76,7 +89,20 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Omit<Photo, "id" | "created_at">>;
+        Relationships: [
+          {
+            foreignKeyName: "photos_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
