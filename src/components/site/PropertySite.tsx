@@ -8,8 +8,23 @@ import {
   whatsappHref,
 } from "./types";
 
+export type SiblingListing = {
+  slug: string;
+  title: string;
+  zone: string;
+  rooms: number;
+  guests: number;
+  priceNight: number;
+  coverSrc: string | null;
+  coverAlt: string;
+  href: string;
+};
+
 type Props = {
   property: SitePropertyView;
+  siblings?: SiblingListing[];
+  /** Public catalog of this owner's listings (cross-subdomain). */
+  ownerListingsHref?: string;
   /** Owner-only preview route — banner + relative lang links. */
   preview?: boolean;
   draft?: boolean;
@@ -17,6 +32,8 @@ type Props = {
 
 export function PropertySite({
   property,
+  siblings = [],
+  ownerListingsHref,
   preview = false,
   draft = false,
 }: Props) {
@@ -28,6 +45,11 @@ export function PropertySite({
   );
   const langAz = preview ? "?lang=az" : "/?lang=az";
   const langRu = preview ? "?lang=ru" : "/?lang=ru";
+  const hasSiblings = siblings.length > 0;
+  const otherApartmentsHref = hasSiblings
+    ? "#diger-menziller"
+    : ownerListingsHref;
+  const showOtherApartments = Boolean(otherApartmentsHref);
 
   const hasCoords =
     typeof property.lat === "number" &&
@@ -138,6 +160,11 @@ export function PropertySite({
             <a className={styles.btnGhost} href="#qalereya">
               {ui.viewPhotos}
             </a>
+            {showOtherApartments ? (
+              <a className={styles.btnGhost} href={otherApartmentsHref}>
+                {ui.otherApartments}
+              </a>
+            ) : null}
           </div>
         </div>
       </header>
@@ -180,15 +207,22 @@ export function PropertySite({
                 <li key={rule}>{rule}</li>
               ))}
             </ul>
-            <a
-              className={`${styles.btn} ${styles.contactBtn}`}
-              href={wa}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-track="whatsapp"
-            >
-              {ui.writeWhatsApp}
-            </a>
+            <div className={styles.contactActions}>
+              <a
+                className={styles.btn}
+                href={wa}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-track="whatsapp"
+              >
+                {ui.writeWhatsApp}
+              </a>
+              {showOtherApartments ? (
+                <a className={styles.btnGhost} href={otherApartmentsHref}>
+                  {ui.otherApartments}
+                </a>
+              ) : null}
+            </div>
           </div>
 
           <div className={styles.mapCard}>
@@ -248,6 +282,57 @@ export function PropertySite({
           </div>
         </div>
       </section>
+
+      {hasSiblings ? (
+        <section className={styles.section} id="diger-menziller">
+          <div className={styles.wrap}>
+            <p className={styles.sectionLabel}>{ui.otherApartmentsLabel}</p>
+            <h2 className={styles.sectionTitle}>{ui.otherApartmentsTitle}</h2>
+            <ul className={styles.siblingList}>
+              {siblings.map((item) => (
+                <li key={item.slug}>
+                  <a className={styles.siblingCard} href={item.href}>
+                    <div className={styles.siblingMedia}>
+                      {item.coverSrc ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.coverSrc}
+                          alt={item.coverAlt}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          className={styles.siblingMediaFallback}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </div>
+                    <div className={styles.siblingBody}>
+                      <h3 className={styles.siblingTitle}>{item.title}</h3>
+                      <p className={styles.siblingMeta}>
+                        {item.zone
+                          ? `${item.zone} · ${ui.roomsGuests(item.rooms, item.guests)}`
+                          : ui.roomsGuests(item.rooms, item.guests)}
+                      </p>
+                      <div className={styles.siblingFooter}>
+                        <span className={styles.siblingPrice}>
+                          {formatPriceAz(item.priceNight)}
+                          <span>
+                            {locale === "ru" ? " / ночь" : " / gecə"}
+                          </span>
+                        </span>
+                        <span className={styles.siblingOpen}>
+                          {ui.openOtherApartment}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <div className={styles.stickyCta} aria-label={ui.contact}>
         <p>{ui.stickyText}</p>

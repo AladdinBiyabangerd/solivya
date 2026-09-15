@@ -8,9 +8,13 @@ export type BrowseCopy = {
   langAria: string;
   label: string;
   title: string;
+  ownerTitle: string;
   lead: string;
+  ownerLead: string;
   emptyTitle: string;
   emptyText: string;
+  ownerEmptyTitle: string;
+  ownerEmptyText: string;
   emptyDemo: string;
   priceNight: (n: number) => string;
   openListing: string;
@@ -22,15 +26,20 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
   az: {
     metaTitle: "Günlük kirayə mənzillər — Solivya",
     metaDescription:
-      "Solivya-da nəşr olunmuş günlük kirayə mənzillərə bax. Foto, qiymət və qaydalar — birbaşa sahibə WhatsApp.",
+      "Solivya-da günlük kirayə mənzillərə bax. Foto, qiymət və qaydalar — birbaşa sahibə WhatsApp.",
     navAria: "Əsas",
     backHome: "Ana səhifə",
     langAria: "Dil",
     label: "Mənzillər",
-    title: "Nəşr olunmuş mənzillər",
+    title: "Mənzillər",
+    ownerTitle: "Sahibin mənzilləri",
     lead: "Link gözləmədən bax. Hər mənzilin öz səhifəsi var — foto, qiymət, qaydalar; sonra birbaşa sahibə yazırsan.",
+    ownerLead:
+      "Eyni sahibin günlük kirayə mənzilləri — foto, qiymət və qaydalar birbaşa səhifədə.",
     emptyTitle: "Hələ canlı mənzil yoxdur",
     emptyText: "Tezliklə yeni səhifələr əlavə olunacaq. İndilik nümunəyə baxa bilərsən.",
+    ownerEmptyTitle: "Bu sahibin başqa canlı mənzili yoxdur",
+    ownerEmptyText: "İndilik digər mənzillərə baxa və ya demo səhifəni aça bilərsən.",
     emptyDemo: "Demo səhifəni aç",
     priceNight: (n) => `${n} ₼ / gecə`,
     openListing: "Səhifəni aç",
@@ -40,15 +49,20 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
   ru: {
     metaTitle: "Квартиры посуточно — Solivya",
     metaDescription:
-      "Смотрите опубликованные квартиры посуточно на Solivya. Фото, цена и правила — затем WhatsApp хозяину.",
+      "Смотрите квартиры посуточно на Solivya. Фото, цена и правила — затем WhatsApp хозяину.",
     navAria: "Основное",
     backHome: "На главную",
     langAria: "Язык",
     label: "Квартиры",
-    title: "Опубликованные квартиры",
+    title: "Квартиры",
+    ownerTitle: "Квартиры хозяина",
     lead: "Без личной ссылки. У каждой квартиры своя страница — фото, цена, правила; потом пишете хозяину напрямую.",
+    ownerLead:
+      "Квартиры посуточно одного хозяина — фото, цена и правила на странице.",
     emptyTitle: "Пока нет живых объявлений",
     emptyText: "Скоро появятся новые страницы. Пока можно открыть демо.",
+    ownerEmptyTitle: "У этого хозяина пока нет других объявлений",
+    ownerEmptyText: "Можно посмотреть все квартиры или открыть демо.",
     emptyDemo: "Открыть демо",
     priceNight: (n) => `${n} ₼ / ночь`,
     openListing: "Открыть",

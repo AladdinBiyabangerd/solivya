@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { resolveLocale, SITE_UI } from "@/components/site/i18n";
-import { listPublishedListings } from "@/lib/properties";
+import {
+  listPublishedByOwner,
+  listPublishedListings,
+} from "@/lib/properties";
 import {
   browseUrl,
   jsonLdScript,
@@ -14,7 +17,7 @@ import marketing from "../marketing.module.css";
 import styles from "./browse.module.css";
 
 type Props = {
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; owner?: string }>;
 };
 
 function listingHref(
@@ -28,28 +31,41 @@ function listingHref(
     : `https://${slug}.${root}/?lang=${locale}`;
 }
 
+function isOwnerId(value: string | undefined): value is string {
+  return Boolean(
+    value &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        value,
+      ),
+  );
+}
+
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const { lang } = await searchParams;
+  const { lang, owner } = await searchParams;
   const locale = resolveLocale(lang, "az");
   const t = BROWSE[locale];
+  const ownerMode = isOwnerId(owner);
   return pageMetadata({
     locale,
     canonical: browseUrl(locale),
-    title: t.metaTitle,
-    description: t.metaDescription,
-    absoluteTitle: true,
+    title: ownerMode ? t.ownerTitle : t.metaTitle,
+    description: ownerMode ? t.ownerLead : t.metaDescription,
+    absoluteTitle: !ownerMode,
   });
 }
 
 export default async function BrowsePage({ searchParams }: Props) {
-  const { lang } = await searchParams;
+  const { lang, owner } = await searchParams;
   const locale = resolveLocale(lang, "az");
   const t = BROWSE[locale];
   const m = MARKETING[locale];
   const ui = SITE_UI[locale];
-  const listings = await listPublishedListings(locale);
+  const ownerMode = isOwnerId(owner);
+  const listings = ownerMode
+    ? await listPublishedByOwner(owner, locale)
+    : await listPublishedListings(locale);
 
   const host = (await headers()).get("host") ?? "localhost:3000";
   const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
@@ -62,14 +78,24 @@ export default async function BrowsePage({ searchParams }: Props) {
     ? "http://app.localhost:3000/login"
     : `https://app.${root}/login`;
   const homeHref = `/?lang=${locale}`;
-  const langAzHref = "/browse?lang=az";
-  const langRuHref = "/browse?lang=ru";
+  const allBrowseHref = `/browse?lang=${locale}`;
+  const langAzHref = ownerMode
+    ? `/browse?owner=${owner}&lang=az`
+    : "/browse?lang=az";
+  const langRuHref = ownerMode
+    ? `/browse?owner=${owner}&lang=ru`
+    : "/browse?lang=ru";
+
+  const pageTitle = ownerMode ? t.ownerTitle : t.title;
+  const pageLead = ownerMode ? t.ownerLead : t.lead;
+  const emptyTitle = ownerMode ? t.ownerEmptyTitle : t.emptyTitle;
+  const emptyText = ownerMode ? t.ownerEmptyText : t.emptyText;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: t.metaTitle,
-    description: t.metaDescription,
+    name: pageTitle,
+    description: pageLead,
     url: browseUrl(locale),
     inLanguage: locale === "ru" ? "ru" : "az",
     isPartOf: {
@@ -96,6 +122,11 @@ export default async function BrowsePage({ searchParams }: Props) {
               <a className={marketing.navLink} href={homeHref}>
                 {t.backHome}
               </a>
+              {ownerMode ? (
+                <a className={marketing.navLink} href={allBrowseHref}>
+                  {t.title}
+                </a>
+              ) : null}
             </nav>
             <div className={marketing.langSwitch} aria-label={t.langAria}>
               <a
@@ -131,8 +162,8 @@ export default async function BrowsePage({ searchParams }: Props) {
         <div className={marketing.wrap}>
           <header className={styles.intro}>
             <p className={marketing.sectionLabel}>{t.label}</p>
-            <h1 className={styles.title}>{t.title}</h1>
-            <p className={styles.lead}>{t.lead}</p>
+            <h1 className={styles.title}>{pageTitle}</h1>
+            <p className={styles.lead}>{pageLead}</p>
             {listings.length > 0 ? (
               <p className={styles.count}>{t.countLabel(listings.length)}</p>
             ) : null}
@@ -140,11 +171,18 @@ export default async function BrowsePage({ searchParams }: Props) {
 
           {listings.length === 0 ? (
             <div className={styles.empty}>
-              <h2 className={styles.emptyTitle}>{t.emptyTitle}</h2>
-              <p className={styles.emptyText}>{t.emptyText}</p>
-              <a className={marketing.btn} href={demoUrl}>
-                {t.emptyDemo}
-              </a>
+              <h2 className={styles.emptyTitle}>{emptyTitle}</h2>
+              <p className={styles.emptyText}>{emptyText}</p>
+              <div className={styles.emptyActions}>
+                {ownerMode ? (
+                  <a className={marketing.btnGhost} href={allBrowseHref}>
+                    {t.title}
+                  </a>
+                ) : null}
+                <a className={marketing.btn} href={demoUrl}>
+                  {t.emptyDemo}
+                </a>
+              </div>
             </div>
           ) : (
             <ul className={styles.grid}>

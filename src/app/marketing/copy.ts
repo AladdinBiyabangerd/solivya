@@ -79,7 +79,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     guestLabel: "Axtarırsan?",
     guestTitle: "Mənzil axtarırsan",
     guestText:
-      "Sahibdən link gözləmədən nəşr olunmuş günlük kirayə mənzillərə bax — foto, qiymət, qaydalar bir səhifədə.",
+      "Sahibdən link gözləmədən günlük kirayə mənzillərə bax — foto, qiymət, qaydalar bir səhifədə.",
     guestCta: "Mənzillərə bax",
     problemLabel: "Problem",
     problemTitle: "Elan var. Brend yoxdur.",
@@ -191,7 +191,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     guestLabel: "Ищете жильё?",
     guestTitle: "Нужна квартира",
     guestText:
-      "Смотрите опубликованные квартиры посуточно без личной ссылки — фото, цена и правила на одной странице.",
+      "Смотрите квартиры посуточно без личной ссылки — фото, цена и правила на одной странице.",
     guestCta: "Смотреть квартиры",
     problemLabel: "Проблема",
     problemTitle: "Объявление есть. Бренда нет.",

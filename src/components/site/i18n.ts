@@ -4,6 +4,10 @@ export type SiteUiCopy = {
   contact: string;
   askWhatsApp: string;
   viewPhotos: string;
+  otherApartments: string;
+  otherApartmentsLabel: string;
+  otherApartmentsTitle: string;
+  openOtherApartment: string;
   amenitiesLabel: string;
   amenitiesTitle: string;
   rulesLabel: string;
@@ -30,6 +34,10 @@ export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
     contact: "Əlaqə",
     askWhatsApp: "WhatsApp ilə soruş",
     viewPhotos: "Fotolara bax",
+    otherApartments: "Digər mənzillər",
+    otherApartmentsLabel: "Sahib",
+    otherApartmentsTitle: "Bu sahibin digər mənzilləri",
+    openOtherApartment: "Səhifəni aç",
     amenitiesLabel: "Təchizat",
     amenitiesTitle: "Rahat qalış üçün hər şey",
     rulesLabel: "Qaydalar",
@@ -54,6 +62,10 @@ export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
     contact: "Контакты",
     askWhatsApp: "Спросить в WhatsApp",
     viewPhotos: "Смотреть фото",
+    otherApartments: "Другие квартиры",
+    otherApartmentsLabel: "Хозяин",
+    otherApartmentsTitle: "Другие квартиры этого хозяина",
+    openOtherApartment: "Открыть",
     amenitiesLabel: "Удобства",
     amenitiesTitle: "Всё для комфортного проживания",
     rulesLabel: "Правила",

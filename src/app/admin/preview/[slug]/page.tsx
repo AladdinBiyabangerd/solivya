@@ -2,6 +2,7 @@ import { PropertySite } from "@/components/site/PropertySite";
 import { resolveLocale } from "@/components/site/i18n";
 import {
   getOwnerPropertyRecord,
+  listPublishedSiblings,
   toSitePropertyView,
 } from "@/lib/properties";
 import type { Metadata } from "next";
@@ -45,9 +46,29 @@ export default async function AdminPreviewPage({
     locale,
   );
 
+  const siblingRows = await listPublishedSiblings(
+    record.property.owner_id,
+    slug,
+    locale,
+  );
+
+  const siblings = siblingRows.map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    zone: item.zone,
+    rooms: item.rooms,
+    guests: item.guests,
+    priceNight: item.priceNight,
+    coverSrc: item.coverSrc,
+    coverAlt: item.coverAlt,
+    href: `/preview/${item.slug}?lang=${locale}`,
+  }));
+
   return (
     <PropertySite
       property={property}
+      siblings={siblings}
+      ownerListingsHref={`/admin?lang=${locale}`}
       preview
       draft={!record.property.published}
     />

@@ -191,26 +191,10 @@ type ListingRow = Property & {
   photos: Pick<Photo, "storage_path" | "sort_order" | "alt">[] | null;
 };
 
-/** Published listings for the public browse catalog. */
-export async function listPublishedListings(
+function mapListingRows(
+  rows: ListingRow[],
   locale: LocaleCode,
-): Promise<PublishedListingCard[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("properties")
-    .select(
-      "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, photos(storage_path, sort_order, alt)",
-    )
-    .eq("published", true)
-    .order("updated_at", { ascending: false });
-
-  if (error) {
-    console.error("listPublishedListings", error.message);
-    return [];
-  }
-
-  const rows = (data as unknown as ListingRow[] | null) ?? [];
-
+): PublishedListingCard[] {
   return rows.map((row) => {
     const photos = Array.isArray(row.photos) ? [...row.photos] : [];
     photos.sort((a, b) => a.sort_order - b.sort_order);
@@ -232,4 +216,66 @@ export async function listPublishedListings(
       coverAlt: cover?.alt || row.brand_name,
     };
   });
+}
+
+/** Published listings for the public browse catalog. */
+export async function listPublishedListings(
+  locale: LocaleCode,
+): Promise<PublishedListingCard[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("properties")
+    .select(
+      "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, photos(storage_path, sort_order, alt)",
+    )
+    .eq("published", true)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("listPublishedListings", error.message);
+    return [];
+  }
+
+  const rows = (data as unknown as ListingRow[] | null) ?? [];
+  return mapListingRows(rows, locale);
+}
+
+/** Other published listings by the same owner (excludes current slug). */
+export async function listPublishedSiblings(
+  ownerId: string,
+  excludeSlug: string,
+  locale: LocaleCode,
+): Promise<PublishedListingCard[]> {
+  return listPublishedByOwner(ownerId, locale, excludeSlug);
+}
+
+/** All published listings for an owner. */
+export async function listPublishedByOwner(
+  ownerId: string,
+  locale: LocaleCode,
+  excludeSlug?: string,
+): Promise<PublishedListingCard[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("properties")
+    .select(
+      "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, photos(storage_path, sort_order, alt)",
+    )
+    .eq("published", true)
+    .eq("owner_id", ownerId)
+    .order("updated_at", { ascending: false });
+
+  if (excludeSlug) {
+    query = query.neq("slug", excludeSlug);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("listPublishedByOwner", error.message);
+    return [];
+  }
+
+  const rows = (data as unknown as ListingRow[] | null) ?? [];
+  return mapListingRows(rows, locale);
 }

@@ -25,3 +25,31 @@ Sahib isə öz brendi, şəkilləri və qiymətləri ilə səhifəni idarə edə
 ## Texniki hissə
 
 **Stack:** Next.js · React · TypeScript · Tailwind CSS · Supabase
+
+---
+
+## İşə salmaq
+
+Əvvəlcə bir dəfə:
+
+```bash
+npm install
+```
+
+**Dev (lokal işlətmək)** — http://127.0.0.1:3000
+
+```bash
+npm run dev
+```
+
+**Build** — production build
+
+```bash
+npm run build
+```
+
+**Start** — build-dən sonra serveri işə salmaq
+
+```bash
+npm run start
+```
