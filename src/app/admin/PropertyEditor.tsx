@@ -995,7 +995,7 @@ function EditForm({
               </div>
               <div className={styles.grid2}>
                 <label className={styles.label}>
-                  Lead AZ
+                  Qısa təsvir AZ
                   <textarea
                     className={styles.textarea}
                     name="lead_az"
@@ -1004,7 +1004,7 @@ function EditForm({
                   />
                 </label>
                 <label className={styles.label}>
-                  Lead RU
+                  Qısa təsvir RU
                   <textarea
                     className={styles.textarea}
                     name="lead_ru"
