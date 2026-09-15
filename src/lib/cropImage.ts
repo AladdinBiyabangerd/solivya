@@ -1,5 +1,7 @@
-/** Site photos display with object-fit:cover; admin main uses 4:3. */
+/** Gallery / general site tiles (admin thumbs + gallery grid). */
 export const SITE_PHOTO_ASPECT = 4 / 3;
+/** Hero / main photo framing. */
+export const SITE_MAIN_ASPECT = 16 / 9;
 export const SITE_PHOTO_MAX_EDGE = 1600;
 
 export type PixelCrop = {

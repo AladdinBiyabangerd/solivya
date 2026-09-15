@@ -16,14 +16,19 @@ import {
   createProperty,
   deletePhoto,
   saveProperty,
-  setMainPhoto,
+  setMainPhotoWithCrop,
   uploadPhoto,
   type EditorState,
 } from "./property-actions";
 import {
   PhotoCropQueue,
+  PhotoCropSingle,
   type CropQueueItem,
 } from "./PhotoCropQueue";
+import {
+  SITE_MAIN_ASPECT,
+  SITE_PHOTO_ASPECT,
+} from "@/lib/cropImage";
 import styles from "./admin.module.css";
 
 const empty: EditorState = {};
@@ -149,9 +154,29 @@ function CreateForm() {
 
 type PendingFile = {
   key: string;
+  /** Gallery-cropped file (default upload payload). */
   file: File;
   url: string;
+  originalFile: File;
+  originalUrl: string;
+  /** Hero crop from original; used when this pending is main. */
+  mainFile?: File;
+  mainUrl?: string;
 };
+
+type MainCropTarget =
+  | {
+      kind: "pending";
+      key: string;
+      imageUrl: string;
+      fileName: string;
+    }
+  | {
+      kind: "saved";
+      photoId: string;
+      imageUrl: string;
+      fileName: string;
+    };
 
 type LightboxItem = {
   key: string;
@@ -297,29 +322,49 @@ function PhotoPanel({
     uploadPhoto,
     empty,
   );
+  const [mainCropState, mainCropAction, mainCropPending] = useActionState(
+    setMainPhotoWithCrop,
+    empty,
+  );
   const [pending, setPending] = useState<PendingFile[]>([]);
   const [mainKey, setMainKey] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [cropQueue, setCropQueue] = useState<CropQueueItem[]>([]);
   const [cropIndex, setCropIndex] = useState(0);
+  const [mainCrop, setMainCrop] = useState<MainCropTarget | null>(null);
+  const [optimisticMainSrc, setOptimisticMainSrc] = useState<string | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
   const cropQueueRef = useRef(cropQueue);
   cropQueueRef.current = cropQueue;
   const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
-  const main = sorted[0] ?? null;
+  const savedMain = sorted[0] ?? null;
   const hasPhotos = sorted.length > 0;
+  const pendingMain = pending.find((item) => item.key === mainKey) ?? null;
+  const mainPreviewSrc =
+    pendingMain?.mainUrl ??
+    pendingMain?.url ??
+    optimisticMainSrc ??
+    (savedMain ? resolvePhotoSrc(savedMain.storage_path) : null);
   const lightboxItems: LightboxItem[] = pending.map((item) => ({
     key: item.key,
     src: item.url,
     alt: item.file.name,
   }));
 
+  const revokePending = (item: PendingFile) => {
+    URL.revokeObjectURL(item.url);
+    URL.revokeObjectURL(item.originalUrl);
+    if (item.mainUrl) URL.revokeObjectURL(item.mainUrl);
+  };
+
   useEffect(() => {
     return () => {
-      pendingRef.current.forEach((item) => URL.revokeObjectURL(item.url));
+      pendingRef.current.forEach(revokePending);
       cropQueueRef.current.forEach((item) => URL.revokeObjectURL(item.url));
     };
   }, []);
@@ -327,23 +372,30 @@ function PhotoPanel({
   useEffect(() => {
     if (!uploadState.ok) return;
     setPending((prev) => {
-      prev.forEach((item) => URL.revokeObjectURL(item.url));
+      prev.forEach(revokePending);
       return [];
     });
     setMainKey(null);
     setLightboxIndex(null);
+    setOptimisticMainSrc(null);
     setPickError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [uploadState.ok]);
 
   useEffect(() => {
+    if (!mainCropState.ok) return;
+    setMainCrop(null);
+    setOptimisticMainSrc(null);
+  }, [mainCropState.ok]);
+
+  useEffect(() => {
     if (pending.length === 0) {
-      setMainKey(null);
+      if (!hasPhotos) setMainKey(null);
       setLightboxIndex(null);
       return;
     }
     if (mainKey && pending.some((item) => item.key === mainKey)) return;
-    setMainKey(hasPhotos ? null : pending[0].key);
+    if (!hasPhotos) setMainKey(pending[0].key);
   }, [pending, hasPhotos, mainKey]);
 
   useEffect(() => {
@@ -403,7 +455,7 @@ function PhotoPanel({
     setCropIndex(0);
   };
 
-  const onCropConfirm = (file: File) => {
+  const onGalleryCropConfirm = (file: File) => {
     const current = cropQueue[cropIndex];
     if (!current) return;
 
@@ -411,12 +463,32 @@ function PhotoPanel({
       key: `${current.key}-cropped`,
       file,
       url: URL.createObjectURL(file),
+      originalFile: current.file,
+      originalUrl: current.url,
     };
-    setPending((prev) => [...prev, pendingItem]);
 
-    URL.revokeObjectURL(current.url);
     const nextIndex = cropIndex + 1;
-    if (nextIndex >= cropQueue.length) {
+    const finished = nextIndex >= cropQueue.length;
+
+    setPending((prev) => {
+      const next = [...prev, pendingItem];
+      if (finished && !hasPhotos && next[0]) {
+        const first = next[0];
+        queueMicrotask(() => {
+          setMainKey(first.key);
+          setOptimisticMainSrc(first.mainUrl ?? first.url);
+          setMainCrop({
+            kind: "pending",
+            key: first.key,
+            imageUrl: first.originalUrl,
+            fileName: first.originalFile.name,
+          });
+        });
+      }
+      return next;
+    });
+
+    if (finished) {
       setCropQueue([]);
       setCropIndex(0);
       return;
@@ -424,12 +496,69 @@ function PhotoPanel({
     setCropIndex(nextIndex);
   };
 
+  const requestPendingAsMain = (key: string) => {
+    const item = pending.find((row) => row.key === key);
+    if (!item) return;
+    setLightboxIndex(null);
+    setMainKey(key);
+    setOptimisticMainSrc(item.mainUrl ?? item.url);
+    setMainCrop({
+      kind: "pending",
+      key: item.key,
+      imageUrl: item.originalUrl,
+      fileName: item.originalFile.name,
+    });
+  };
+
+  const requestSavedAsMain = (photo: Photo) => {
+    const sourcePath = photo.original_path || photo.storage_path;
+    setMainCrop({
+      kind: "saved",
+      photoId: photo.id,
+      imageUrl: resolvePhotoSrc(sourcePath),
+      fileName: "esas.jpg",
+    });
+    setOptimisticMainSrc(resolvePhotoSrc(photo.storage_path));
+  };
+
+  const onMainCropConfirm = (file: File) => {
+    if (!mainCrop) return;
+
+    if (mainCrop.kind === "pending") {
+      const mainUrl = URL.createObjectURL(file);
+      setPending((prev) =>
+        prev.map((item) => {
+          if (item.key !== mainCrop.key) return item;
+          if (item.mainUrl) URL.revokeObjectURL(item.mainUrl);
+          return { ...item, mainFile: file, mainUrl };
+        }),
+      );
+      setMainKey(mainCrop.key);
+      setOptimisticMainSrc(mainUrl);
+      setMainCrop(null);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("photo_id", mainCrop.photoId);
+    formData.set("file", file);
+    setOptimisticMainSrc(URL.createObjectURL(file));
+    mainCropAction(formData);
+  };
+
   const removePending = (key: string) => {
     setPending((prev) => {
       const target = prev.find((item) => item.key === key);
-      if (target) URL.revokeObjectURL(target.url);
+      if (target) revokePending(target);
       return prev.filter((item) => item.key !== key);
     });
+    if (mainKey === key) {
+      setMainKey(null);
+      setOptimisticMainSrc(null);
+    }
+    if (mainCrop?.kind === "pending" && mainCrop.key === key) {
+      setMainCrop(null);
+    }
     setPickError(null);
   };
 
@@ -438,6 +567,19 @@ function PhotoPanel({
     if (pending.length === 0) {
       setPickError("Əvvəl foto seç.");
       return;
+    }
+    if (mainKey) {
+      const mainItem = pending.find((item) => item.key === mainKey);
+      if (mainItem && !mainItem.mainFile) {
+        setPickError("Əsas foto üçün əvvəl hero kəsimini tamamla.");
+        setMainCrop({
+          kind: "pending",
+          key: mainItem.key,
+          imageUrl: mainItem.originalUrl,
+          fileName: mainItem.originalFile.name,
+        });
+        return;
+      }
     }
     const ordered = mainKey
       ? [
@@ -449,7 +591,10 @@ function PhotoPanel({
     formData.set("property_id", propertyId);
     if (mainKey) formData.set("make_first_main", "1");
     for (const item of ordered) {
-      formData.append("files", item.file);
+      const uploadFile =
+        item.key === mainKey && item.mainFile ? item.mainFile : item.file;
+      formData.append("files", uploadFile);
+      formData.append("originals", item.originalFile);
     }
     uploadAction(formData);
   };
@@ -462,14 +607,14 @@ function PhotoPanel({
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Seç · hər fotonu 4:3 kəs · böyüt · əsas · yüklə
+          Qalereya 4:3 · əsas 16:9 (orijinaldan) · böyüt · yüklə
         </p>
       </header>
 
-      {main ? (
+      {mainPreviewSrc ? (
         <div className={styles.mainPreview}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={resolvePhotoSrc(main.storage_path)} alt={main.alt || ""} />
+          <img src={mainPreviewSrc} alt="" />
           <span className={styles.mainBadge}>Əsas</span>
         </div>
       ) : null}
@@ -477,7 +622,7 @@ function PhotoPanel({
       {hasPhotos ? (
         <div className={styles.thumbRail} role="list">
           {sorted.map((photo, index) => {
-            const isMain = index === 0;
+            const isMain = index === 0 && !pendingMain;
             return (
               <figure
                 key={photo.id}
@@ -496,21 +641,19 @@ function PhotoPanel({
                     <span className={styles.thumbMeta}>Əsas</span>
                   </div>
                 ) : (
-                  <form action={setMainPhoto} className={styles.thumbPickForm}>
-                    <input type="hidden" name="photo_id" value={photo.id} />
-                    <button
-                      type="submit"
-                      className={styles.thumbPick}
-                      title="Əsas et"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={resolvePhotoSrc(photo.storage_path)}
-                        alt={photo.alt || `Foto ${index + 1}`}
-                      />
-                      <span className={styles.thumbPickLabel}>Əsas et</span>
-                    </button>
-                  </form>
+                  <button
+                    type="button"
+                    className={styles.thumbPick}
+                    title="Əsas et"
+                    onClick={() => requestSavedAsMain(photo)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={resolvePhotoSrc(photo.storage_path)}
+                      alt={photo.alt || `Foto ${index + 1}`}
+                    />
+                    <span className={styles.thumbPickLabel}>Əsas et</span>
+                  </button>
                 )}
                 <div className={styles.thumbActions}>
                   <form action={deletePhoto}>
@@ -535,7 +678,7 @@ function PhotoPanel({
             {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Hər şəkil ayrı kəsilir · 4:3 · sonra yüklə
+            Əvvəl qalereya kəsimi · əsas seçəndə orijinaldan hero kəsimi
           </span>
           <input
             ref={fileInputRef}
@@ -568,7 +711,10 @@ function PhotoPanel({
                     title="Böyüt"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.url} alt={item.file.name} />
+                    <img
+                      src={item.mainUrl ?? item.url}
+                      alt={item.file.name}
+                    />
                     <span
                       className={
                         isPendingMain
@@ -596,6 +742,7 @@ function PhotoPanel({
 
         {pickError ? <p className={styles.error}>{pickError}</p> : null}
         <Status state={uploadState} />
+        <Status state={mainCropState} />
         <button
           className={styles.submitSecondary}
           type="submit"
@@ -624,9 +771,12 @@ function PhotoPanel({
                     ? styles.lightboxMainActive
                     : styles.lightboxMainBtn
                 }
-                onClick={() => setMainKey(activeLightbox.key)}
+                onClick={() => requestPendingAsMain(activeLightbox.key)}
+                disabled={mainCropPending}
               >
-                {activeLightbox.key === mainKey ? "Əsas seçilib" : "Əsas et"}
+                {activeLightbox.key === mainKey
+                  ? "Əsas kəsimi yenilə"
+                  : "Əsas et"}
               </button>
               <button
                 type="button"
@@ -644,8 +794,33 @@ function PhotoPanel({
         <PhotoCropQueue
           queue={cropQueue}
           index={cropIndex}
-          onConfirm={onCropConfirm}
+          aspect={SITE_PHOTO_ASPECT}
+          title="Qalereya kəsimi"
+          hint="4:3 · əlavə fotolar üçün · zoom ilə yerləşdir"
+          onConfirm={onGalleryCropConfirm}
           onCancel={clearCropQueue}
+        />
+      ) : null}
+
+      {mainCrop ? (
+        <PhotoCropSingle
+          imageUrl={mainCrop.imageUrl}
+          fileName={mainCrop.fileName}
+          aspect={SITE_MAIN_ASPECT}
+          title="Əsas (hero) kəsimi"
+          hint={
+            mainCrop.kind === "saved" &&
+            !photos.find((p) => p.id === mainCrop.photoId)?.original_path
+              ? "16:9 · orijinal yoxdursa cari fotodan · zoom ilə yerləşdir"
+              : "16:9 · yükləmədəki orijinaldan · zoom ilə yerləşdir"
+          }
+          confirmLabel={
+            mainCropPending ? "Yadda saxlanılır…" : "Kəs · əsas et"
+          }
+          onConfirm={onMainCropConfirm}
+          onCancel={() => {
+            if (!mainCropPending) setMainCrop(null);
+          }}
         />
       ) : null}
     </aside>

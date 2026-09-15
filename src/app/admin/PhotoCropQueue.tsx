@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import {
-  SITE_PHOTO_ASPECT,
-  cropImageToFile,
-} from "@/lib/cropImage";
+import { createPortal } from "react-dom";
+import { cropImageToFile } from "@/lib/cropImage";
 import styles from "./admin.module.css";
 
 export type CropQueueItem = {
@@ -14,15 +12,29 @@ export type CropQueueItem = {
   url: string;
 };
 
-type Props = {
-  queue: CropQueueItem[];
-  index: number;
+type SharedProps = {
+  imageUrl: string;
+  fileName: string;
+  aspect: number;
+  title: string;
+  hint: string;
+  progressLabel?: string;
+  confirmLabel: string;
   onConfirm: (file: File) => void;
   onCancel: () => void;
 };
 
-export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
-  const item = queue[index];
+function CropDialog({
+  imageUrl,
+  fileName,
+  aspect,
+  title,
+  hint,
+  progressLabel,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+}: SharedProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(
@@ -30,6 +42,11 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setCrop({ x: 0, y: 0 });
@@ -37,7 +54,7 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
     setCroppedAreaPixels(null);
     setError(null);
     setBusy(false);
-  }, [item?.key]);
+  }, [imageUrl]);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -51,18 +68,12 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
     setCroppedAreaPixels(pixels);
   }, []);
 
-  if (!item) return null;
-
   const onDone = async () => {
     if (!croppedAreaPixels || busy) return;
     setBusy(true);
     setError(null);
     try {
-      const file = await cropImageToFile(
-        item.url,
-        croppedAreaPixels,
-        item.file.name,
-      );
+      const file = await cropImageToFile(imageUrl, croppedAreaPixels, fileName);
       onConfirm(file);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kəsim alınmadı.");
@@ -70,7 +81,9 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       className={styles.cropModal}
       role="dialog"
@@ -80,13 +93,11 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
       <div className={styles.cropPanel}>
         <header className={styles.cropHead}>
           <div>
-            <p className={styles.cropProgress}>
-              Kəsim {index + 1} / {queue.length}
-            </p>
-            <h2 className={styles.cropTitle}>Saytda görünəcək hissəni seç</h2>
-            <p className={styles.cropHint}>
-              4:3 format · hero və qalereya üçün uyğun · zoom ilə yerləşdir
-            </p>
+            {progressLabel ? (
+              <p className={styles.cropProgress}>{progressLabel}</p>
+            ) : null}
+            <h2 className={styles.cropTitle}>{title}</h2>
+            <p className={styles.cropHint}>{hint}</p>
           </div>
           <button
             type="button"
@@ -100,10 +111,10 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
 
         <div className={styles.cropStage}>
           <Cropper
-            image={item.url}
+            image={imageUrl}
             crop={crop}
             zoom={zoom}
-            aspect={SITE_PHOTO_ASPECT}
+            aspect={aspect}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
@@ -132,14 +143,85 @@ export function PhotoCropQueue({ queue, index, onConfirm, onCancel }: Props) {
             onClick={onDone}
             disabled={busy || !croppedAreaPixels}
           >
-            {busy
-              ? "Hazırlanır…"
-              : index + 1 < queue.length
-                ? "Kəs · növbəti"
-                : "Kəs · bitir"}
+            {busy ? "Hazırlanır…" : confirmLabel}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
+  );
+}
+
+type QueueProps = {
+  queue: CropQueueItem[];
+  index: number;
+  aspect: number;
+  title: string;
+  hint: string;
+  onConfirm: (file: File) => void;
+  onCancel: () => void;
+};
+
+export function PhotoCropQueue({
+  queue,
+  index,
+  aspect,
+  title,
+  hint,
+  onConfirm,
+  onCancel,
+}: QueueProps) {
+  const item = queue[index];
+  if (!item) return null;
+
+  return (
+    <CropDialog
+      imageUrl={item.url}
+      fileName={item.file.name}
+      aspect={aspect}
+      title={title}
+      hint={hint}
+      progressLabel={`Kəsim ${index + 1} / ${queue.length}`}
+      confirmLabel={
+        index + 1 < queue.length ? "Kəs · növbəti" : "Kəs · bitir"
+      }
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
+  );
+}
+
+type SingleProps = {
+  imageUrl: string;
+  fileName: string;
+  aspect: number;
+  title: string;
+  hint: string;
+  confirmLabel?: string;
+  onConfirm: (file: File) => void;
+  onCancel: () => void;
+};
+
+export function PhotoCropSingle({
+  imageUrl,
+  fileName,
+  aspect,
+  title,
+  hint,
+  confirmLabel = "Kəs · əsas et",
+  onConfirm,
+  onCancel,
+}: SingleProps) {
+  return (
+    <CropDialog
+      imageUrl={imageUrl}
+      fileName={fileName}
+      aspect={aspect}
+      title={title}
+      hint={hint}
+      confirmLabel={confirmLabel}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
   );
 }

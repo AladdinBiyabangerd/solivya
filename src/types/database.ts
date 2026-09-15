@@ -42,6 +42,8 @@ export type Photo = {
   id: string;
   property_id: string;
   storage_path: string;
+  /** Pre-gallery-crop original; used when promoting to main. */
+  original_path: string | null;
   alt: string;
   sort_order: number;
   created_at: string;

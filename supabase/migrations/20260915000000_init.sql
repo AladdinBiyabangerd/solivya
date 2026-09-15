@@ -44,6 +44,7 @@ create table if not exists public.photos (
   id uuid primary key default gen_random_uuid(),
   property_id uuid not null references public.properties (id) on delete cascade,
   storage_path text not null,
+  original_path text,
   alt text not null default '',
   sort_order int not null default 0,
   created_at timestamptz not null default now()

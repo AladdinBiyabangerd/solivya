@@ -211,6 +211,9 @@ export async function uploadPhoto(
 
   const existingCount = count ?? 0;
   const makeFirstMain = formData.get("make_first_main") === "1";
+  const originals = formData
+    .getAll("originals")
+    .filter((item): item is File => item instanceof File && item.size > 0);
   let nextOrder = existingCount;
   let uploaded = 0;
   let mainCandidateId: string | null = null;
@@ -221,7 +224,28 @@ export async function uploadPhoto(
     const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext)
       ? ext
       : "jpg";
-    const path = `${user.id}/${propertyId}/${Date.now()}-${uploaded}.${safeExt}`;
+    const stamp = `${Date.now()}-${uploaded}`;
+    const path = `${user.id}/${propertyId}/${stamp}.${safeExt}`;
+    const originalFile = originals[uploaded];
+    let originalPath: string | null = null;
+
+    if (originalFile && originalFile.size > 0) {
+      const oExt = originalFile.name.split(".").pop()?.toLowerCase() || "jpg";
+      const oSafe = ["jpg", "jpeg", "png", "webp", "gif"].includes(oExt)
+        ? oExt
+        : "jpg";
+      originalPath = `${user.id}/${propertyId}/originals/${stamp}.${oSafe}`;
+      const { error: origError } = await supabase.storage
+        .from("property-photos")
+        .upload(originalPath, originalFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: originalFile.type || `image/${oSafe}`,
+        });
+      if (origError) {
+        originalPath = null;
+      }
+    }
 
     const { error: uploadError } = await supabase.storage
       .from("property-photos")
@@ -241,6 +265,7 @@ export async function uploadPhoto(
       .insert({
         property_id: propertyId,
         storage_path: path,
+        original_path: originalPath,
         alt: uploaded === 0 ? alt : "",
         sort_order: nextOrder,
       })
@@ -324,7 +349,7 @@ export async function deletePhoto(formData: FormData): Promise<void> {
 
   const { data: photo } = await supabase
     .from("photos")
-    .select("id, storage_path, property_id")
+    .select("id, storage_path, original_path, property_id")
     .eq("id", photoId)
     .maybeSingle();
 
@@ -339,11 +364,22 @@ export async function deletePhoto(formData: FormData): Promise<void> {
 
   if (!property) return;
 
+  const toRemove: string[] = [];
   if (
     !photo.storage_path.startsWith("http://") &&
     !photo.storage_path.startsWith("https://")
   ) {
-    await supabase.storage.from("property-photos").remove([photo.storage_path]);
+    toRemove.push(photo.storage_path);
+  }
+  if (
+    photo.original_path &&
+    !photo.original_path.startsWith("http://") &&
+    !photo.original_path.startsWith("https://")
+  ) {
+    toRemove.push(photo.original_path);
+  }
+  if (toRemove.length) {
+    await supabase.storage.from("property-photos").remove(toRemove);
   }
 
   await supabase.from("photos").delete().eq("id", photoId);
@@ -404,6 +440,35 @@ export async function movePhoto(formData: FormData): Promise<void> {
 }
 
 /** Make this photo the hero (sort_order 0). */
+async function promotePhotoToMain(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  propertyId: string,
+  photoId: string,
+) {
+  const { data: siblings } = await supabase
+    .from("photos")
+    .select("id, sort_order")
+    .eq("property_id", propertyId)
+    .order("sort_order", { ascending: true });
+
+  if (!siblings?.length) return;
+
+  const target = siblings.find((row) => row.id === photoId);
+  if (!target || target.sort_order === 0) return;
+
+  const before = siblings.filter((row) => row.sort_order < target.sort_order);
+  await Promise.all(
+    before.map((row) =>
+      supabase
+        .from("photos")
+        .update({ sort_order: row.sort_order + 1 })
+        .eq("id", row.id),
+    ),
+  );
+  await supabase.from("photos").update({ sort_order: 0 }).eq("id", photoId);
+}
+
+/** Make this photo the hero (sort_order 0). */
 export async function setMainPhoto(formData: FormData): Promise<void> {
   const { supabase, user } = await requireUser();
   const photoId = String(formData.get("photo_id") ?? "");
@@ -426,33 +491,76 @@ export async function setMainPhoto(formData: FormData): Promise<void> {
 
   if (!property) return;
 
-  const { data: siblings } = await supabase
-    .from("photos")
-    .select("id, sort_order")
-    .eq("property_id", photo.property_id)
-    .order("sort_order", { ascending: true });
-
-  if (!siblings?.length) return;
-
-  const target = siblings.find((row) => row.id === photoId);
-  if (!target) return;
-
-  if (target.sort_order === 0) {
-    revalidatePath("/admin");
-    return;
-  }
-
-  const before = siblings.filter((row) => row.sort_order < target.sort_order);
-  await Promise.all(
-    before.map((row) =>
-      supabase
-        .from("photos")
-        .update({ sort_order: row.sort_order + 1 })
-        .eq("id", row.id),
-    ),
-  );
-  await supabase.from("photos").update({ sort_order: 0 }).eq("id", photoId);
+  await promotePhotoToMain(supabase, photo.property_id, photoId);
 
   revalidatePath("/admin");
   revalidatePath(`/site/${property.slug}`);
+}
+
+/** Re-crop from original (or current) then set as main hero. */
+export async function setMainPhotoWithCrop(
+  _prev: EditorState,
+  formData: FormData,
+): Promise<EditorState> {
+  const { supabase, user } = await requireUser();
+  const photoId = String(formData.get("photo_id") ?? "");
+  const file = formData.get("file");
+
+  if (!photoId || !(file instanceof File) || file.size === 0) {
+    return { error: "Əsas kəsim tapılmadı." };
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    return { error: "Maksimum 5MB." };
+  }
+
+  const { data: photo } = await supabase
+    .from("photos")
+    .select("id, storage_path, original_path, property_id")
+    .eq("id", photoId)
+    .maybeSingle();
+
+  if (!photo) return { error: "Foto tapılmadı." };
+
+  const { data: property } = await supabase
+    .from("properties")
+    .select("id, slug, owner_id")
+    .eq("id", photo.property_id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (!property) return { error: "Mənzil tapılmadı." };
+
+  const path = `${user.id}/${photo.property_id}/main-${Date.now()}.jpg`;
+  const { error: uploadError } = await supabase.storage
+    .from("property-photos")
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type || "image/jpeg",
+    });
+
+  if (uploadError) return { error: uploadError.message };
+
+  const oldPath = photo.storage_path;
+  const { error: updateError } = await supabase
+    .from("photos")
+    .update({ storage_path: path })
+    .eq("id", photoId);
+
+  if (updateError) return { error: updateError.message };
+
+  if (
+    oldPath &&
+    oldPath !== path &&
+    !oldPath.startsWith("http://") &&
+    !oldPath.startsWith("https://")
+  ) {
+    await supabase.storage.from("property-photos").remove([oldPath]);
+  }
+
+  await promotePhotoToMain(supabase, photo.property_id, photoId);
+
+  revalidatePath("/admin");
+  revalidatePath(`/site/${property.slug}`);
+  return { ok: "Əsas foto kəsilib təyin olundu." };
 }
