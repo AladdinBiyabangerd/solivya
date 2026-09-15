@@ -23,6 +23,7 @@ async function redirectToAdminHome(): Promise<never> {
     redirect(`${proto}://${host}/`);
   }
   redirect("/");
+  throw new Error("unreachable");
 }
 
 export async function signIn(
@@ -46,7 +47,7 @@ export async function signIn(
     return { error: error.message };
   }
 
-  await redirectToAdminHome();
+  return redirectToAdminHome();
 }
 
 export async function signUp(
@@ -83,7 +84,7 @@ export async function signUp(
   }
 
   if (data.session) {
-    await redirectToAdminHome();
+    return redirectToAdminHome();
   }
 
   return {
