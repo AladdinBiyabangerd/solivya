@@ -53,7 +53,7 @@ export type MarketingCopy = {
 
 export const MARKETING: Record<LocaleCode, MarketingCopy> = {
   az: {
-    metaTitle: "Solivya — Sahib brendli günlük kirayə səhifəsi",
+    metaTitle: "Sahib brendli günlük kirayə səhifəsi",
     metaDescription:
       "Günlük kirayə mənzilin üçün öz brendli sayt. WhatsApp ilə sorğu, gözəl foto, aydın qiymət — marketplace komissiyası olmadan.",
     navAria: "Əsas",

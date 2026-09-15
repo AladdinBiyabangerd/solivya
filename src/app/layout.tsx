@@ -17,11 +17,18 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: SITE.name,
+  title: {
+    default: SITE.name,
+    template: `%s — ${SITE.name}`,
+  },
   description: "Sahib brendli günlük kirayə microsite",
   authors: [{ name: BUILDER.name, url: BUILDER.portfolioOrigin }],
   creator: BUILDER.name,
   publisher: SITE.name,
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
