@@ -59,7 +59,8 @@ export function tenantRewritePath(
   if (
     pathname.startsWith("/marketing") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/site/")
+    pathname.startsWith("/site/") ||
+    pathname.startsWith("/api/")
   ) {
     return null;
   }

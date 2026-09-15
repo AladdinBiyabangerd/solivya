@@ -16,6 +16,11 @@ function coverSrc(property: PropertyListRow): string | null {
   return resolvePhotoSrc(sorted[0].storage_path);
 }
 
+function formatCount(value: number | null | undefined): string {
+  const n = typeof value === "number" && Number.isFinite(value) ? value : 0;
+  return new Intl.NumberFormat("az-AZ").format(Math.max(0, Math.floor(n)));
+}
+
 export default async function AdminHome() {
   const supabase = await createClient();
   const {
@@ -64,6 +69,8 @@ export default async function AdminHome() {
                 property.title_az?.trim() ||
                 property.brand_name ||
                 "Adsız mənzil";
+              const views = formatCount(property.view_count);
+              const waClicks = formatCount(property.whatsapp_click_count);
               return (
                 <li key={property.id}>
                   <Link
@@ -90,6 +97,23 @@ export default async function AdminHome() {
                           {property.zone}
                         </span>
                       ) : null}
+                      <span className={styles.propertyStats}>
+                        <span>
+                          <span className={styles.propertyStatLabel}>
+                            Baxış
+                          </span>{" "}
+                          {views}
+                        </span>
+                        <span className={styles.propertyStatSep} aria-hidden>
+                          ·
+                        </span>
+                        <span>
+                          <span className={styles.propertyStatLabel}>
+                            WhatsApp
+                          </span>{" "}
+                          {waClicks}
+                        </span>
+                      </span>
                     </span>
                     <span
                       className={

@@ -39,6 +39,8 @@ export type Property = {
   whatsapp_e164: string;
   locale_default: LocaleCode;
   published: boolean;
+  view_count: number;
+  whatsapp_click_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -75,10 +77,15 @@ export type Database = {
       };
       properties: {
         Row: Property;
-        Insert: Omit<Property, "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<
+          Property,
+          "id" | "created_at" | "updated_at" | "view_count" | "whatsapp_click_count"
+        > & {
           id?: string;
           created_at?: string;
           updated_at?: string;
+          view_count?: number;
+          whatsapp_click_count?: number;
         };
         Update: Partial<Omit<Property, "id" | "created_at">>;
         Relationships: [
@@ -110,7 +117,15 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      track_property_event: {
+        Args: {
+          p_slug: string;
+          p_event: string;
+        };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

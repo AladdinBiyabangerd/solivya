@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import styles from "./site.module.css";
+import { SiteAnalytics } from "./SiteAnalytics";
 import { SiteGallery } from "./SiteGallery";
 import {
   formatPriceAz,
@@ -53,6 +54,7 @@ export function PropertySite({
 
   return (
     <div style={{ paddingBottom: "5.5rem" }} lang={locale}>
+      <SiteAnalytics slug={property.slug} enabled={!preview} />
       {preview ? (
         <div className={styles.previewBanner} role="status">
           <span>
@@ -129,6 +131,7 @@ export function PropertySite({
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
+              data-track="whatsapp"
             >
               {ui.askWhatsApp}
             </a>
@@ -182,6 +185,7 @@ export function PropertySite({
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
+              data-track="whatsapp"
             >
               {ui.writeWhatsApp}
             </a>
@@ -252,6 +256,7 @@ export function PropertySite({
           href={stickyWa}
           target="_blank"
           rel="noopener noreferrer"
+          data-track="whatsapp"
         >
           WhatsApp
         </a>

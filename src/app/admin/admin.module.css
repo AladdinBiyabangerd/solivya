@@ -534,6 +534,26 @@
   white-space: nowrap;
 }
 
+.propertyStats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.45rem;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.propertyStatLabel {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.propertyStatSep {
+  color: var(--line);
+}
+
 .badgeLive,
 .badgeDraft {
   font-size: 0.72rem;
@@ -2106,6 +2126,10 @@
   .badgeDraft {
     justify-self: start;
     grid-column: 2;
+  }
+
+  .propertyStats {
+    font-size: 0.74rem;
   }
 
   .propertyAction {
