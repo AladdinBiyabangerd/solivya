@@ -6,8 +6,10 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type MouseEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import type { Photo, Property } from "@/types/database";
 import { resolvePhotoSrc } from "@/lib/storage";
 import {
@@ -147,6 +149,139 @@ type PendingFile = {
   url: string;
 };
 
+type LightboxItem = {
+  key: string;
+  src: string;
+  alt: string;
+};
+
+function PhotoLightbox({
+  items,
+  index,
+  onClose,
+  onChange,
+  actions,
+}: {
+  items: LightboxItem[];
+  index: number;
+  onClose: () => void;
+  onChange: (index: number) => void;
+  actions?: ReactNode;
+}) {
+  const total = items.length;
+  const item = items[index];
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!item) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (total < 2) return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        onChange((index - 1 + total) % total);
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        onChange((index + 1) % total);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [item, index, total, onClose, onChange]);
+
+  if (!mounted || !item) return null;
+
+  const goPrev = () => onChange((index - 1 + total) % total);
+  const goNext = () => onChange((index + 1) % total);
+
+  const onStageClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (total < 2) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    if (x < rect.width * 0.4) goPrev();
+    else if (x > rect.width * 0.6) goNext();
+  };
+
+  return createPortal(
+    <div
+      className={styles.lightbox}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Foto önizləmə"
+    >
+      <button
+        type="button"
+        className={styles.lightboxBackdrop}
+        aria-label="Bağla"
+        onClick={onClose}
+      />
+      <div className={styles.lightboxChrome}>
+        <div className={styles.lightboxTop}>
+          <p className={styles.lightboxCount}>
+            {index + 1} / {total}
+          </p>
+          <button
+            type="button"
+            className={styles.lightboxClose}
+            onClick={onClose}
+            aria-label="Bağla"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className={styles.lightboxStage} onClick={onStageClick}>
+          {total > 1 ? (
+            <button
+              type="button"
+              className={`${styles.lightboxNav} ${styles.lightboxNavPrev}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                goPrev();
+              }}
+              aria-label="Əvvəlki"
+            >
+              ‹
+            </button>
+          ) : null}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.src} alt={item.alt} className={styles.lightboxImage} />
+          {total > 1 ? (
+            <button
+              type="button"
+              className={`${styles.lightboxNav} ${styles.lightboxNavNext}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                goNext();
+              }}
+              aria-label="Növbəti"
+            >
+              ›
+            </button>
+          ) : null}
+        </div>
+
+        {actions ? <div className={styles.lightboxActions}>{actions}</div> : null}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 function PhotoPanel({
   propertyId,
   photos,
@@ -161,12 +296,18 @@ function PhotoPanel({
   const [pending, setPending] = useState<PendingFile[]>([]);
   const [mainKey, setMainKey] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
   const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
   const main = sorted[0] ?? null;
   const hasPhotos = sorted.length > 0;
+  const lightboxItems: LightboxItem[] = pending.map((item) => ({
+    key: item.key,
+    src: item.url,
+    alt: item.file.name,
+  }));
 
   useEffect(() => {
     return () => {
@@ -181,6 +322,7 @@ function PhotoPanel({
       return [];
     });
     setMainKey(null);
+    setLightboxIndex(null);
     setPickError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [uploadState.ok]);
@@ -188,11 +330,23 @@ function PhotoPanel({
   useEffect(() => {
     if (pending.length === 0) {
       setMainKey(null);
+      setLightboxIndex(null);
       return;
     }
     if (mainKey && pending.some((item) => item.key === mainKey)) return;
     setMainKey(hasPhotos ? null : pending[0].key);
   }, [pending, hasPhotos, mainKey]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    if (pending.length === 0) {
+      setLightboxIndex(null);
+      return;
+    }
+    if (lightboxIndex >= pending.length) {
+      setLightboxIndex(pending.length - 1);
+    }
+  }, [pending.length, lightboxIndex]);
 
   const addFiles = (list: FileList | null) => {
     if (!list?.length) return;
@@ -252,12 +406,15 @@ function PhotoPanel({
     uploadAction(formData);
   };
 
+  const activeLightbox =
+    lightboxIndex !== null ? lightboxItems[lightboxIndex] : null;
+
   return (
     <aside className={styles.photoPanel}>
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Seç · kliklə əsas · X ilə çıxar · yüklə · max 5MB
+          Seç · böyüt · sol/sağ keç · əsas et · X · yüklə
         </p>
       </header>
 
@@ -330,7 +487,7 @@ function PhotoPanel({
             {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Üzərinə kliklə → əsas · X → çıxar · sonra yüklə
+            Kliklə böyüt · sol/sağ keç · Əsas et · X ilə çıxar
           </span>
           <input
             ref={fileInputRef}
@@ -344,7 +501,7 @@ function PhotoPanel({
 
         {pending.length > 0 ? (
           <div className={styles.pendingRail} role="list">
-            {pending.map((item) => {
+            {pending.map((item, index) => {
               const isPendingMain = item.key === mainKey;
               return (
                 <figure
@@ -359,8 +516,8 @@ function PhotoPanel({
                   <button
                     type="button"
                     className={styles.pendingPick}
-                    onClick={() => setMainKey(item.key)}
-                    title="Əsas et"
+                    onClick={() => setLightboxIndex(index)}
+                    title="Böyüt"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.url} alt={item.file.name} />
@@ -371,7 +528,7 @@ function PhotoPanel({
                           : styles.pendingPickLabel
                       }
                     >
-                      {isPendingMain ? "Əsas" : "Əsas et"}
+                      {isPendingMain ? "Əsas" : "Böyüt"}
                     </span>
                   </button>
                   <button
@@ -403,6 +560,37 @@ function PhotoPanel({
               : "Yüklə"}
         </button>
       </form>
+
+      {lightboxIndex !== null && activeLightbox ? (
+        <PhotoLightbox
+          items={lightboxItems}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onChange={setLightboxIndex}
+          actions={
+            <>
+              <button
+                type="button"
+                className={
+                  activeLightbox.key === mainKey
+                    ? styles.lightboxMainActive
+                    : styles.lightboxMainBtn
+                }
+                onClick={() => setMainKey(activeLightbox.key)}
+              >
+                {activeLightbox.key === mainKey ? "Əsas seçilib" : "Əsas et"}
+              </button>
+              <button
+                type="button"
+                className={styles.lightboxRemoveBtn}
+                onClick={() => removePending(activeLightbox.key)}
+              >
+                Çıxar
+              </button>
+            </>
+          }
+        />
+      ) : null}
     </aside>
   );
 }
