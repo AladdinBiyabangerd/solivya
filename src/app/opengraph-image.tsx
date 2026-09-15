@@ -1,14 +1,9 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 
-export const runtime = "edge";
 export const alt = "Solivya — sahib brendli günlük kirayə səhifəsi";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-export function generateImageMetadata() {
-  return [{ id: "solivya-og-v1", size, contentType, alt }];
-}
 
 export default function OpenGraphImage() {
   return new ImageResponse(
