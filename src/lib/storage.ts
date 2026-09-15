@@ -7,4 +7,14 @@ export function propertyPhotoUrl(storagePath: string): string {
   return `${base}/storage/v1/object/public/property-photos/${storagePath}`;
 }
 
+export function resolvePhotoSrc(storagePath: string): string {
+  if (
+    storagePath.startsWith("http://") ||
+    storagePath.startsWith("https://")
+  ) {
+    return storagePath;
+  }
+  return propertyPhotoUrl(storagePath);
+}
+
 export type { Database };

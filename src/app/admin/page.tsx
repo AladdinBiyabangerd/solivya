@@ -1,6 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { signOut } from "./actions";
+import { PropertyEditor } from "./PropertyEditor";
 import styles from "./admin.module.css";
+import type { Photo, Property } from "@/types/database";
 
 export default async function AdminHome() {
   const supabase = await createClient();
@@ -8,25 +10,39 @@ export default async function AdminHome() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { data: properties } = await supabase
+    .from("properties")
+    .select("*")
+    .eq("owner_id", user!.id)
+    .order("created_at", { ascending: true })
+    .limit(1);
+
+  const property = (properties?.[0] as Property | undefined) ?? null;
+
+  let photos: Photo[] = [];
+  if (property) {
+    const { data } = await supabase
+      .from("photos")
+      .select("*")
+      .eq("property_id", property.id)
+      .order("sort_order", { ascending: true });
+    photos = (data as Photo[]) ?? [];
+  }
+
   return (
-    <main className={styles.shell}>
-      <div className={styles.panel}>
-        <p className={styles.eyebrow}>Solivya · admin</p>
-        <h1 className={styles.title}>Panel</h1>
-        <p className={styles.meta}>
-          Daxil olmusan:{" "}
-          <span className={styles.code}>{user?.email ?? "—"}</span>
-          <br />
-          Növbəti addımda burada mənzil redaktəsi olacaq.
-        </p>
-        <div className={styles.row}>
-          <form action={signOut}>
-            <button className={styles.ghost} type="submit">
-              Çıxış
-            </button>
-          </form>
-        </div>
+    <main className={styles.shellTop}>
+      <div className={styles.topActions}>
+        <form action={signOut}>
+          <button className={styles.ghost} type="submit">
+            Çıxış
+          </button>
+        </form>
       </div>
+      <PropertyEditor
+        property={property}
+        photos={photos}
+        email={user?.email ?? ""}
+      />
     </main>
   );
 }

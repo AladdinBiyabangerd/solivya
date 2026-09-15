@@ -1,4 +1,4 @@
-import { propertyPhotoUrl } from "@/lib/storage";
+import { propertyPhotoUrl, resolvePhotoSrc } from "@/lib/storage";
 import type { Amenity, LocaleCode, Photo, Property } from "@/types/database";
 import type { SitePropertyView } from "@/components/site/types";
 import { createClient } from "@/utils/supabase/server";
@@ -24,15 +24,7 @@ function asRules(value: Property["rules"]): string[] {
   return value.filter((item): item is string => typeof item === "string");
 }
 
-export function resolvePhotoSrc(storagePath: string): string {
-  if (
-    storagePath.startsWith("http://") ||
-    storagePath.startsWith("https://")
-  ) {
-    return storagePath;
-  }
-  return propertyPhotoUrl(storagePath);
-}
+export { resolvePhotoSrc };
 
 export function toSitePropertyView(
   property: Property & { zone_note?: string },
