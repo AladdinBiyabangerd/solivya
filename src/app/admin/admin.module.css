@@ -628,6 +628,14 @@
   color: var(--muted);
 }
 
+.wizardNav {
+  display: none;
+}
+
+.wizardStep[hidden] {
+  display: none !important;
+}
+
 @media (max-width: 960px) {
   .editorSplit {
     grid-template-columns: 1fr;
@@ -635,12 +643,8 @@
 
   .photoPanel {
     position: static;
-    order: -1;
     border-left: none;
     padding-left: 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 0.15rem;
   }
 
   .thumbRail {
@@ -649,6 +653,81 @@
 
   .dropZoneEmpty .dropLabel {
     min-height: 7rem;
+  }
+
+  .wizardNav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 0.35rem;
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: linear-gradient(180deg, var(--bg-soft) 60%, transparent);
+  }
+
+  .editorStack > .wizardNav:last-child {
+    border-bottom: none;
+    border-top: 1px solid var(--line);
+    margin-bottom: 0;
+    margin-top: 0.75rem;
+    bottom: 0;
+    top: auto;
+    background: linear-gradient(0deg, var(--bg) 70%, transparent);
+    padding-bottom: 1rem;
+  }
+
+  .wizardProgress {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .wizardBtns {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  .wizardBack,
+  .wizardNext {
+    min-height: 2.5rem;
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .wizardBack {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--text);
+  }
+
+  .wizardBack:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .wizardNext {
+    border: none;
+    background: var(--accent);
+    color: var(--white);
+  }
+
+  .wizardNext:hover {
+    background: var(--accent-hover);
+  }
+
+  .fieldGroup {
+    border-bottom: none;
+    padding-top: 0.35rem;
   }
 }
 
@@ -672,5 +751,10 @@
   .submitSecondary {
     width: 100%;
     justify-content: center;
+  }
+
+  .wizardBack,
+  .wizardNext {
+    min-width: 5.5rem;
   }
 }

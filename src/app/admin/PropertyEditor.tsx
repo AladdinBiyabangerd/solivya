@@ -1,6 +1,11 @@
 "use client";
 
-import { useActionState, type ReactNode } from "react";
+import {
+  useActionState,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import type { Photo, Property } from "@/types/database";
 import { resolvePhotoSrc } from "@/lib/storage";
 import {
@@ -15,6 +20,15 @@ import {
 import styles from "./admin.module.css";
 
 const empty: EditorState = {};
+
+const STEPS = [
+  { id: "brend", title: "Brend" },
+  { id: "basliq", title: "Başlıq" },
+  { id: "yerlesme", title: "Yerləşmə" },
+  { id: "qiymet", title: "Qiymət" },
+  { id: "detallar", title: "Detallar" },
+  { id: "fotolar", title: "Fotolar" },
+] as const;
 
 function amenitiesToText(value: Property["amenities"]): string {
   if (!Array.isArray(value)) return "";
@@ -42,6 +56,20 @@ function liveUrl(slug: string): string {
   }
   const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
   return `https://${slug}.${root}`;
+}
+
+function useIsNarrow(query = "(max-width: 960px)") {
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const apply = () => setNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [query]);
+
+  return narrow;
 }
 
 type Props = {
@@ -243,6 +271,47 @@ function PhotoPanel({
   );
 }
 
+function WizardNav({
+  step,
+  total,
+  title,
+  onBack,
+  onNext,
+  showNext,
+}: {
+  step: number;
+  total: number;
+  title: string;
+  onBack: () => void;
+  onNext: () => void;
+  showNext: boolean;
+}) {
+  return (
+    <div className={styles.wizardNav}>
+      <p className={styles.wizardProgress}>
+        {step + 1} / {total}
+        <span aria-hidden="true"> · </span>
+        {title}
+      </p>
+      <div className={styles.wizardBtns}>
+        <button
+          type="button"
+          className={styles.wizardBack}
+          onClick={onBack}
+          disabled={step === 0}
+        >
+          Geri
+        </button>
+        {showNext ? (
+          <button type="button" className={styles.wizardNext} onClick={onNext}>
+            Növbəti
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function EditForm({
   property,
   photos,
@@ -254,260 +323,328 @@ function EditForm({
     saveProperty,
     empty,
   );
-
+  const narrow = useIsNarrow();
+  const [step, setStep] = useState(0);
   const url = liveUrl(property.slug);
+  const last = STEPS.length - 1;
+
+  useEffect(() => {
+    if (!narrow) setStep(0);
+  }, [narrow]);
+
+  const goNext = () => setStep((s) => Math.min(s + 1, last));
+  const goBack = () => setStep((s) => Math.max(s - 1, 0));
+  const visible = (index: number) => !narrow || step === index;
 
   return (
     <div className={styles.editorStack}>
+      {narrow ? (
+        <WizardNav
+          step={step}
+          total={STEPS.length}
+          title={STEPS[step].title}
+          onBack={goBack}
+          onNext={goNext}
+          showNext={step < last}
+        />
+      ) : null}
+
       <div className={styles.editorSplit}>
         <form className={styles.form} action={saveAction}>
           <input type="hidden" name="id" value={property.id} />
 
-          <div className={styles.liveBar}>
-            <div className={styles.liveCopy}>
-              <a
-                className={styles.liveLink}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
+          <div
+            className={styles.wizardStep}
+            hidden={!visible(0)}
+            data-step="0"
+          >
+            <div className={styles.liveBar}>
+              <div className={styles.liveCopy}>
+                <a
+                  className={styles.liveLink}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {url.replace(/^https?:\/\//, "")}
+                </a>
+              </div>
+              <span
+                className={
+                  property.published ? styles.statusLive : styles.statusDraft
+                }
               >
-                {url.replace(/^https?:\/\//, "")}
-              </a>
+                {property.published ? "Published" : "Draft"}
+              </span>
             </div>
-            <span
-              className={
-                property.published ? styles.statusLive : styles.statusDraft
-              }
-            >
-              {property.published ? "Published" : "Draft"}
-            </span>
+
+            <FieldGroup title="Brend">
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  Ad
+                  <input
+                    className={styles.input}
+                    name="brand_name"
+                    defaultValue={property.brand_name}
+                    required
+                  />
+                </label>
+                <label className={styles.label}>
+                  Slug
+                  <input
+                    className={styles.input}
+                    name="slug"
+                    defaultValue={property.slug}
+                    required
+                    pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                  />
+                </label>
+              </div>
+            </FieldGroup>
           </div>
 
-          <FieldGroup title="Brend">
-            <div className={styles.grid2}>
-              <label className={styles.label}>
-                Ad
-                <input
-                  className={styles.input}
-                  name="brand_name"
-                  defaultValue={property.brand_name}
-                  required
-                />
-              </label>
-              <label className={styles.label}>
-                Slug
-                <input
-                  className={styles.input}
-                  name="slug"
-                  defaultValue={property.slug}
-                  required
-                  pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                />
-              </label>
-            </div>
-          </FieldGroup>
+          <div
+            className={styles.wizardStep}
+            hidden={!visible(1)}
+            data-step="1"
+          >
+            <FieldGroup title="Başlıq">
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  AZ
+                  <input
+                    className={styles.input}
+                    name="title_az"
+                    defaultValue={property.title_az}
+                  />
+                </label>
+                <label className={styles.label}>
+                  RU
+                  <input
+                    className={styles.input}
+                    name="title_ru"
+                    defaultValue={property.title_ru}
+                  />
+                </label>
+              </div>
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  Lead AZ
+                  <textarea
+                    className={styles.textarea}
+                    name="lead_az"
+                    rows={3}
+                    defaultValue={property.lead_az}
+                  />
+                </label>
+                <label className={styles.label}>
+                  Lead RU
+                  <textarea
+                    className={styles.textarea}
+                    name="lead_ru"
+                    rows={3}
+                    defaultValue={property.lead_ru}
+                  />
+                </label>
+              </div>
+            </FieldGroup>
+          </div>
 
-          <FieldGroup title="Başlıq">
-            <div className={styles.grid2}>
+          <div
+            className={styles.wizardStep}
+            hidden={!visible(2)}
+            data-step="2"
+          >
+            <FieldGroup title="Yerləşmə">
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  Zona
+                  <input
+                    className={styles.input}
+                    name="zone"
+                    defaultValue={property.zone}
+                  />
+                </label>
+                <label className={styles.label}>
+                  WhatsApp
+                  <input
+                    className={styles.input}
+                    name="whatsapp_e164"
+                    defaultValue={property.whatsapp_e164}
+                    placeholder="994501234567"
+                  />
+                </label>
+              </div>
               <label className={styles.label}>
-                AZ
-                <input
-                  className={styles.input}
-                  name="title_az"
-                  defaultValue={property.title_az}
-                />
-              </label>
-              <label className={styles.label}>
-                RU
-                <input
-                  className={styles.input}
-                  name="title_ru"
-                  defaultValue={property.title_ru}
-                />
-              </label>
-            </div>
-            <div className={styles.grid2}>
-              <label className={styles.label}>
-                Lead AZ
+                Zona qeydi
                 <textarea
                   className={styles.textarea}
-                  name="lead_az"
-                  rows={3}
-                  defaultValue={property.lead_az}
+                  name="zone_note"
+                  rows={2}
+                  defaultValue={property.zone_note}
                 />
               </label>
-              <label className={styles.label}>
-                Lead RU
-                <textarea
-                  className={styles.textarea}
-                  name="lead_ru"
-                  rows={3}
-                  defaultValue={property.lead_ru}
-                />
-              </label>
-            </div>
-          </FieldGroup>
+            </FieldGroup>
+          </div>
 
-          <FieldGroup title="Yerləşmə">
-            <div className={styles.grid2}>
-              <label className={styles.label}>
-                Zona
-                <input
-                  className={styles.input}
-                  name="zone"
-                  defaultValue={property.zone}
-                />
-              </label>
-              <label className={styles.label}>
-                WhatsApp
-                <input
-                  className={styles.input}
-                  name="whatsapp_e164"
-                  defaultValue={property.whatsapp_e164}
-                  placeholder="994501234567"
-                />
-              </label>
-            </div>
-            <label className={styles.label}>
-              Zona qeydi
-              <textarea
-                className={styles.textarea}
-                name="zone_note"
-                rows={2}
-                defaultValue={property.zone_note}
-              />
-            </label>
-          </FieldGroup>
+          <div
+            className={styles.wizardStep}
+            hidden={!visible(3)}
+            data-step="3"
+          >
+            <FieldGroup title="Qiymət">
+              <div className={styles.grid4}>
+                <label className={styles.label}>
+                  Otaq
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={1}
+                    name="rooms"
+                    defaultValue={property.rooms}
+                  />
+                </label>
+                <label className={styles.label}>
+                  Qonaq
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={1}
+                    name="guests"
+                    defaultValue={property.guests}
+                  />
+                </label>
+                <label className={styles.label}>
+                  Gecəlik
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={0}
+                    step="1"
+                    name="price_night"
+                    defaultValue={property.price_night}
+                  />
+                </label>
+                <label className={styles.label}>
+                  Min. gecə
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={1}
+                    name="min_nights"
+                    defaultValue={property.min_nights}
+                  />
+                </label>
+              </div>
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  Qiymət qeydi
+                  <input
+                    className={styles.input}
+                    name="price_note"
+                    defaultValue={property.price_note}
+                  />
+                </label>
+                <label className={styles.label}>
+                  Depozit
+                  <input
+                    className={styles.input}
+                    type="number"
+                    min={0}
+                    name="deposit"
+                    defaultValue={property.deposit}
+                  />
+                </label>
+              </div>
+            </FieldGroup>
+          </div>
 
-          <FieldGroup title="Qiymət">
-            <div className={styles.grid4}>
-              <label className={styles.label}>
-                Otaq
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={1}
-                  name="rooms"
-                  defaultValue={property.rooms}
-                />
-              </label>
-              <label className={styles.label}>
-                Qonaq
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={1}
-                  name="guests"
-                  defaultValue={property.guests}
-                />
-              </label>
-              <label className={styles.label}>
-                Gecəlik
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={0}
-                  step="1"
-                  name="price_night"
-                  defaultValue={property.price_night}
-                />
-              </label>
-              <label className={styles.label}>
-                Min. gecə
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={1}
-                  name="min_nights"
-                  defaultValue={property.min_nights}
-                />
-              </label>
-            </div>
-            <div className={styles.grid2}>
-              <label className={styles.label}>
-                Qiymət qeydi
-                <input
-                  className={styles.input}
-                  name="price_note"
-                  defaultValue={property.price_note}
-                />
-              </label>
-              <label className={styles.label}>
-                Depozit
-                <input
-                  className={styles.input}
-                  type="number"
-                  min={0}
-                  name="deposit"
-                  defaultValue={property.deposit}
-                />
-              </label>
-            </div>
-          </FieldGroup>
+          <div
+            className={styles.wizardStep}
+            hidden={!visible(4)}
+            data-step="4"
+          >
+            <FieldGroup title="Detallar">
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  Təchizat
+                  <textarea
+                    className={styles.textarea}
+                    name="amenities"
+                    rows={4}
+                    defaultValue={amenitiesToText(property.amenities)}
+                  />
+                  <span className={styles.fieldHint}>Başlıq | alt mətn</span>
+                </label>
+                <label className={styles.label}>
+                  Qaydalar
+                  <textarea
+                    className={styles.textarea}
+                    name="rules"
+                    rows={4}
+                    defaultValue={rulesToText(property.rules)}
+                  />
+                  <span className={styles.fieldHint}>Hər sətir bir qayda</span>
+                </label>
+              </div>
+              <div className={styles.grid2}>
+                <label className={styles.label}>
+                  Dil
+                  <select
+                    className={styles.input}
+                    name="locale_default"
+                    defaultValue={property.locale_default}
+                  >
+                    <option value="az">AZ</option>
+                    <option value="ru">RU</option>
+                  </select>
+                </label>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    name="published"
+                    defaultChecked={property.published}
+                  />
+                  <span>
+                    <strong>Publish</strong>
+                    <em>Canlı səhifə açıq</em>
+                  </span>
+                </label>
+              </div>
+            </FieldGroup>
 
-          <FieldGroup title="Detallar">
-            <div className={styles.grid2}>
-              <label className={styles.label}>
-                Təchizat
-                <textarea
-                  className={styles.textarea}
-                  name="amenities"
-                  rows={4}
-                  defaultValue={amenitiesToText(property.amenities)}
-                />
-                <span className={styles.fieldHint}>Başlıq | alt mətn</span>
-              </label>
-              <label className={styles.label}>
-                Qaydalar
-                <textarea
-                  className={styles.textarea}
-                  name="rules"
-                  rows={4}
-                  defaultValue={rulesToText(property.rules)}
-                />
-                <span className={styles.fieldHint}>Hər sətir bir qayda</span>
-              </label>
+            <div className={styles.saveBar}>
+              <Status state={saveState} />
+              <button
+                className={styles.submit}
+                type="submit"
+                disabled={savePending}
+              >
+                {savePending ? "Saxlanılır…" : "Yadda saxla"}
+              </button>
             </div>
-            <div className={styles.grid2}>
-              <label className={styles.label}>
-                Dil
-                <select
-                  className={styles.input}
-                  name="locale_default"
-                  defaultValue={property.locale_default}
-                >
-                  <option value="az">AZ</option>
-                  <option value="ru">RU</option>
-                </select>
-              </label>
-              <label className={styles.checkLabel}>
-                <input
-                  type="checkbox"
-                  name="published"
-                  defaultChecked={property.published}
-                />
-                <span>
-                  <strong>Publish</strong>
-                  <em>Canlı səhifə açıq</em>
-                </span>
-              </label>
-            </div>
-          </FieldGroup>
-
-          <div className={styles.saveBar}>
-            <Status state={saveState} />
-            <button
-              className={styles.submit}
-              type="submit"
-              disabled={savePending}
-            >
-              {savePending ? "Saxlanılır…" : "Yadda saxla"}
-            </button>
           </div>
         </form>
 
-        <PhotoPanel propertyId={property.id} photos={photos} />
+        <div
+          className={styles.wizardStep}
+          hidden={!visible(5)}
+          data-step="5"
+        >
+          <PhotoPanel propertyId={property.id} photos={photos} />
+        </div>
       </div>
+
+      {narrow ? (
+        <WizardNav
+          step={step}
+          total={STEPS.length}
+          title={STEPS[step].title}
+          onBack={goBack}
+          onNext={goNext}
+          showNext={step < last}
+        />
+      ) : null}
     </div>
   );
 }
