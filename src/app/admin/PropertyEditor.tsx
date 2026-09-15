@@ -57,6 +57,10 @@ function liveUrl(slug: string): string {
   return `https://${slug}.${root}`;
 }
 
+function previewPath(slug: string): string {
+  return `/admin/preview/${slug}`;
+}
+
 function useIsNarrow(query = "(max-width: 960px)") {
   const [narrow, setNarrow] = useState(false);
 
@@ -351,13 +355,23 @@ function EditForm({
                   {url.replace(/^https?:\/\//, "")}
                 </a>
               </div>
-              <span
-                className={
-                  property.published ? styles.statusLive : styles.statusDraft
-                }
-              >
-                {property.published ? "Published" : "Draft"}
-              </span>
+              <div className={styles.liveActions}>
+                <a
+                  className={styles.previewBtn}
+                  href={previewPath(property.slug)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Önizlə
+                </a>
+                <span
+                  className={
+                    property.published ? styles.statusLive : styles.statusDraft
+                  }
+                >
+                  {property.published ? "Published" : "Draft"}
+                </span>
+              </div>
             </div>
 
             <FieldGroup title="Brend">
@@ -597,13 +611,23 @@ function EditForm({
 
             <div className={styles.saveBar}>
               <Status state={saveState} />
-              <button
-                className={styles.submit}
-                type="submit"
-                disabled={savePending}
-              >
-                {savePending ? "Saxlanılır…" : "Yadda saxla"}
-              </button>
+              <div className={styles.saveActions}>
+                <a
+                  className={styles.previewBtn}
+                  href={previewPath(property.slug)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Önizlə
+                </a>
+                <button
+                  className={styles.submit}
+                  type="submit"
+                  disabled={savePending}
+                >
+                  {savePending ? "Saxlanılır…" : "Yadda saxla"}
+                </button>
+              </div>
             </div>
           </div>
         </form>

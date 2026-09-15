@@ -352,6 +352,37 @@
   min-width: 0;
 }
 
+.liveActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+  flex-shrink: 0;
+}
+
+.previewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.previewBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .liveLink {
   display: inline-block;
   font-size: 0.9rem;
@@ -446,6 +477,14 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1.25rem 0 0.25rem;
+}
+
+.saveActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: auto;
 }
 
 .saveBar .error,
@@ -807,9 +846,17 @@
     align-items: stretch;
   }
 
+  .saveActions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .saveActions .previewBtn,
   .submit,
   .submitSecondary {
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
     justify-content: center;
   }
 

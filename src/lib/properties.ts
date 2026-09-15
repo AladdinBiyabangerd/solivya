@@ -106,6 +106,34 @@ export async function getPublishedPropertyRecord(slug: string) {
   return { property: row, photos };
 }
 
+/** Owner-only: draft or published, for admin preview. */
+export async function getOwnerPropertyRecord(slug: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("properties")
+    .select("*, photos(*)")
+    .eq("slug", slug)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getOwnerPropertyRecord", error.message);
+    return null;
+  }
+
+  if (!data) return null;
+
+  const row = data as unknown as PropertyWithPhotos;
+  const photos = Array.isArray(row.photos) ? row.photos : [];
+  return { property: row, photos };
+}
+
 export async function getPublishedPropertyBySlug(
   slug: string,
   locale?: LocaleCode,

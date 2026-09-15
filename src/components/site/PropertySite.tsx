@@ -8,15 +8,24 @@ import {
 
 type Props = {
   property: SitePropertyView;
+  /** Owner-only preview route — banner + relative lang links. */
+  preview?: boolean;
+  draft?: boolean;
 };
 
-export function PropertySite({ property }: Props) {
+export function PropertySite({
+  property,
+  preview = false,
+  draft = false,
+}: Props) {
   const { ui, locale } = property;
   const wa = whatsappHref(property.whatsappE164, property.whatsappMessage);
   const stickyWa = whatsappHref(
     property.whatsappE164,
     property.stickyWhatsAppMessage,
   );
+  const langAz = preview ? "?lang=az" : "/?lang=az";
+  const langRu = preview ? "?lang=ru" : "/?lang=ru";
 
   const mapStyle = property.mapImage
     ? ({
@@ -26,6 +35,19 @@ export function PropertySite({ property }: Props) {
 
   return (
     <div style={{ paddingBottom: "5.5rem" }} lang={locale}>
+      {preview ? (
+        <div className={styles.previewBanner} role="status">
+          <span>
+            {draft
+              ? "Draft önizləmə — hələ publish olunmayıb"
+              : "Önizləmə — yalnız sən görürsən"}
+          </span>
+          <a className={styles.previewBack} href="/admin">
+            Redaktəyə qayıt
+          </a>
+        </div>
+      ) : null}
+
       <header className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -42,7 +64,7 @@ export function PropertySite({ property }: Props) {
                   className={
                     locale === "az" ? styles.langActive : styles.langLink
                   }
-                  href="/?lang=az"
+                  href={langAz}
                   hrefLang="az"
                 >
                   {ui.langAz}
@@ -52,7 +74,7 @@ export function PropertySite({ property }: Props) {
                   className={
                     locale === "ru" ? styles.langActive : styles.langLink
                   }
-                  href="/?lang=ru"
+                  href={langRu}
                   hrefLang="ru"
                 >
                   {ui.langRu}
