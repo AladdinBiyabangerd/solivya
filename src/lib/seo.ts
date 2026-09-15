@@ -109,50 +109,58 @@ type MarketingSeoInput = {
 };
 
 /** Organization + WebSite graph with founder → portfolio Person. */
-export function marketingJsonLd(input: MarketingSeoInput) {
+export function marketingJsonLd(
+  input: MarketingSeoInput & { faqs?: { q: string; a: string }[] },
+) {
   const origin = siteUrl();
   const pageUrl = marketingUrl(input.locale, origin);
 
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "Organization",
+      "@id": `${origin}/#organization`,
+      name: SITE.name,
+      url: origin,
+      description: input.description,
+      founder: {
+        "@type": "Person",
+        "@id": BUILDER.personId,
+        name: BUILDER.name,
+        url: BUILDER.portfolioOrigin,
+      },
+      areaServed: {
+        "@type": "City",
+        name: input.locale === "ru" ? "Баку" : "Bakı",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${origin}/#website`,
+      name: SITE.name,
+      url: origin,
+      description: input.description,
+      inLanguage: input.locale,
+      publisher: { "@id": `${origin}/#organization` },
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: input.title,
+      description: input.description,
+      isPartOf: { "@id": `${origin}/#website` },
+      about: { "@id": `${origin}/#organization` },
+      inLanguage: input.locale,
+    },
+  ];
+
+  if (input.faqs?.length) {
+    graph.push(faqJsonLd(input.faqs, pageUrl));
+  }
+
   return {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": `${origin}/#organization`,
-        name: SITE.name,
-        url: origin,
-        description: input.description,
-        founder: {
-          "@type": "Person",
-          "@id": BUILDER.personId,
-          name: BUILDER.name,
-          url: BUILDER.portfolioOrigin,
-        },
-        areaServed: {
-          "@type": "City",
-          name: input.locale === "ru" ? "Баку" : "Bakı",
-        },
-      },
-      {
-        "@type": "WebSite",
-        "@id": `${origin}/#website`,
-        name: SITE.name,
-        url: origin,
-        description: input.description,
-        inLanguage: input.locale,
-        publisher: { "@id": `${origin}/#organization` },
-      },
-      {
-        "@type": "WebPage",
-        "@id": `${pageUrl}#webpage`,
-        url: pageUrl,
-        name: input.title,
-        description: input.description,
-        isPartOf: { "@id": `${origin}/#website` },
-        about: { "@id": `${origin}/#organization` },
-        inLanguage: input.locale,
-      },
-    ],
+    "@graph": graph,
   };
 }
 

@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { resolveLocale } from "@/components/site/i18n";
-import { jsonLdScript, marketingJsonLd } from "@/lib/seo";
-import { BUILDER, SITE, builderPortfolioUrl, siteUrl } from "@/lib/site";
+import {
+  jsonLdScript,
+  marketingJsonLd,
+  marketingUrl,
+  pageMetadata,
+} from "@/lib/seo";
+import { BUILDER, builderPortfolioUrl } from "@/lib/site";
 import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
 
@@ -16,35 +21,12 @@ export async function generateMetadata({
   const { lang } = await searchParams;
   const locale = resolveLocale(lang, "az");
   const t = MARKETING[locale];
-  const origin = siteUrl();
-  const url = `${origin}/?lang=${locale}`;
-  return {
+  return pageMetadata({
+    locale,
+    canonical: marketingUrl(locale),
     title: t.metaTitle,
     description: t.metaDescription,
-    authors: [{ name: BUILDER.name, url: BUILDER.portfolioOrigin }],
-    creator: BUILDER.name,
-    publisher: SITE.name,
-    alternates: {
-      canonical: url,
-      languages: {
-        az: `${origin}/?lang=az`,
-        ru: `${origin}/?lang=ru`,
-      },
-    },
-    openGraph: {
-      type: "website",
-      locale: locale === "ru" ? "ru_RU" : "az_AZ",
-      url,
-      siteName: SITE.name,
-      title: t.metaTitle,
-      description: t.metaDescription,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t.metaTitle,
-      description: t.metaDescription,
-    },
-  };
+  });
 }
 
 function salesWhatsAppHref(message: string): string {
@@ -80,6 +62,7 @@ export default async function MarketingHome({ searchParams }: Props) {
     locale,
     title: t.metaTitle,
     description: t.metaDescription,
+    faqs: t.faqs,
   });
 
   return (

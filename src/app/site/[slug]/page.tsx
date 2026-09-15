@@ -4,6 +4,7 @@ import {
   getPublishedPropertyRecord,
   toSitePropertyView,
 } from "@/lib/properties";
+import { jsonLdScript, pageMetadata, propertyJsonLd, propertyUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -21,7 +22,7 @@ export async function generateMetadata({
   const record = await getPublishedPropertyRecord(slug);
 
   if (!record) {
-    return { title: "Solivya" };
+    return { title: "Solivya", robots: { index: false, follow: false } };
   }
 
   const locale = resolveLocale(lang, record.property.locale_default);
@@ -30,41 +31,22 @@ export async function generateMetadata({
     record.photos,
     locale,
   );
+  const canonical = propertyUrl(slug, locale);
 
-  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
-  const canonical = `https://${slug}.${root}/?lang=${locale}`;
-
-  return {
+  return pageMetadata({
+    locale,
+    canonical,
     title: `${localized.title} · ${localized.brandName}`,
     description: localized.lead,
-    alternates: {
-      canonical,
-      languages: {
-        az: `https://${slug}.${root}/?lang=az`,
-        ru: `https://${slug}.${root}/?lang=ru`,
+    images: [
+      {
+        url: localized.heroImage,
+        width: 1200,
+        height: 630,
+        alt: localized.title,
       },
-    },
-    openGraph: {
-      title: `${localized.title} · ${localized.brandName}`,
-      description: localized.lead,
-      locale: locale === "ru" ? "ru_RU" : "az_AZ",
-      type: "website",
-      images: [
-        {
-          url: localized.heroImage,
-          width: 1200,
-          height: 630,
-          alt: localized.title,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${localized.title} · ${localized.brandName}`,
-      description: localized.lead,
-      images: [localized.heroImage],
-    },
-  };
+    ],
+  });
 }
 
 export default async function SiteHome({ params, searchParams }: Props) {
@@ -82,6 +64,16 @@ export default async function SiteHome({ params, searchParams }: Props) {
     record.photos,
     locale,
   );
+  const canonical = propertyUrl(slug, locale);
+  const jsonLd = propertyJsonLd({ property, canonical });
 
-  return <PropertySite property={property} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
+      />
+      <PropertySite property={property} />
+    </>
+  );
 }
