@@ -318,9 +318,23 @@
 
 .editorSplit {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
-  gap: 1.25rem 1.75rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
+  grid-template-areas: "fields photos";
+  gap: 1.25rem 1.5rem;
   align-items: start;
+}
+
+.editorSplit > .form {
+  grid-area: fields;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.photoColumn {
+  grid-area: photos;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }
 
 .liveBar {
@@ -448,9 +462,12 @@
   display: grid;
   gap: 0.75rem;
   align-content: start;
-  padding: 0.15rem 0 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.15rem 0 0 1.1rem;
   border-left: 1px solid var(--line);
-  padding-left: 1.35rem;
+  overflow-x: clip;
 }
 
 .photoPanelHead .hint {
@@ -466,6 +483,8 @@
 
 .mainPreview {
   position: relative;
+  width: 100%;
+  max-width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--bg-soft);
@@ -474,8 +493,10 @@
 }
 
 .mainPreview img {
+  display: block;
   width: 100%;
   height: 100%;
+  max-width: 100%;
   object-fit: cover;
 }
 
@@ -507,7 +528,9 @@
 }
 
 .thumb img {
+  display: block;
   width: 100%;
+  max-width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
   background: var(--bg-soft);
@@ -639,12 +662,20 @@
 @media (max-width: 960px) {
   .editorSplit {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "fields"
+      "photos";
+  }
+
+  .photoColumn {
+    grid-area: photos;
   }
 
   .photoPanel {
     position: static;
     border-left: none;
     padding-left: 0;
+    overflow-x: visible;
   }
 
   .thumbRail {

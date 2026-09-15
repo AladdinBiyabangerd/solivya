@@ -627,7 +627,7 @@ function EditForm({
         </form>
 
         <div
-          className={styles.wizardStep}
+          className={`${styles.wizardStep} ${styles.photoColumn}`}
           hidden={!visible(5)}
           data-step="5"
         >
