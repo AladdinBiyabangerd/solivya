@@ -111,14 +111,28 @@
 .heroMedia {
   position: absolute;
   inset: 0;
-  animation: heroZoom 18s ease-out forwards;
 }
 
-.heroMedia img {
+.heroMediaFill,
+.heroMediaPhoto {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+}
+
+/* Soft full-bleed wash — hides letterboxing when the photo is contain-fitted. */
+.heroMediaFill {
   object-fit: cover;
-  filter: brightness(0.72) saturate(1.05);
+  filter: blur(28px) brightness(0.55) saturate(1.08);
+  transform: scale(1.14);
+}
+
+/* Keep the hero photo sharp: fit inside the frame instead of upscaling past cover. */
+.heroMediaPhoto {
+  object-fit: contain;
+  object-position: center;
+  filter: brightness(0.78) saturate(1.04);
 }
 
 .heroOverlay {
@@ -934,15 +948,6 @@
 
 .stickyCta .btn:hover {
   background: var(--bg-soft);
-}
-
-@keyframes heroZoom {
-  from {
-    transform: scale(1.08);
-  }
-  to {
-    transform: scale(1);
-  }
 }
 
 @keyframes rise {

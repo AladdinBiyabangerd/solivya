@@ -1399,8 +1399,6 @@
 
 .thumb {
   margin: 0;
-  display: grid;
-  gap: 0.2rem;
   min-width: 0;
 }
 
@@ -1408,6 +1406,7 @@
 .thumbPickForm {
   margin: 0;
   min-width: 0;
+  position: relative;
 }
 
 .thumbPick {
@@ -1470,54 +1469,69 @@
 }
 
 .thumbMeta {
-  display: block;
-  margin-top: 0.2rem;
-  font-size: 0.68rem;
-  color: var(--accent);
+  position: absolute;
+  left: 0.3rem;
+  bottom: 0.3rem;
+  z-index: 1;
+  padding: 0.15rem 0.35rem;
+  border-radius: var(--radius);
+  font-size: 0.62rem;
+  color: var(--white);
+  background: rgba(154, 123, 79, 0.92);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .thumbActions {
+  position: absolute;
+  inset: 0.3rem 0.3rem auto;
+  z-index: 2;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.15rem 0.35rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.25rem;
+  pointer-events: none;
+}
+
+.thumbActionsLeft,
+.thumbDeleteForm {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0.2rem;
   align-items: center;
+  margin: 0;
+  pointer-events: auto;
 }
 
-.thumbCropBtn,
-.thumbMainBtn,
-.thumbDanger {
-  min-height: 1.45rem;
-  padding: 0.1rem 0.3rem;
+.thumbIconBtn {
+  width: 1.7rem;
+  height: 1.7rem;
+  min-width: 1.7rem;
+  min-height: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: none;
-  background: transparent;
-  font-size: 0.68rem;
-  font-weight: 600;
+  border-radius: var(--radius);
+  background: rgba(28, 25, 23, 0.78);
+  color: #fafaf9;
   cursor: pointer;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
+  transition: background 0.15s ease;
 }
 
-.thumbCropBtn {
-  color: var(--text);
+.thumbIconBtn:hover {
+  background: rgba(28, 25, 23, 0.95);
 }
 
-.thumbMainBtn {
-  color: var(--accent);
-  border-bottom-color: rgba(154, 123, 79, 0.4);
+.thumbIconBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
-.thumbDanger {
-  border-bottom-color: rgba(127, 29, 29, 0.25);
-  color: #7f1d1d;
-}
-
-.thumbCropBtn:hover,
-.thumbMainBtn:hover,
-.thumbDanger:hover {
-  border-bottom-color: currentColor;
+.thumbIconDanger:hover {
+  background: #7f1d1d;
 }
 
 .dropZone {

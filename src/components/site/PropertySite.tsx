@@ -93,7 +93,17 @@ export function PropertySite({
       <header className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={property.heroImage} alt="" />
+          <img
+            className={styles.heroMediaFill}
+            src={property.heroImage}
+            alt=""
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={styles.heroMediaPhoto}
+            src={property.heroImage}
+            alt=""
+          />
         </div>
         <div className={styles.heroOverlay} aria-hidden="true" />
 

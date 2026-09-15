@@ -32,7 +32,10 @@ import {
 } from "./PhotoCropQueue";
 import {
   SITE_MAIN_ASPECT,
+  SITE_MAIN_MAX_EDGE,
   SITE_PHOTO_ASPECT,
+  SITE_PHOTO_MAX_EDGE,
+  SITE_PHOTO_MIN_WARN_EDGE,
 } from "@/lib/cropImage";
 import dynamic from "next/dynamic";
 import { ZonePicker } from "./ZonePicker";
@@ -345,6 +348,58 @@ function PhotoLightbox({
       </div>
     </div>,
     document.body,
+  );
+}
+
+function IconCrop() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">
+      <path
+        d="M7 3v14h14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M17 21V7H3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function IconStar() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">
+      <path
+        d="M12 3.6l2.35 4.76 5.25.76-3.8 3.7.9 5.24L12 15.9l-4.7 2.46.9-5.24-3.8-3.7 5.25-.76L12 3.6z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function IconTrash() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">
+      <path
+        d="M5 7h14M9 7V5h6v2M10 11v6M14 11v6M7 7l1 12h8l1-12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -687,6 +742,8 @@ const PhotoPanel = forwardRef<
           çox {MAX_SITE_PHOTOS - 1}
           {plan.map ? " · +xəritə" : ""}
           {plan.spare > 0 ? ` · +${plan.spare} ehtiyat` : ""}
+          {" · "}
+          kəskin hero üçün ≥{SITE_PHOTO_MIN_WARN_EDGE}px en
         </p>
         <p
           className={
@@ -735,36 +792,47 @@ const PhotoPanel = forwardRef<
                   {isMain ? (
                     <span className={styles.thumbMeta}>Əsas</span>
                   ) : null}
-                </div>
-                <div className={styles.thumbActions}>
-                  <button
-                    type="button"
-                    className={styles.thumbCropBtn}
-                    onClick={() =>
-                      requestSavedRecrop(
-                        photo,
-                        isMain ? "main" : "gallery",
-                        false,
-                      )
-                    }
-                  >
-                    Kəs
-                  </button>
-                  {!isMain ? (
-                    <button
-                      type="button"
-                      className={styles.thumbMainBtn}
-                      onClick={() => requestSavedAsMain(photo)}
-                    >
-                      Əsas et
-                    </button>
-                  ) : null}
-                  <form action={deletePhoto}>
-                    <input type="hidden" name="photo_id" value={photo.id} />
-                    <button className={styles.thumbDanger} type="submit">
-                      Sil
-                    </button>
-                  </form>
+                  <div className={styles.thumbActions}>
+                    <div className={styles.thumbActionsLeft}>
+                      <button
+                        type="button"
+                        className={styles.thumbIconBtn}
+                        onClick={() =>
+                          requestSavedRecrop(
+                            photo,
+                            isMain ? "main" : "gallery",
+                            false,
+                          )
+                        }
+                        aria-label="Kəs"
+                        title="Kəs"
+                      >
+                        <IconCrop />
+                      </button>
+                      {!isMain ? (
+                        <button
+                          type="button"
+                          className={styles.thumbIconBtn}
+                          onClick={() => requestSavedAsMain(photo)}
+                          aria-label="Əsas et"
+                          title="Əsas et"
+                        >
+                          <IconStar />
+                        </button>
+                      ) : null}
+                    </div>
+                    <form action={deletePhoto} className={styles.thumbDeleteForm}>
+                      <input type="hidden" name="photo_id" value={photo.id} />
+                      <button
+                        className={`${styles.thumbIconBtn} ${styles.thumbIconDanger}`}
+                        type="submit"
+                        aria-label="Sil"
+                        title="Sil"
+                      >
+                        <IconTrash />
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </figure>
             );
@@ -895,8 +963,9 @@ const PhotoPanel = forwardRef<
           queue={cropQueue}
           index={cropIndex}
           aspect={SITE_PHOTO_ASPECT}
+          maxEdge={SITE_PHOTO_MAX_EDGE}
           title="Qalereya kəsimi"
-          hint="4:3 · əlavə fotolar üçün · zoom ilə yerləşdir"
+          hint={`4:3 · əlavə fotolar üçün · zoom ilə yerləşdir · kəskinlik üçün ≥${SITE_PHOTO_MIN_WARN_EDGE}px`}
           onConfirm={onGalleryCropConfirm}
           onCancel={clearCropQueue}
         />
@@ -910,6 +979,11 @@ const PhotoPanel = forwardRef<
             mainCrop.kind === "saved" && mainCrop.role === "gallery"
               ? SITE_PHOTO_ASPECT
               : SITE_MAIN_ASPECT
+          }
+          maxEdge={
+            mainCrop.kind === "saved" && mainCrop.role === "gallery"
+              ? SITE_PHOTO_MAX_EDGE
+              : SITE_MAIN_MAX_EDGE
           }
           title={
             mainCrop.kind === "saved" && !mainCrop.makeMain

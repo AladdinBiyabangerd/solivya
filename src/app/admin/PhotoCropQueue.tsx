@@ -20,6 +20,8 @@ type SharedProps = {
   hint: string;
   progressLabel?: string;
   confirmLabel: string;
+  /** Longest edge for export (hero uses a higher cap). */
+  maxEdge?: number;
   onConfirm: (file: File) => void;
   onCancel: () => void;
 };
@@ -32,6 +34,7 @@ function CropDialog({
   hint,
   progressLabel,
   confirmLabel,
+  maxEdge,
   onConfirm,
   onCancel,
 }: SharedProps) {
@@ -73,7 +76,12 @@ function CropDialog({
     setBusy(true);
     setError(null);
     try {
-      const file = await cropImageToFile(imageUrl, croppedAreaPixels, fileName);
+      const file = await cropImageToFile(
+        imageUrl,
+        croppedAreaPixels,
+        fileName,
+        maxEdge ? { maxEdge } : undefined,
+      );
       onConfirm(file);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kəsim alınmadı.");
@@ -158,6 +166,7 @@ type QueueProps = {
   aspect: number;
   title: string;
   hint: string;
+  maxEdge?: number;
   onConfirm: (file: File) => void;
   onCancel: () => void;
 };
@@ -168,6 +177,7 @@ export function PhotoCropQueue({
   aspect,
   title,
   hint,
+  maxEdge,
   onConfirm,
   onCancel,
 }: QueueProps) {
@@ -181,6 +191,7 @@ export function PhotoCropQueue({
       aspect={aspect}
       title={title}
       hint={hint}
+      maxEdge={maxEdge}
       progressLabel={`Kəsim ${index + 1} / ${queue.length}`}
       confirmLabel={
         index + 1 < queue.length ? "Kəs · növbəti" : "Kəs · bitir"
@@ -198,6 +209,7 @@ type SingleProps = {
   title: string;
   hint: string;
   confirmLabel?: string;
+  maxEdge?: number;
   onConfirm: (file: File) => void;
   onCancel: () => void;
 };
@@ -209,6 +221,7 @@ export function PhotoCropSingle({
   title,
   hint,
   confirmLabel = "Kəs · əsas et",
+  maxEdge,
   onConfirm,
   onCancel,
 }: SingleProps) {
@@ -219,6 +232,7 @@ export function PhotoCropSingle({
       aspect={aspect}
       title={title}
       hint={hint}
+      maxEdge={maxEdge}
       confirmLabel={confirmLabel}
       onConfirm={onConfirm}
       onCancel={onCancel}
