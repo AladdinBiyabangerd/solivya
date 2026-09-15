@@ -22,6 +22,7 @@ export type Property = {
   lead_az: string;
   lead_ru: string;
   zone: string;
+  zone_note: string;
   rooms: number;
   guests: number;
   price_night: number;

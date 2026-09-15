@@ -1,5 +1,5 @@
 import { PropertySite } from "@/components/site/PropertySite";
-import { DEMO_PROPERTY } from "@/components/site/demo-property";
+import { getPublishedPropertyBySlug } from "@/lib/properties";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -9,22 +9,25 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  if (slug !== "demo") {
+  const property = await getPublishedPropertyBySlug(slug);
+
+  if (!property) {
     return { title: "Solivya" };
   }
+
   return {
-    title: `${DEMO_PROPERTY.title} · ${DEMO_PROPERTY.brandName}`,
-    description: DEMO_PROPERTY.lead,
+    title: `${property.title} · ${property.brandName}`,
+    description: property.lead,
   };
 }
 
 export default async function SiteHome({ params }: Props) {
   const { slug } = await params;
+  const property = await getPublishedPropertyBySlug(slug);
 
-  // Addım 7-də DB-dən gələcək; indi yalnız demo UI.
-  if (slug !== "demo") {
+  if (!property) {
     notFound();
   }
 
-  return <PropertySite property={{ ...DEMO_PROPERTY, slug }} />;
+  return <PropertySite property={property} />;
 }
