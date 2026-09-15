@@ -31,12 +31,15 @@ export default async function AdminHome() {
 
   return (
     <main className={styles.shellTop}>
-      <div className={styles.topActions}>
-        <form action={signOut}>
-          <button className={styles.ghost} type="submit">
-            Çıxış
-          </button>
-        </form>
+      <div className={styles.topBar}>
+        <p className={styles.topBrand}>Solivya</p>
+        <div className={styles.topActions}>
+          <form action={signOut}>
+            <button className={styles.ghost} type="submit">
+              Çıxış
+            </button>
+          </form>
+        </div>
       </div>
       <PropertyEditor
         property={property}
