@@ -28,6 +28,7 @@ type Props = {
   defaultValue?: string;
   ownerKey?: string;
   initialCustoms?: CustomLocation[];
+  onZoneChange?: (zonePath: string) => void;
 };
 
 type LevelKey = "city" | "rayon" | "nishangah";
@@ -415,6 +416,7 @@ export function ZonePicker({
   defaultValue = "",
   ownerKey = "",
   initialCustoms = [],
+  onZoneChange,
 }: Props) {
   const [customs, setCustoms] = useState<CustomLocation[]>(initialCustoms);
   const [pending, startTransition] = useTransition();
@@ -534,6 +536,12 @@ export function ZonePicker({
           ),
         )
       : "";
+
+  useEffect(() => {
+    onZoneChange?.(savedValue);
+    // Parent setter is stable enough; avoid re-firing on callback identity
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedValue]);
 
   function persistCustoms(next: CustomLocation[]) {
     setCustoms(next);

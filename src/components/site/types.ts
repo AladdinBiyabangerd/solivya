@@ -28,6 +28,8 @@ export type SitePropertyView = {
   heroImage: string;
   photos: SitePhoto[];
   mapImage?: string;
+  lat?: number | null;
+  lng?: number | null;
   locale: LocaleCode;
   ui: SiteUiCopy;
 };

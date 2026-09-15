@@ -27,7 +27,7 @@ function asRules(value: Property["rules"]): string[] {
 export { resolvePhotoSrc };
 
 export function toSitePropertyView(
-  property: Property & { zone_note?: string },
+  property: Property & { zone_note?: string; lat?: number | null; lng?: number | null },
   photos: Photo[],
   locale: LocaleCode = property.locale_default,
 ): SitePropertyView {
@@ -83,6 +83,14 @@ export function toSitePropertyView(
     heroImage,
     photos: galleryPhotos,
     mapImage,
+    lat:
+      typeof property.lat === "number" && Number.isFinite(property.lat)
+        ? property.lat
+        : null,
+    lng:
+      typeof property.lng === "number" && Number.isFinite(property.lng)
+        ? property.lng
+        : null,
     locale,
     ui,
   };

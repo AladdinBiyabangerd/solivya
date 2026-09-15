@@ -348,6 +348,32 @@ export const AZ_LOCATIONS: LocationNode[] = [
 
 const SEP = " · ";
 
+/** Approximate map centers for AZ şəhər / rayon (WGS84). */
+export const AZ_MAP_CENTERS: Record<string, { lat: number; lng: number }> = {
+  baki: { lat: 40.4093, lng: 49.8671 },
+  sumqayit: { lat: 40.5897, lng: 49.6686 },
+  gence: { lat: 40.6828, lng: 46.3606 },
+  mingechevir: { lat: 40.7703, lng: 47.0489 },
+  lankaran: { lat: 38.7543, lng: 48.8512 },
+  shirvan: { lat: 39.9311, lng: 48.9203 },
+  nakhchivan: { lat: 39.2089, lng: 45.4122 },
+  shaki: { lat: 41.1919, lng: 47.1706 },
+  quba: { lat: 41.3597, lng: 48.5122 },
+  gabala: { lat: 40.9814, lng: 47.8458 },
+  shamakhi: { lat: 40.6314, lng: 48.6414 },
+  khachmaz: { lat: 41.4647, lng: 48.8056 },
+  absheron: { lat: 40.4489, lng: 49.7336 },
+  yevlakh: { lat: 40.6183, lng: 47.1501 },
+  barda: { lat: 40.3758, lng: 47.1262 },
+  agdash: { lat: 40.647, lng: 47.4738 },
+  salyan: { lat: 39.595, lng: 48.9793 },
+  jalilabad: { lat: 39.2096, lng: 48.4919 },
+  imishli: { lat: 39.8709, lng: 48.06 },
+  goychay: { lat: 40.6505, lng: 47.7421 },
+};
+
+export const BAKU_CENTER = AZ_MAP_CENTERS.baki;
+
 export function formatZonePath(names: string[]): string {
   return names.filter(Boolean).join(SEP);
 }
@@ -389,6 +415,17 @@ export function findCityByName(
     AZ_LOCATIONS.find((c) => normalizeSearch(c.name) === n) ??
     customNodesForParent(customs, "").find((c) => normalizeSearch(c.name) === n)
   );
+}
+
+export function mapCenterForZonePath(zonePath: string): {
+  lat: number;
+  lng: number;
+} {
+  const cityName = parseZonePath(zonePath)[0];
+  if (!cityName) return BAKU_CENTER;
+  const city = findCityByName(cityName);
+  if (city && AZ_MAP_CENTERS[city.id]) return AZ_MAP_CENTERS[city.id];
+  return BAKU_CENTER;
 }
 
 function findChildByName(

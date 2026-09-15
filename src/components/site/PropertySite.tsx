@@ -28,11 +28,26 @@ export function PropertySite({
   const langAz = preview ? "?lang=az" : "/?lang=az";
   const langRu = preview ? "?lang=ru" : "/?lang=ru";
 
-  const mapStyle = property.mapImage
+  const hasCoords =
+    typeof property.lat === "number" &&
+    typeof property.lng === "number" &&
+    Number.isFinite(property.lat) &&
+    Number.isFinite(property.lng);
+
+  const mapStyle = !hasCoords && property.mapImage
     ? ({
         "--map-image": `url("${property.mapImage}")`,
       } as CSSProperties)
     : undefined;
+
+  const mapsEmbed =
+    hasCoords
+      ? `https://maps.google.com/maps?q=${property.lat},${property.lng}&z=15&output=embed`
+      : null;
+  const mapsLink =
+    hasCoords
+      ? `https://www.google.com/maps?q=${property.lat},${property.lng}`
+      : null;
 
   return (
     <div style={{ paddingBottom: "5.5rem" }} lang={locale}>
@@ -171,15 +186,36 @@ export function PropertySite({
           </div>
 
           <div className={styles.mapCard}>
-            <div
-              className={styles.mapVisual}
-              role="img"
-              aria-label={ui.mapAria}
-              style={mapStyle}
-            />
+            {mapsEmbed ? (
+              <iframe
+                className={styles.mapEmbed}
+                title={ui.mapAria}
+                src={mapsEmbed}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            ) : (
+              <div
+                className={styles.mapVisual}
+                role="img"
+                aria-label={ui.mapAria}
+                style={mapStyle}
+              />
+            )}
             <div className={styles.mapInfo}>
               <strong>{property.zone}</strong>
               <p>{property.zoneNote}</p>
+              {mapsLink ? (
+                <a
+                  className={styles.mapOpenLink}
+                  href={mapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google Maps-də aç
+                </a>
+              ) : null}
             </div>
           </div>
         </div>

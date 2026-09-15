@@ -78,6 +78,8 @@ export async function createProperty(
     lead_ru: "",
     zone: "",
     zone_note: "",
+    lat: null,
+    lng: null,
     rooms: 1,
     guests: 2,
     price_night: 0,
@@ -122,6 +124,27 @@ export async function saveProperty(
   const locale = String(formData.get("locale_default") ?? "az") as LocaleCode;
   const published = formData.get("published") === "on";
 
+  const latRaw = String(formData.get("lat") ?? "").trim();
+  const lngRaw = String(formData.get("lng") ?? "").trim();
+  let lat: number | null = null;
+  let lng: number | null = null;
+  if (latRaw || lngRaw) {
+    const parsedLat = Number(latRaw);
+    const parsedLng = Number(lngRaw);
+    if (
+      !Number.isFinite(parsedLat) ||
+      !Number.isFinite(parsedLng) ||
+      parsedLat < -90 ||
+      parsedLat > 90 ||
+      parsedLng < -180 ||
+      parsedLng > 180
+    ) {
+      return { error: "Xəritə koordinatı səhvdir." };
+    }
+    lat = parsedLat;
+    lng = parsedLng;
+  }
+
   if (published) {
     const { count } = await supabase
       .from("photos")
@@ -145,6 +168,8 @@ export async function saveProperty(
       lead_ru: String(formData.get("lead_ru") ?? "").trim(),
       zone: String(formData.get("zone") ?? "").trim(),
       zone_note: String(formData.get("zone_note") ?? "").trim(),
+      lat,
+      lng,
       rooms: Number(formData.get("rooms") ?? 1),
       guests: Number(formData.get("guests") ?? 2),
       price_night: Number(formData.get("price_night") ?? 0),

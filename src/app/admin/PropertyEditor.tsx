@@ -35,6 +35,7 @@ import {
   SITE_PHOTO_ASPECT,
 } from "@/lib/cropImage";
 import { ZonePicker } from "./ZonePicker";
+import { MapPinPicker } from "./MapPinPicker";
 import styles from "./admin.module.css";
 
 const empty: EditorState = {};
@@ -933,6 +934,7 @@ function EditForm({
   const photoRef = useRef<PhotoPanelHandle>(null);
   const narrow = useIsNarrow();
   const [step, setStep] = useState(0);
+  const [zonePath, setZonePath] = useState(property.zone ?? "");
   const url = liveUrl(property.slug);
   const last = STEPS.length - 1;
 
@@ -1114,8 +1116,16 @@ function EditForm({
                   defaultValue={property.zone}
                   ownerKey={email}
                   initialCustoms={customLocations}
+                  onZoneChange={setZonePath}
                 />
               </div>
+              {zonePath ? (
+                <MapPinPicker
+                  zonePath={zonePath}
+                  defaultLat={property.lat}
+                  defaultLng={property.lng}
+                />
+              ) : null}
               <label className={styles.label}>
                 WhatsApp
                 <input

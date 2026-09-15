@@ -713,6 +713,59 @@
   cursor: not-allowed;
 }
 
+/* —— Map pin (Yerləşmə) —— */
+.mapPinPicker {
+  display: grid;
+  gap: 0.45rem;
+  grid-column: 1 / -1;
+}
+
+.mapPinFrame {
+  width: 100%;
+  min-height: 16rem;
+  height: min(22rem, 55vh);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+
+.mapPinCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.mapPinMissing {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.mapPinMissing p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.mapPinMissing code {
+  font-size: 0.82em;
+}
+
+.mapPinEnvSample {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--white);
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+  overflow-x: auto;
+  color: var(--muted);
+}
+
 .grid4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

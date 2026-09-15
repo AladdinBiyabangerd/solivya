@@ -688,6 +688,15 @@
   filter: grayscale(0.15) contrast(1.05);
 }
 
+.mapEmbed {
+  display: block;
+  width: 100%;
+  min-height: 240px;
+  height: 100%;
+  border: 0;
+  background: var(--bg-soft);
+}
+
 .mapInfo {
   padding: 1.25rem 1.4rem;
   background: var(--white);
@@ -704,6 +713,16 @@
   color: var(--muted);
   font-size: 0.95rem;
   margin: 0;
+}
+
+.mapOpenLink {
+  display: inline-block;
+  margin-top: 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .contactBtn {

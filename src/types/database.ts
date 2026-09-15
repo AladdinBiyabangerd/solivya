@@ -26,6 +26,8 @@ export type Property = {
   lead_ru: string;
   zone: string;
   zone_note: string;
+  lat: number | null;
+  lng: number | null;
   rooms: number;
   guests: number;
   price_night: number;
