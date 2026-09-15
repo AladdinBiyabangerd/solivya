@@ -8,10 +8,34 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   });
 }
 
+/** Paths that must stay on the root app (not tenant-rewritten). */
+function isRootSeoOrAssetPath(pathname: string): boolean {
+  if (
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/llms.txt"
+  ) {
+    return true;
+  }
+  if (
+    pathname === "/icon" ||
+    pathname.startsWith("/icon/") ||
+    pathname === "/apple-icon" ||
+    pathname.startsWith("/apple-icon") ||
+    pathname.includes("opengraph-image") ||
+    pathname.includes("twitter-image")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export async function middleware(request: NextRequest) {
   const tenant = resolveTenant(request.headers.get("host"));
   const pathname = request.nextUrl.pathname;
-  const rewritePath = tenantRewritePath(tenant, pathname);
+  const rewritePath = isRootSeoOrAssetPath(pathname)
+    ? null
+    : tenantRewritePath(tenant, pathname);
 
   const rewriteUrl = rewritePath
     ? (() => {
@@ -52,6 +76,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

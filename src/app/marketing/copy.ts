@@ -158,7 +158,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     footerCredit: "Dizayn edib hazırlayan",
   },
   ru: {
-    metaTitle: "Solivya — брендовая страница для посуточной аренды",
+    metaTitle: "Брендовая страница для посуточной аренды",
     metaDescription:
       "Своя брендовая страница для вашей квартиры посуточно. Фото, цена, правила и WhatsApp — без комиссии маркетплейса.",
     navAria: "Основное",

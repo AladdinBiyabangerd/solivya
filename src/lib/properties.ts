@@ -143,3 +143,22 @@ export async function getPublishedPropertyBySlug(
   const resolved = locale ?? record.property.locale_default;
   return toSitePropertyView(record.property, record.photos, resolved);
 }
+
+/** Lightweight rows for sitemap (published only; public RLS). */
+export async function listPublishedPropertySitemapEntries(): Promise<
+  { slug: string; updated_at: string }[]
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("properties")
+    .select("slug, updated_at")
+    .eq("published", true)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("listPublishedPropertySitemapEntries", error.message);
+    return [];
+  }
+
+  return (data as { slug: string; updated_at: string }[] | null) ?? [];
+}
