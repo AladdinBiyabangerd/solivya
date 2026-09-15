@@ -15,6 +15,8 @@ export type SiteUiCopy = {
   minNights: (n: number) => string;
   rentalKicker: string;
   mapAria: string;
+  navigateHere: string;
+  openMap: string;
   langAz: string;
   langRu: string;
   photoViewer: string;
@@ -39,6 +41,8 @@ export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
     minNights: (n) => `Min. ${n} gecə`,
     rentalKicker: "Günlük kirayə",
     mapAria: "Yerləşmə vizualı",
+    navigateHere: "Yol götür",
+    openMap: "Xəritədə aç",
     langAz: "AZ",
     langRu: "RU",
     photoViewer: "Foto baxışı",
@@ -61,6 +65,8 @@ export const SITE_UI: Record<LocaleCode, SiteUiCopy> = {
     minNights: (n) => `Мин. ${n} ночи`,
     rentalKicker: "Посуточная аренда",
     mapAria: "Карта района",
+    navigateHere: "Построить маршрут",
+    openMap: "Открыть карту",
     langAz: "AZ",
     langRu: "RU",
     photoViewer: "Просмотр фото",

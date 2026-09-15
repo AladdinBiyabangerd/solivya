@@ -115,7 +115,8 @@ export function MapLocationCard({
   onClear,
   className,
 }: CardProps) {
-  const mapsLink = `https://www.openstreetmap.org/?mlat=${position.lat}&mlon=${position.lng}#map=16/${position.lat}/${position.lng}`;
+  const mapsLink = `https://www.google.com/maps?q=${position.lat},${position.lng}`;
+  const navigateLink = `https://www.google.com/maps/dir/?api=1&destination=${position.lat},${position.lng}`;
 
   return (
     <aside
@@ -128,6 +129,14 @@ export function MapLocationCard({
         <p className={styles.mapLocationCoords}>
           {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
         </p>
+        <a
+          className={styles.mapLocationLink}
+          href={navigateLink}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Yol götür
+        </a>
         <a
           className={styles.mapLocationLink}
           href={mapsLink}

@@ -44,10 +44,12 @@ export function PropertySite({
     hasCoords
       ? `https://www.openstreetmap.org/export/embed.html?bbox=${property.lng! - 0.012}%2C${property.lat! - 0.008}%2C${property.lng! + 0.012}%2C${property.lat! + 0.008}&layer=mapnik&marker=${property.lat}%2C${property.lng}`
       : null;
-  const mapsLink =
-    hasCoords
-      ? `https://www.openstreetmap.org/?mlat=${property.lat}&mlon=${property.lng}#map=16/${property.lat}/${property.lng}`
-      : null;
+  const navigateHref = hasCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${property.lat},${property.lng}`
+    : null;
+  const mapsHref = hasCoords
+    ? `https://www.google.com/maps?q=${property.lat},${property.lng}`
+    : null;
 
   return (
     <div style={{ paddingBottom: "5.5rem" }} lang={locale}>
@@ -186,15 +188,25 @@ export function PropertySite({
           </div>
 
           <div className={styles.mapCard}>
-            {mapsEmbed ? (
-              <iframe
-                className={styles.mapEmbed}
-                title={ui.mapAria}
-                src={mapsEmbed}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-              />
+            {mapsEmbed && navigateHref ? (
+              <a
+                className={styles.mapHit}
+                href={navigateHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={ui.navigateHere}
+              >
+                <iframe
+                  className={styles.mapEmbed}
+                  title={ui.mapAria}
+                  src={mapsEmbed}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  tabIndex={-1}
+                  aria-hidden
+                />
+                <span className={styles.mapHitLabel}>{ui.navigateHere}</span>
+              </a>
             ) : (
               <div
                 className={styles.mapVisual}
@@ -206,15 +218,27 @@ export function PropertySite({
             <div className={styles.mapInfo}>
               <strong>{property.zone}</strong>
               <p>{property.zoneNote}</p>
-              {mapsLink ? (
-                <a
-                  className={styles.mapOpenLink}
-                  href={mapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Xəritədə aç
-                </a>
+              {navigateHref ? (
+                <div className={styles.mapLinks}>
+                  <a
+                    className={styles.mapNavBtn}
+                    href={navigateHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {ui.navigateHere}
+                  </a>
+                  {mapsHref ? (
+                    <a
+                      className={styles.mapOpenLink}
+                      href={mapsHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {ui.openMap}
+                    </a>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           </div>
