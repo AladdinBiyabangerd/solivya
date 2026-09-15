@@ -91,36 +91,27 @@ export default async function MarketingHome() {
         </div>
       </header>
 
-      <section className={styles.problem} id="problem">
-        <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Problem</p>
-          <h2 className={styles.sectionTitle}>Elan var. Brend yoxdur.</h2>
-          <p className={styles.sectionTextWide}>
-            bina.az, Instagram və WhatsApp-da eyni suallar hər gün təkrarlanır:
-            qiymət nə qədərdir, wifi varmı, depozit, minimum gecə, boş tarix.
-            Foto 20 dəfə göndərilir, qaydalar unudulur. Qonaq etibar etmir —
-            sən isə vaxt itirirsən.
-          </p>
-          <p className={styles.sectionTextWide}>
-            Solivya bir səhifədə hər şeyi toplayır. Linki bio-ya, elana və ya
-            WhatsApp statusuna qoyursan — qonaq oxuyur, sonra yazır.
-          </p>
-        </div>
-      </section>
-
-      <section className={styles.audience} id="kim">
-        <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Kim üçündür</p>
-          <h2 className={styles.sectionTitle}>1–5 mənzili olan sahib</h2>
-          <p className={styles.sectionText}>
-            Marketplace qururuq yox — sənin mənzilin üçün premium vitrin.
-          </p>
-          <ul className={styles.plainList}>
-            <li>Günlük kirayə verən mənzil sahibləri (Bakı və digər şəhərlər)</li>
-            <li>Airbnb / Booking-də olan, amma birbaşa qonaq da istəyənlər</li>
-            <li>Instagram və WhatsApp-la işləyən, saytı olmayan sahiblər</li>
-            <li>Agentlik yox — özün idarə edən “sahibindən” elanlar</li>
-          </ul>
+      <section className={styles.splitBand} id="problem">
+        <div className={`${styles.wrap} ${styles.split}`}>
+          <div>
+            <p className={styles.sectionLabel}>Problem</p>
+            <h2 className={styles.sectionTitle}>Elan var. Brend yoxdur.</h2>
+            <p className={styles.sectionText}>
+              bina.az, Instagram, WhatsApp — eyni suallar hər gün: qiymət,
+              wifi, depozit, boş tarix. Foto 20 dəfə göndərilir. Solivya bir
+              səhifədə toplayır; linki bio-ya qoyursan, qonaq oxuyub yazır.
+            </p>
+          </div>
+          <div id="kim">
+            <p className={styles.sectionLabel}>Kim üçündür</p>
+            <h2 className={styles.sectionTitle}>1–5 mənzilli sahib</h2>
+            <ul className={styles.plainList}>
+              <li>Günlük kirayə verən mənzil sahibləri</li>
+              <li>Airbnb / Booking + birbaşa qonaq istəyənlər</li>
+              <li>Instagram / WhatsApp-la işləyən, saytı olmayanlar</li>
+              <li>Özün idarə edən “sahibindən” elanlar</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -137,8 +128,7 @@ export default async function MarketingHome() {
           <h2 className={styles.sectionTitle}>Belə görünür</h2>
           <p className={styles.sectionText}>
             Full-bleed foto, aydın qiymət, təchizat və qaydalar. Sticky
-            WhatsApp — qonaq telefonda dəqiqə içində yazır. AZ və RU dil
-            dəstəyi var.
+            WhatsApp — AZ / RU. Qonaq telefonda dəqiqə içində yazır.
           </p>
           <a className={styles.btn} href={demoUrl}>
             Demo səhifəni aç
@@ -148,37 +138,41 @@ export default async function MarketingHome() {
 
       <section className={styles.includes} id="daxil">
         <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Nə daxildir</p>
-          <h2 className={styles.sectionTitle}>Səhifəndə nə olur</h2>
-          <p className={styles.sectionText}>
-            Hazır şablon + sənin məzmunun. Texniki başağrısı sənə qalmır.
-          </p>
-          <ol className={styles.includeList}>
+          <div className={styles.sectionHead}>
+            <div>
+              <p className={styles.sectionLabel}>Nə daxildir</p>
+              <h2 className={styles.sectionTitle}>Səhifəndə nə olur</h2>
+            </div>
+            <p className={styles.sectionText}>
+              Hazır şablon + sənin məzmunun. Texniki başağrısı sənə qalmır.
+            </p>
+          </div>
+          <ol className={styles.includeGrid}>
             <li>
               <strong>Öz subdomain</strong>
               <span>
-                məsələn <em>sahil.solivya.homes</em> — bir link, sənin brendin
+                məs. <em>sahil.solivya.homes</em>
               </span>
             </li>
             <li>
               <strong>Foto qalereya</strong>
-              <span>hero + qalereya; paneldən yüklə, sıra dəyiş, sil</span>
+              <span>yüklə, sıra dəyiş, sil</span>
             </li>
             <li>
               <strong>Qiymət və qaydalar</strong>
-              <span>gecəlik qiymət, depozit, min. gecə, təchizat siyahısı</span>
+              <span>gecəlik, depozit, təchizat</span>
             </li>
             <li>
               <strong>WhatsApp CTA</strong>
-              <span>hazır mesajla bir toxunuşda yazışma — ödəniş saytda yoxdur</span>
+              <span>bir toxunuşda yazışma</span>
             </li>
             <li>
               <strong>AZ / RU</strong>
-              <span>qonaq dili dəyişir; başlıq və təsvir sənin yazdığındır</span>
+              <span>qonaq dili dəyişir</span>
             </li>
             <li>
               <strong>Sadə admin</strong>
-              <span>özün mətn və foto yeniləyirsən; publish / draft</span>
+              <span>özün yenilə · publish</span>
             </li>
           </ol>
         </div>
@@ -186,149 +180,117 @@ export default async function MarketingHome() {
 
       <section className={styles.process} id="necə">
         <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Necə işləyir</p>
-          <h2 className={styles.sectionTitle}>3 addım</h2>
+          <div className={styles.sectionHead}>
+            <div>
+              <p className={styles.sectionLabel}>Necə işləyir</p>
+              <h2 className={styles.sectionTitle}>3 addım</h2>
+            </div>
+          </div>
           <ol className={styles.steps}>
             <li>
               <span className={styles.stepNum}>01</span>
-              <div>
-                <strong>WhatsApp və ya qeydiyyat</strong>
-                <p>
-                  Yazırsan və ya hesab yaradırsan. Mənzil adı, zona, qiymət və
-                  fotoları göndərirsən (və ya özün paneldən yükləyirsən).
-                </p>
-              </div>
+              <strong>WhatsApp və ya qeydiyyat</strong>
+              <p>Mənzil adı, zona, qiymət və fotolar — yaz və ya paneldən.</p>
             </li>
             <li>
               <span className={styles.stepNum}>02</span>
-              <div>
-                <strong>Səhifə hazırlanır</strong>
-                <p>
-                  Dizayn və qurulum bizdə. Subdomain açılır, məzmun yerləşir,
-                  publish edirsən.
-                </p>
-              </div>
+              <strong>Səhifə hazırlanır</strong>
+              <p>Dizayn və qurulum bizdə. Subdomain açılır, publish edirsən.</p>
             </li>
             <li>
               <span className={styles.stepNum}>03</span>
-              <div>
-                <strong>Linki paylaş</strong>
-                <p>
-                  Instagram bio, bina.az elanı, WhatsApp statusu. Qonaq oxuyur —
-                  sənə yazır. Aylıq 20 ₼ ilə səhifə canlı qalır.
-                </p>
-              </div>
+              <strong>Linki paylaş</strong>
+              <p>Bio, elan, status. Qonaq oxuyur — sənə yazır. Aylıq 20 ₼.</p>
             </li>
           </ol>
         </div>
       </section>
 
-      <section className={styles.pricing} id="qiymet">
-        <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Qiymət</p>
-          <h2 className={styles.sectionTitle}>Sadə və aydın</h2>
-          <p className={styles.sectionText}>
-            Marketplace komissiyası yoxdur. Səhifə sənin brendindir — qurulum
-            bir dəfə, sonra aylıq baxım.
-          </p>
-
-          <dl className={styles.priceList}>
-            <div className={styles.priceItem}>
-              <dt>
-                Qurulum
-                <span className={styles.priceHint}>
-                  dizayn, subdomain, ilk məzmun, publish
-                </span>
-              </dt>
-              <dd>100 ₼</dd>
+      <section className={styles.dealBand} id="qiymet">
+        <div className={`${styles.wrap} ${styles.split}`}>
+          <div>
+            <p className={styles.sectionLabel}>Qiymət</p>
+            <h2 className={styles.sectionTitle}>Sadə və aydın</h2>
+            <p className={styles.sectionText}>
+              Komissiya yoxdur. Qurulum bir dəfə, sonra aylıq baxım. Bron
+              WhatsApp-ladır — qəsdən.
+            </p>
+            <dl className={styles.priceList}>
+              <div className={styles.priceItem}>
+                <dt>
+                  Qurulum
+                  <span className={styles.priceHint}>
+                    dizayn, subdomain, ilk məzmun
+                  </span>
+                </dt>
+                <dd>100 ₼</dd>
+              </div>
+              <div className={styles.priceItem}>
+                <dt>
+                  Aylıq
+                  <span className={styles.priceHint}>
+                    hosting, SSL, admin
+                  </span>
+                </dt>
+                <dd>20 ₼</dd>
+              </div>
+            </dl>
+            <div className={styles.actions}>
+              <a className={styles.btn} href={signupUrl}>
+                Hesab yarat
+              </a>
+              <a
+                className={styles.btnSecondary}
+                href={wa}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp
+              </a>
             </div>
-            <div className={styles.priceItem}>
-              <dt>
-                Aylıq
-                <span className={styles.priceHint}>
-                  hosting, SSL, admin panel, kiçik düzəlişlər
-                </span>
-              </dt>
-              <dd>20 ₼</dd>
-            </div>
-          </dl>
-
-          <p className={styles.sectionText}>
-            Online bron və ödəniş yoxdur — qəsdən. Qonaq WhatsApp-la yazır, sən
-            tarixi və şərtləri özün razılaşırsan.
-          </p>
-
-          <div className={styles.actions}>
-            <a className={styles.btn} href={signupUrl}>
-              Hesab yarat
-            </a>
-            <a
-              className={styles.btnSecondary}
-              href={wa}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp-la danış
-            </a>
+          </div>
+          <div id="sual">
+            <p className={styles.sectionLabel}>Suallar</p>
+            <h2 className={styles.sectionTitle}>Tez-tez</h2>
+            <dl className={styles.faqList}>
+              <div className={styles.faqItem}>
+                <dt>Airbnb / bina.az əvəzi?</dt>
+                <dd>
+                  Xeyr — sənin öz səhifən; marketplace deyil, vitrindir.
+                </dd>
+              </div>
+              <div className={styles.faqItem}>
+                <dt>Saytdan ödəniş?</dt>
+                <dd>İndilik yox. WhatsApp / nağd / köçürmə.</dd>
+              </div>
+              <div className={styles.faqItem}>
+                <dt>Özüm dəyişə bilərəm?</dt>
+                <dd>Bəli — foto, qiymət, qaydalar admin paneldən.</dd>
+              </div>
+              <div className={styles.faqItem}>
+                <dt>Neçə mənzil?</dt>
+                <dd>Başlanğıcda bir səhifə; əlavə ayrıca razılaşdırılır.</dd>
+              </div>
+              <div className={styles.faqItem}>
+                <dt>Nə qədər vaxt?</dt>
+                <dd>Foto/mətn hazırdırsa adətən 1–3 gün.</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </section>
 
-      <section className={styles.faq} id="sual">
-        <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Suallar</p>
-          <h2 className={styles.sectionTitle}>Tez-tez soruşulan</h2>
-          <dl className={styles.faqList}>
-            <div className={styles.faqItem}>
-              <dt>Bu Airbnb və ya bina.az əvəzidir?</dt>
-              <dd>
-                Xeyr. Onlar marketplace-dir. Solivya sənin öz səhifəndir —
-                elan saytlarından gələn sorğuları daha peşəkar qarşılamaq
-                üçündür.
-              </dd>
-            </div>
-            <div className={styles.faqItem}>
-              <dt>Ödənişi saytdan ala bilərəm?</dt>
-              <dd>
-                İndilik yox. Bron və ödəniş WhatsApp / nağd / köçürmə ilə —
-                yerli bazar belə işləyir. Sonra əlavə oluna bilər.
-              </dd>
-            </div>
-            <div className={styles.faqItem}>
-              <dt>Özüm foto və qiyməti dəyişə bilərəm?</dt>
-              <dd>
-                Bəli. Admin paneldən mətn, qiymət, qaydalar və fotoları
-                yeniləyirsən; publish edəndə canlı səhifə dəyişir.
-              </dd>
-            </div>
-            <div className={styles.faqItem}>
-              <dt>Neçə mənzil əlavə edə bilərəm?</dt>
-              <dd>
-                Başlanğıcda bir mənzil / bir səhifə. Bir neçə mənzilin varsa,
-                əlavə səhifə ayrıca razılaşdırılır.
-              </dd>
-            </div>
-            <div className={styles.faqItem}>
-              <dt>Nə qədər vaxta hazır olur?</dt>
-              <dd>
-                Foto və mətn hazırdırsa, adətən 1–3 gün. Tələsik lazımdırsa
-                WhatsApp-la yaz.
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-
       <section className={styles.closing}>
-        <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Başla</p>
-          <h2 className={styles.sectionTitleWide}>
-            Linkini bu həftə paylaş
-          </h2>
-          <p className={styles.sectionText}>
-            Demo-ya bax, sonra WhatsApp-la yaz və ya hesab yarat. Birinci
-            qonağa peşəkar təəssürat buraxmaq üçün kifayət edir.
-          </p>
+        <div className={`${styles.wrap} ${styles.closingInner}`}>
+          <div>
+            <p className={styles.sectionLabel}>Başla</p>
+            <h2 className={styles.sectionTitleWide}>
+              Linkini bu həftə paylaş
+            </h2>
+            <p className={styles.sectionText}>
+              Demo-ya bax, WhatsApp-la yaz və ya hesab yarat.
+            </p>
+          </div>
           <div className={styles.actions}>
             <a
               className={styles.btn}
