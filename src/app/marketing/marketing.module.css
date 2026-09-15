@@ -3,9 +3,15 @@
   color: var(--text);
 }
 
+.wrap {
+  width: min(1120px, calc(100% - 2.5rem));
+  margin-inline: auto;
+}
+
+/* —— Hero —— */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh;
   display: grid;
   align-items: end;
   overflow: hidden;
@@ -15,37 +21,49 @@
 .heroMedia {
   position: absolute;
   inset: 0;
-  animation: heroZoom 18s ease-out forwards;
+  animation: heroZoom 22s ease-out forwards;
 }
 
 .heroMedia img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.68) saturate(1.05);
+  filter: brightness(0.62) saturate(1.08) contrast(1.04);
 }
 
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(28, 25, 23, 0.2) 0%,
-    rgba(28, 25, 23, 0.18) 40%,
-    rgba(28, 25, 23, 0.78) 100%
-  );
+  background:
+    linear-gradient(
+      105deg,
+      rgba(28, 25, 23, 0.55) 0%,
+      rgba(28, 25, 23, 0.2) 48%,
+      rgba(28, 25, 23, 0.35) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(28, 25, 23, 0.15) 0%,
+      rgba(28, 25, 23, 0.12) 35%,
+      rgba(28, 25, 23, 0.82) 100%
+    );
+}
+
+.heroGrain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .topbar {
   position: absolute;
   inset: 0 0 auto;
   z-index: 5;
-  padding: 1.35rem 0;
-}
-
-.wrap {
-  width: min(1120px, calc(100% - 2.5rem));
-  margin-inline: auto;
+  padding: 1.4rem 0;
+  animation: rise 0.7s ease both;
 }
 
 .topInner {
@@ -57,51 +75,61 @@
 
 .navBrand {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   letter-spacing: 0.02em;
+}
+
+.navLinks {
+  display: flex;
+  gap: 1.35rem;
 }
 
 .navLink {
   font-size: 0.9rem;
   font-weight: 500;
-  opacity: 0.92;
-  border-bottom: 1px solid rgba(255, 252, 250, 0.35);
+  opacity: 0.9;
+  border-bottom: 1px solid rgba(255, 252, 250, 0.3);
   padding-bottom: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.navLink:hover {
+  opacity: 1;
 }
 
 .heroContent {
   position: relative;
   z-index: 2;
-  padding: 0 0 4.75rem;
+  padding: 0 0 5.5rem;
   color: var(--white);
-  animation: rise 0.9s ease both;
 }
 
 .brandMark {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-size: clamp(3.4rem, 10vw, 6.4rem);
   font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin: 0 0 1.1rem;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin: 0 0 1.15rem;
+  text-shadow: 0 12px 40px rgba(28, 25, 23, 0.35);
 }
 
 .headline {
   font-family: var(--font-display);
-  font-size: clamp(1.55rem, 3.2vw, 2.35rem);
+  font-size: clamp(1.35rem, 2.8vw, 1.95rem);
   font-weight: 500;
-  line-height: 1.2;
-  max-width: 18ch;
+  line-height: 1.25;
+  max-width: 20ch;
   margin: 0 0 1rem;
-  color: rgba(255, 252, 250, 0.94);
+  color: rgba(255, 252, 250, 0.92);
 }
 
 .lead {
-  max-width: 36ch;
+  max-width: 34ch;
   font-size: 1.05rem;
   line-height: 1.55;
-  color: rgba(255, 252, 250, 0.82);
-  margin: 0 0 1.85rem;
+  color: rgba(255, 252, 250, 0.8);
+  margin: 0 0 1.9rem;
 }
 
 .actions {
@@ -115,7 +143,7 @@
   align-items: center;
   justify-content: center;
   min-height: 3rem;
-  padding: 0.85rem 1.4rem;
+  padding: 0.85rem 1.45rem;
   background: var(--accent);
   color: var(--white);
   font-weight: 600;
@@ -136,7 +164,7 @@
   align-items: center;
   justify-content: center;
   min-height: 3rem;
-  padding: 0.85rem 1.4rem;
+  padding: 0.85rem 1.45rem;
   background: transparent;
   border: 1px solid rgba(255, 252, 250, 0.45);
   color: var(--white);
@@ -158,7 +186,7 @@
   align-items: center;
   justify-content: center;
   min-height: 3rem;
-  padding: 0.85rem 1.4rem;
+  padding: 0.85rem 1.45rem;
   background: transparent;
   border: 1px solid rgba(28, 25, 23, 0.22);
   color: var(--text);
@@ -175,12 +203,35 @@
   transform: translateY(-1px);
 }
 
-.pricing {
-  padding: 5rem 0 5.5rem;
+.scrollHint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.4rem;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 1px;
+  height: 2.4rem;
+  overflow: hidden;
+  opacity: 0.55;
+}
+
+.scrollHint span {
+  display: block;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(255, 252, 250, 0.85)
+  );
+  animation: scrollLine 2.2s ease-in-out infinite;
+}
+
+/* —— Problem —— */
+.problem {
+  padding: 5.5rem 0 4.5rem;
   background:
-    radial-gradient(ellipse at top, rgba(154, 123, 79, 0.08), transparent 55%),
-    var(--bg);
-  animation: rise 0.8s ease 0.15s both;
+    linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 100%);
 }
 
 .sectionLabel {
@@ -189,48 +240,124 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent);
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.85rem;
 }
 
 .sectionTitle {
   font-family: var(--font-display);
-  font-size: clamp(1.85rem, 3vw, 2.6rem);
+  font-size: clamp(1.9rem, 3.4vw, 2.85rem);
   font-weight: 600;
-  line-height: 1.15;
-  margin: 0 0 1rem;
-  max-width: 14ch;
+  line-height: 1.12;
+  margin: 0 0 1.1rem;
+  max-width: 12ch;
 }
 
 .sectionText {
   color: var(--muted);
-  max-width: 48ch;
-  font-size: 1.05rem;
-  margin: 0 0 2rem;
-  line-height: 1.55;
+  max-width: 42ch;
+  font-size: 1.08rem;
+  margin: 0;
+  line-height: 1.6;
 }
 
-.priceRow {
+/* —— Proof / demo —— */
+.proof {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  min-height: min(72vh, 640px);
+  background: var(--bg);
+}
+
+.proofMedia {
+  position: relative;
+  overflow: hidden;
+  background: #2a241f;
+}
+
+.proofMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.03);
+  transition: transform 1.2s ease;
+}
+
+.proof:hover .proofMedia img {
+  transform: scale(1.03);
+}
+
+.proofCopy {
+  display: grid;
+  align-content: center;
+  padding: clamp(2.5rem, 5vw, 4.5rem);
+  background: var(--bg-soft);
+}
+
+.proofCopy .sectionText {
+  margin-bottom: 1.75rem;
+}
+
+/* —— Pricing —— */
+.pricing {
+  padding: 5.5rem 0 5.75rem;
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 10% 0%,
+      rgba(154, 123, 79, 0.1),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.priceList {
+  margin: 0 0 2.25rem;
+  padding: 0;
+  max-width: 28rem;
+  border-top: 1px solid var(--line);
+}
+
+.priceItem {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem 2.5rem;
-  align-items: end;
-  margin-bottom: 2rem;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.priceBlock {
+.priceItem dt {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.priceItem dd {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-size: clamp(1.65rem, 2.5vw, 2.1rem);
   font-weight: 600;
   line-height: 1;
 }
 
-.priceBlock span {
-  display: block;
-  margin-top: 0.4rem;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: var(--muted);
+/* —— Footer —— */
+.footer {
+  padding: 2.25rem 0 2.75rem;
+  border-top: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+
+.footerInner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.footerBrand {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0;
 }
 
 .footerNote {
@@ -239,9 +366,23 @@
   margin: 0;
 }
 
+/* —— Motion helpers —— */
+.anim1 {
+  animation: rise 0.85s ease both;
+}
+.anim2 {
+  animation: rise 0.85s ease 0.12s both;
+}
+.anim3 {
+  animation: rise 0.85s ease 0.22s both;
+}
+.anim4 {
+  animation: rise 0.85s ease 0.32s both;
+}
+
 @keyframes heroZoom {
   from {
-    transform: scale(1.08);
+    transform: scale(1.1);
   }
   to {
     transform: scale(1);
@@ -251,11 +392,31 @@
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(22px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes scrollLine {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 900px) {
+  .proof {
+    grid-template-columns: 1fr;
+    min-height: unset;
+  }
+
+  .proofMedia {
+    min-height: 280px;
   }
 }
 
@@ -265,11 +426,36 @@
   }
 
   .heroContent {
-    padding-bottom: 3.5rem;
+    padding-bottom: 4rem;
+  }
+
+  .brandMark {
+    font-size: clamp(3rem, 14vw, 4.2rem);
   }
 
   .actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .scrollHint {
+    display: none;
+  }
+
+  .navLinks {
+    gap: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroMedia,
+  .anim1,
+  .anim2,
+  .anim3,
+  .anim4,
+  .scrollHint span,
+  .proofMedia img {
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -5,7 +5,7 @@ import styles from "./marketing.module.css";
 export const metadata: Metadata = {
   title: "Solivya — Sahib brendli günlük kirayə səhifəsi",
   description:
-    "Günlük kirayə mənzilin üçün öz brendli sayt. WhatsApp ilə sorğu, gözəl foto, aydın qiymət.",
+    "Günlük kirayə mənzilin üçün öz brendli sayt. WhatsApp ilə sorğu, gözəl foto, aydın qiymət — marketplace komissiyası olmadan.",
 };
 
 function salesWhatsAppHref(): string {
@@ -36,32 +36,45 @@ export default async function MarketingHome() {
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1800&q=80"
+            src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=2000&q=80"
             alt=""
           />
         </div>
         <div className={styles.heroOverlay} aria-hidden="true" />
+        <div className={styles.heroGrain} aria-hidden="true" />
 
         <div className={styles.topbar}>
           <div className={`${styles.wrap} ${styles.topInner}`}>
-            <div className={styles.navBrand}>Solivya</div>
-            <a className={styles.navLink} href={demoUrl}>
-              Demo
+            <a className={styles.navBrand} href="/">
+              Solivya
             </a>
+            <nav className={styles.navLinks} aria-label="Əsas">
+              <a className={styles.navLink} href={demoUrl}>
+                Demo
+              </a>
+              <a className={styles.navLink} href="#qiymet">
+                Qiymət
+              </a>
+            </nav>
           </div>
         </div>
 
         <div className={`${styles.wrap} ${styles.heroContent}`}>
-          <p className={styles.brandMark}>Solivya</p>
-          <h1 className={styles.headline}>
+          <p className={`${styles.brandMark} ${styles.anim1}`}>Solivya</p>
+          <h1 className={`${styles.headline} ${styles.anim2}`}>
             Günlük kirayə üçün öz brendli səhifən
           </h1>
-          <p className={styles.lead}>
+          <p className={`${styles.lead} ${styles.anim3}`}>
             Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra
-            birbaşa WhatsApp-a yazır.
+            birbaşa sənin WhatsApp-ına yazır.
           </p>
-          <div className={styles.actions}>
-            <a className={styles.btn} href={wa} target="_blank" rel="noopener noreferrer">
+          <div className={`${styles.actions} ${styles.anim4}`}>
+            <a
+              className={styles.btn}
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               WhatsApp ilə sifariş
             </a>
             <a className={styles.btnGhost} href={demoUrl}>
@@ -69,26 +82,67 @@ export default async function MarketingHome() {
             </a>
           </div>
         </div>
+
+        <div className={styles.scrollHint} aria-hidden="true">
+          <span />
+        </div>
       </header>
+
+      <section className={styles.problem} id="nece">
+        <div className={styles.wrap}>
+          <p className={styles.sectionLabel}>Problem</p>
+          <h2 className={styles.sectionTitle}>
+            Elan var. Brend yoxdur.
+          </h2>
+          <p className={styles.sectionText}>
+            bina.az və WhatsApp-da eyni suallar təkrarlanır: qiymət, wifi,
+            depozit, boş tarix. Solivya bunları bir səhifədə toplayır —
+            qonaq oxuyur, sən cavab verirən.
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.proof}>
+        <div className={styles.proofMedia} aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=80"
+            alt=""
+          />
+        </div>
+        <div className={styles.proofCopy}>
+          <p className={styles.sectionLabel}>Nümunə</p>
+          <h2 className={styles.sectionTitle}>Belə görünür</h2>
+          <p className={styles.sectionText}>
+            Full-bleed foto, aydın qiymət, təchizat və qaydalar. Sticky
+            WhatsApp — qonaq telefonunda dəqiqə içində yazır.
+          </p>
+          <a className={styles.btn} href={demoUrl}>
+            Demo səhifəni aç
+          </a>
+        </div>
+      </section>
 
       <section className={styles.pricing} id="qiymet">
         <div className={styles.wrap}>
           <p className={styles.sectionLabel}>Qiymət</p>
           <h2 className={styles.sectionTitle}>Sadə və aydın</h2>
           <p className={styles.sectionText}>
-            Qurulum bir dəfə, sonra aylıq baxım. Marketplace komissiyası yoxdur —
-            səhifə sənin brendindir.
+            Marketplace komissiyası yoxdur. Səhifə sənin brendindir —
+            qurulum bir dəfə, sonra aylıq baxım.
           </p>
-          <div className={styles.priceRow}>
-            <div className={styles.priceBlock}>
-              100 ₼
-              <span>qurulum</span>
+
+          <dl className={styles.priceList}>
+            <div className={styles.priceItem}>
+              <dt>Qurulum</dt>
+              <dd>100 ₼</dd>
             </div>
-            <div className={styles.priceBlock}>
-              20 ₼
-              <span>aylıq</span>
+            <div className={styles.priceItem}>
+              <dt>Aylıq</dt>
+              <dd>20 ₼</dd>
             </div>
-          </div>
+          </dl>
+
           <div className={styles.actions}>
             <a className={styles.btn} href={signupUrl}>
               Hesab yarat
@@ -99,14 +153,20 @@ export default async function MarketingHome() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              WhatsApp
+              WhatsApp-la danış
             </a>
           </div>
-          <p className={styles.footerNote} style={{ marginTop: "1.75rem" }}>
-            Demo: {demoUrl.replace(/^https?:\/\//, "")}
-          </p>
         </div>
       </section>
+
+      <footer className={styles.footer}>
+        <div className={`${styles.wrap} ${styles.footerInner}`}>
+          <p className={styles.footerBrand}>Solivya</p>
+          <p className={styles.footerNote}>
+            Sahib brendli günlük kirayə səhifələri · Bakı
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
