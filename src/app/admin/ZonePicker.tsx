@@ -123,6 +123,14 @@ function SearchableSelect({
   const [customText, setCustomText] = useState("");
   const [customError, setCustomError] = useState("");
 
+  function openCustom() {
+    setQuery("");
+    setCustomText("");
+    setCustomError("");
+    setCustomMode(true);
+    setOpen(true);
+  }
+
   const selected = options.find((o) => o.id === valueId);
   const filtered = useMemo(
     () => options.filter((o) => matchesSearch(o.name, query)),
@@ -130,16 +138,20 @@ function SearchableSelect({
   );
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setCustomMode(false);
+      return;
+    }
     setQuery("");
-    setCustomMode(false);
-    setCustomText("");
-    setCustomError("");
     setActiveId(valueId || filtered[0]?.id || "");
-    const t = window.setTimeout(() => searchRef.current?.focus(), 0);
-    return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  useEffect(() => {
+    if (!open || customMode) return;
+    const t = window.setTimeout(() => searchRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, [open, customMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -321,6 +333,13 @@ function SearchableSelect({
                 onChange={(e) => onQueryChange(e.target.value)}
                 onKeyDown={onSearchKeyDown}
               />
+              <button
+                type="button"
+                className={styles.zoneCustomTrigger}
+                onClick={() => setCustomMode(true)}
+              >
+                Siyahıda yoxdur — özüm yazım
+              </button>
               <ul
                 id={listId}
                 className={styles.zoneSelectList}
@@ -363,16 +382,19 @@ function SearchableSelect({
                   })
                 )}
               </ul>
-              <button
-                type="button"
-                className={styles.zoneCustomTrigger}
-                onClick={() => setCustomMode(true)}
-              >
-                Siyahıda yoxdur — özüm yazım
-              </button>
             </>
           )}
         </div>
+      ) : null}
+
+      {!disabled ? (
+        <button
+          type="button"
+          className={styles.zoneCustomLink}
+          onClick={openCustom}
+        >
+          Siyahıda yoxdur? Özünüz yazın
+        </button>
       ) : null}
     </div>
   );
