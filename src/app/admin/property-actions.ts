@@ -12,7 +12,7 @@ export type EditorState = {
 
 function parseAmenities(raw: string): Amenity[] {
   return raw
-    .split("\n")
+    .split(/[\n,]+/)
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {

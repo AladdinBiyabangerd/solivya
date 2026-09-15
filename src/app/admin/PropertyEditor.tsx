@@ -46,7 +46,7 @@ function amenitiesToText(value: Property["amenities"]): string {
       return row.subtitle ? `${row.title} | ${row.subtitle}` : row.title;
     })
     .filter(Boolean)
-    .join("\n");
+    .join(", ");
 }
 
 function rulesToText(value: Property["rules"]): string {
@@ -965,7 +965,9 @@ function EditForm({
                     rows={4}
                     defaultValue={amenitiesToText(property.amenities)}
                   />
-                  <span className={styles.fieldHint}>Başlıq | alt mətn</span>
+                  <span className={styles.fieldHint}>
+                    Vergüllə ayır · istəsən: Başlıq | alt mətn
+                  </span>
                 </label>
                 <label className={styles.label}>
                   Qaydalar
