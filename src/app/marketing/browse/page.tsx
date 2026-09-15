@@ -12,6 +12,7 @@ import {
   pageMetadata,
 } from "@/lib/seo";
 import { BUILDER, builderPortfolioUrl } from "@/lib/site";
+import { createClient } from "@/utils/supabase/server";
 import { MARKETING } from "../copy";
 import { BROWSE } from "./copy";
 import marketing from "../marketing.module.css";
@@ -75,9 +76,13 @@ export default async function BrowsePage({ searchParams }: Props) {
   const demoUrl = isLocal
     ? `http://demo.localhost:3000/?lang=${locale}`
     : `https://demo.${root}/?lang=${locale}`;
-  const loginUrl = isLocal
-    ? "http://app.localhost:3000/login"
-    : `https://app.${root}/login`;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const loggedIn = Boolean(user);
+  const accountHref = loggedIn ? "/admin" : "/admin/login";
+  const accountLabel = loggedIn ? m.navPanel : m.navLogin;
   const homeHref = `/?lang=${locale}`;
   const allBrowseHref = `/browse?lang=${locale}`;
   const langAzHref = ownerMode
@@ -150,8 +155,8 @@ export default async function BrowsePage({ searchParams }: Props) {
                 RU
               </a>
             </div>
-            <a className={marketing.navLogin} href={loginUrl}>
-              {m.navLogin}
+            <a className={marketing.navLogin} href={accountHref}>
+              {accountLabel}
             </a>
           </div>
         </div>

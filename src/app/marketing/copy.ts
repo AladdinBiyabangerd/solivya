@@ -9,6 +9,7 @@ export type MarketingCopy = {
   navDemo: string;
   navPrice: string;
   navLogin: string;
+  navPanel: string;
   langAria: string;
   headline: string;
   lead: string;
@@ -68,6 +69,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     navDemo: "Demo",
     navPrice: "Qiymət",
     navLogin: "Giriş",
+    navPanel: "Panelim",
     langAria: "Dil",
     headline: "Günlük kirayə üçün öz brendli səhifən",
     lead: "Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra birbaşa sənin WhatsApp-ına yazır.",
@@ -180,6 +182,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     navDemo: "Демо",
     navPrice: "Цена",
     navLogin: "Вход",
+    navPanel: "Моя панель",
     langAria: "Язык",
     headline: "Своя брендовая страница для посуточной аренды",
     lead: "Гость видит фото, цену и правила в одной ссылке — и пишет вам прямо в WhatsApp.",

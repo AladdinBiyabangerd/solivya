@@ -9,6 +9,7 @@ import {
   pageMetadata,
 } from "@/lib/seo";
 import { BRAND, BUILDER, builderPortfolioUrl } from "@/lib/site";
+import { createClient } from "@/utils/supabase/server";
 import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
 
@@ -46,15 +47,22 @@ export default async function MarketingHome({ searchParams }: Props) {
   const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
   const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const loggedIn = Boolean(user);
+
   const demoUrl = isLocal
     ? `http://demo.localhost:3000/?lang=${locale}`
     : `https://demo.${root}/?lang=${locale}`;
-  const signupUrl = isLocal
-    ? "http://app.localhost:3000/signup"
-    : `https://app.${root}/signup`;
-  const loginUrl = isLocal
-    ? "http://app.localhost:3000/login"
-    : `https://app.${root}/login`;
+  const signupUrl = "/admin/signup";
+  const loginUrl = "/admin/login";
+  const panelUrl = "/admin";
+  const accountHref = loggedIn ? panelUrl : loginUrl;
+  const accountLabel = loggedIn ? t.navPanel : t.navLogin;
+  const priceCtaHref = loggedIn ? panelUrl : signupUrl;
+  const priceCtaLabel = loggedIn ? t.navPanel : t.signupCta;
   const wa = salesWhatsAppHref(t.waMessage);
   const langAzHref = "/?lang=az";
   const langRuHref = "/?lang=ru";
@@ -126,8 +134,8 @@ export default async function MarketingHome({ searchParams }: Props) {
                   RU
                 </a>
               </div>
-              <a className={styles.navLogin} href={loginUrl}>
-                {t.navLogin}
+              <a className={styles.navLogin} href={accountHref}>
+                {accountLabel}
               </a>
             </div>
           </div>
@@ -279,8 +287,8 @@ export default async function MarketingHome({ searchParams }: Props) {
               </div>
             </dl>
             <div className={styles.actions}>
-              <a className={styles.btn} href={signupUrl}>
-                {t.signupCta}
+              <a className={styles.btn} href={priceCtaHref}>
+                {priceCtaLabel}
               </a>
               <a
                 className={styles.btnSecondary}
