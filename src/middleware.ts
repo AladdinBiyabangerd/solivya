@@ -49,13 +49,28 @@ export async function middleware(request: NextRequest) {
     const apex = apexHostFromRequestHost(hostHeader, rootDomain);
     const proto =
       request.headers.get("x-forwarded-proto") ??
-      request.nextUrl.protocol.replace(":", "") ??
-      "https";
-    const target = new URL(
-      `${proto}://${apex}${legacyAdminRedirectPath(pathname)}`,
-    );
-    target.search = request.nextUrl.search;
-    return NextResponse.redirect(target, 308);
+      (request.nextUrl.protocol === "https:" ? "https" : "http");
+    const location = `${proto}://${apex}${legacyAdminRedirectPath(pathname)}${request.nextUrl.search}`;
+    const isLocalApex =
+      apex.startsWith("localhost") || apex.startsWith("127.0.0.1");
+
+    // Next.js middleware relativizes Location for *.localhost → *.localhost,
+    // which would loop on app.localhost. Use a document redirect locally.
+    if (isLocalApex) {
+      const html = `<!DOCTYPE html><html lang="az"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${location}"><title>Redirect</title><script>location.replace(${JSON.stringify(location)})</script></head><body><p><a href="${location}">Davam et</a></p></body></html>`;
+      return new NextResponse(html, {
+        status: 200,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+        },
+      });
+    }
+
+    return new NextResponse(null, {
+      status: 308,
+      headers: { Location: location },
+    });
   }
 
   const rewritePath = isRootSeoOrAssetPath(pathname)

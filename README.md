@@ -45,7 +45,7 @@ npm install
 npm run dev
 ```
 
-Lokal: `localhost:3000` (marketing + `/admin` panel), `{slug}.localhost:3000` (sayt). Köhnə `app.localhost` → `/admin`-ə yönləndirilir.
+Lokal: `localhost:3000` (marketing + `/admin` panel), `{slug}.localhost:3000` (sayt). Köhnə `app.localhost` ana hosta (`/admin`) yönləndirilir.
 
 **Build** — production build
 

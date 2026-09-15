@@ -25,7 +25,7 @@ export default async function AdminLoginPage() {
         </p>
         <h1 className={styles.title}>Daxil ol</h1>
         <p className={styles.lead}>
-          Hesabına gir — sonra landing-dən panelə keçə bilərsən.
+          Hesabına gir — sonra ana səhifədən panelə keçə bilərsən.
         </p>
         <LoginForm />
         <p className={styles.switch}>
