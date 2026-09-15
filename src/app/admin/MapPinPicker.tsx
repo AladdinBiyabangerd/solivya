@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   MapContainer,
   Marker,
@@ -13,14 +14,26 @@ import { mapCenterForZonePath } from "@/lib/azerbaijan-locations";
 import styles from "./admin.module.css";
 import "leaflet/dist/leaflet.css";
 
-type LatLng = { lat: number; lng: number };
+export type LatLng = { lat: number; lng: number };
 
-type Props = {
+type PickerProps = {
   zonePath: string;
-  defaultLat?: number | null;
-  defaultLng?: number | null;
+  position: LatLng | null;
+  onPositionChange: (next: LatLng | null) => void;
   latName?: string;
   lngName?: string;
+  /** When true, compact card is rendered elsewhere (photo column). */
+  cardElsewhere?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+type CardProps = {
+  zonePath: string;
+  position: LatLng;
+  onEdit: () => void;
+  onClear?: () => void;
+  className?: string;
 };
 
 const pinIcon = L.divIcon({
@@ -53,16 +66,16 @@ function Recenter({ center, zoom }: { center: LatLng; zoom: number }) {
 
 function MapCanvas({
   zonePath,
-  position,
-  onPosition,
+  draft,
+  onDraft,
 }: {
   zonePath: string;
-  position: LatLng | null;
-  onPosition: (next: LatLng) => void;
+  draft: LatLng | null;
+  onDraft: (next: LatLng) => void;
 }) {
   const fallback = useMemo(() => mapCenterForZonePath(zonePath), [zonePath]);
-  const center = position ?? fallback;
-  const zoom = position ? 15 : 12;
+  const center = draft ?? fallback;
+  const zoom = draft ? 15 : 12;
 
   return (
     <MapContainer
@@ -76,17 +89,17 @@ function MapCanvas({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Recenter center={center} zoom={zoom} />
-      <ClickToPlace onPosition={onPosition} />
-      {position ? (
+      <ClickToPlace onPosition={onDraft} />
+      {draft ? (
         <Marker
-          position={[position.lat, position.lng]}
+          position={[draft.lat, draft.lng]}
           draggable
           icon={pinIcon}
           eventHandlers={{
             dragend: (e) => {
               const marker = e.target as L.Marker;
               const ll = marker.getLatLng();
-              onPosition({ lat: ll.lat, lng: ll.lng });
+              onDraft({ lat: ll.lat, lng: ll.lng });
             },
           }}
         />
@@ -95,60 +108,216 @@ function MapCanvas({
   );
 }
 
+function osmEmbedSrc(position: LatLng): string {
+  const { lat, lng } = position;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01}%2C${lat - 0.007}%2C${lng + 0.01}%2C${lat + 0.007}&layer=mapnik&marker=${lat}%2C${lng}`;
+}
+
+export function MapLocationCard({
+  zonePath,
+  position,
+  onEdit,
+  onClear,
+  className,
+}: CardProps) {
+  return (
+    <aside
+      className={`${styles.mapLocationCard} ${className ?? ""}`.trim()}
+      aria-label="Seçilmiş konum"
+    >
+      <iframe
+        className={styles.mapLocationThumb}
+        title="Konum önizləmə"
+        src={osmEmbedSrc(position)}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+      <div className={styles.mapLocationBody}>
+        <p className={styles.mapLocationLabel}>Konum</p>
+        <p className={styles.mapLocationZone}>{zonePath}</p>
+        <p className={styles.mapLocationCoords}>
+          {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
+        </p>
+        <div className={styles.mapLocationActions}>
+          <button
+            type="button"
+            className={styles.mapLocationEdit}
+            onClick={onEdit}
+          >
+            Dəyiş
+          </button>
+          {onClear ? (
+            <button
+              type="button"
+              className={styles.mapLocationClear}
+              onClick={onClear}
+            >
+              Sil
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 export function MapPinPicker({
   zonePath,
-  defaultLat = null,
-  defaultLng = null,
+  position,
+  onPositionChange,
   latName = "lat",
   lngName = "lng",
-}: Props) {
-  const [position, setPosition] = useState<LatLng | null>(() => {
-    if (
-      typeof defaultLat === "number" &&
-      typeof defaultLng === "number" &&
-      Number.isFinite(defaultLat) &&
-      Number.isFinite(defaultLng)
-    ) {
-      return { lat: defaultLat, lng: defaultLng };
-    }
-    return null;
-  });
-  const cityKey = zonePath.split(" · ")[0] ?? "";
-  const [lastCity, setLastCity] = useState(cityKey);
+  cardElsewhere = false,
+  open: openProp,
+  onOpenChange,
+}: PickerProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = openProp ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
+  const [draft, setDraft] = useState<LatLng | null>(position);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (cityKey && cityKey !== lastCity) {
-      setLastCity(cityKey);
-      if (
-        !(
-          typeof defaultLat === "number" &&
-          typeof defaultLng === "number" &&
-          Number.isFinite(defaultLat) &&
-          Number.isFinite(defaultLng)
-        )
-      ) {
-        setPosition(null);
-      }
-    }
-  }, [cityKey, lastCity, defaultLat, defaultLng]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (open) setDraft(position);
+  }, [open, position]);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   if (!zonePath) return null;
+
+  function confirm() {
+    if (!draft) return;
+    onPositionChange(draft);
+    setOpen(false);
+  }
+
+  function close() {
+    setDraft(position);
+    setOpen(false);
+  }
+
+  const modal =
+    open && mounted
+      ? createPortal(
+          <div
+            className={styles.mapPinModal}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Konum seç"
+          >
+            <button
+              type="button"
+              className={styles.mapPinModalBackdrop}
+              aria-label="Bağla"
+              onClick={close}
+            />
+            <div className={styles.mapPinModalSheet}>
+              <header className={styles.mapPinModalHead}>
+                <div>
+                  <p className={styles.mapPinModalTitle}>Konum seç</p>
+                  <p className={styles.fieldHint}>{zonePath}</p>
+                </div>
+                <button
+                  type="button"
+                  className={styles.mapPinModalClose}
+                  onClick={close}
+                >
+                  ✕
+                </button>
+              </header>
+              <p className={styles.fieldHint}>
+                Xəritəyə klikləyin və ya pin-i sürükləyin.
+              </p>
+              <div className={styles.mapPinFrame}>
+                <MapCanvas
+                  key={`${zonePath}-${open}`}
+                  zonePath={zonePath}
+                  draft={draft}
+                  onDraft={setDraft}
+                />
+              </div>
+              {draft ? (
+                <p className={styles.zonePickerSummary}>
+                  Pin:{" "}
+                  <strong>
+                    {draft.lat.toFixed(5)}, {draft.lng.toFixed(5)}
+                  </strong>
+                </p>
+              ) : (
+                <p className={styles.fieldHint}>Hələ seçilməyib</p>
+              )}
+              <div className={styles.mapPinModalActions}>
+                <button
+                  type="button"
+                  className={styles.zoneCustomCancel}
+                  onClick={close}
+                >
+                  Ləğv et
+                </button>
+                <button
+                  type="button"
+                  className={styles.zoneCustomSave}
+                  disabled={!draft}
+                  onClick={confirm}
+                >
+                  Təsdiq et
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <div className={styles.mapPinPicker}>
       <span className={styles.zoneSelectLabel}>Konum (xəritə)</span>
-      <p className={styles.fieldHint}>
-        Pulsuz OpenStreetMap — klikləyin və ya pin-i sürükləyin.
-      </p>
 
-      <div className={styles.mapPinFrame}>
-        <MapCanvas
-          key={zonePath}
+      <div className={styles.mapPinActions}>
+        <button
+          type="button"
+          className={styles.mapPinOpenBtn}
+          onClick={() => setOpen(true)}
+        >
+          {position ? "Konumu dəyiş" : "Xəritədən konum seç"}
+        </button>
+        {position ? (
+          <button
+            type="button"
+            className={styles.mapPinClearBtn}
+            onClick={() => onPositionChange(null)}
+          >
+            Sil
+          </button>
+        ) : null}
+      </div>
+
+      {!position ? (
+        <p className={styles.fieldHint}>
+          Ünvan seçilib — indi xəritədə dəqiq nöqtəni seçin.
+        </p>
+      ) : null}
+
+      {position && !cardElsewhere ? (
+        <MapLocationCard
+          className={styles.mapLocationCardInForm}
           zonePath={zonePath}
           position={position}
-          onPosition={setPosition}
+          onEdit={() => setOpen(true)}
+          onClear={() => onPositionChange(null)}
         />
-      </div>
+      ) : null}
 
       <input
         type="hidden"
@@ -161,16 +330,7 @@ export function MapPinPicker({
         value={position ? String(position.lng) : ""}
       />
 
-      {position ? (
-        <p className={styles.zonePickerSummary}>
-          Pin:{" "}
-          <strong>
-            {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
-          </strong>
-        </p>
-      ) : (
-        <p className={styles.fieldHint}>Hələ seçilməyib — xəritəyə klik edin</p>
-      )}
+      {modal}
     </div>
   );
 }

@@ -36,6 +36,7 @@ import {
 } from "@/lib/cropImage";
 import dynamic from "next/dynamic";
 import { ZonePicker } from "./ZonePicker";
+import type { LatLng } from "./MapPinPicker";
 import styles from "./admin.module.css";
 
 const MapPinPicker = dynamic(
@@ -47,6 +48,14 @@ const MapPinPicker = dynamic(
       <p className={styles.fieldHint}>Xəritə yüklənir…</p>
     ),
   },
+);
+
+const MapLocationCard = dynamic(
+  () =>
+    import("./MapPinPicker").then((mod) => ({
+      default: mod.MapLocationCard,
+    })),
+  { ssr: false },
 );
 
 const empty: EditorState = {};
@@ -946,6 +955,18 @@ function EditForm({
   const narrow = useIsNarrow();
   const [step, setStep] = useState(0);
   const [zonePath, setZonePath] = useState(property.zone ?? "");
+  const [mapPosition, setMapPosition] = useState<LatLng | null>(() => {
+    if (
+      typeof property.lat === "number" &&
+      typeof property.lng === "number" &&
+      Number.isFinite(property.lat) &&
+      Number.isFinite(property.lng)
+    ) {
+      return { lat: property.lat, lng: property.lng };
+    }
+    return null;
+  });
+  const [mapOpen, setMapOpen] = useState(false);
   const url = liveUrl(property.slug);
   const last = STEPS.length - 1;
 
@@ -1133,8 +1154,11 @@ function EditForm({
               {zonePath ? (
                 <MapPinPicker
                   zonePath={zonePath}
-                  defaultLat={property.lat}
-                  defaultLng={property.lng}
+                  position={mapPosition}
+                  onPositionChange={setMapPosition}
+                  cardElsewhere={!narrow}
+                  open={mapOpen}
+                  onOpenChange={setMapOpen}
                 />
               ) : null}
               <label className={styles.label}>
@@ -1323,6 +1347,15 @@ function EditForm({
             propertyId={property.id}
             photos={photos}
           />
+          {!narrow && zonePath && mapPosition ? (
+            <MapLocationCard
+              className={styles.mapLocationCardInPhotos}
+              zonePath={zonePath}
+              position={mapPosition}
+              onEdit={() => setMapOpen(true)}
+              onClear={() => setMapPosition(null)}
+            />
+          ) : null}
         </div>
       </div>
 
