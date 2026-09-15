@@ -34,9 +34,20 @@ import {
   SITE_MAIN_ASPECT,
   SITE_PHOTO_ASPECT,
 } from "@/lib/cropImage";
+import dynamic from "next/dynamic";
 import { ZonePicker } from "./ZonePicker";
-import { MapPinPicker } from "./MapPinPicker";
 import styles from "./admin.module.css";
+
+const MapPinPicker = dynamic(
+  () =>
+    import("./MapPinPicker").then((mod) => ({ default: mod.MapPinPicker })),
+  {
+    ssr: false,
+    loading: () => (
+      <p className={styles.fieldHint}>Xəritə yüklənir…</p>
+    ),
+  },
+);
 
 const empty: EditorState = {};
 

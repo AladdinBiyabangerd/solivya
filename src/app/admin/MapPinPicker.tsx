@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  APIProvider,
-  AdvancedMarker,
-  Map,
-  Pin,
-  type MapMouseEvent,
-} from "@vis.gl/react-google-maps";
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
+import L from "leaflet";
 import { mapCenterForZonePath } from "@/lib/azerbaijan-locations";
 import styles from "./admin.module.css";
+import "leaflet/dist/leaflet.css";
 
 type LatLng = { lat: number; lng: number };
 
@@ -21,8 +23,32 @@ type Props = {
   lngName?: string;
 };
 
-function readApiKey(): string {
-  return (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "").trim();
+const pinIcon = L.divIcon({
+  className: styles.mapPinIcon,
+  html: `<span class="${styles.mapPinGlyph}"></span>`,
+  iconSize: [28, 36],
+  iconAnchor: [14, 36],
+});
+
+function ClickToPlace({
+  onPosition,
+}: {
+  onPosition: (next: LatLng) => void;
+}) {
+  useMapEvents({
+    click(e) {
+      onPosition({ lat: e.latlng.lat, lng: e.latlng.lng });
+    },
+  });
+  return null;
+}
+
+function Recenter({ center, zoom }: { center: LatLng; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView([center.lat, center.lng], zoom, { animate: true });
+  }, [center.lat, center.lng, zoom, map]);
+  return null;
 }
 
 function MapCanvas({
@@ -36,41 +62,36 @@ function MapCanvas({
 }) {
   const fallback = useMemo(() => mapCenterForZonePath(zonePath), [zonePath]);
   const center = position ?? fallback;
-  const mapId =
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID?.trim() || "DEMO_MAP_ID";
+  const zoom = position ? 15 : 12;
 
   return (
-    <Map
+    <MapContainer
       className={styles.mapPinCanvas}
-      defaultCenter={center}
-      defaultZoom={position ? 15 : 12}
-      gestureHandling="greedy"
-      disableDefaultUI={false}
-      mapId={mapId}
-      onClick={(ev: MapMouseEvent) => {
-        const ll = ev.detail.latLng;
-        if (!ll) return;
-        onPosition({ lat: ll.lat, lng: ll.lng });
-      }}
+      center={[center.lat, center.lng]}
+      zoom={zoom}
+      scrollWheelZoom
     >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <Recenter center={center} zoom={zoom} />
+      <ClickToPlace onPosition={onPosition} />
       {position ? (
-        <AdvancedMarker
-          position={position}
+        <Marker
+          position={[position.lat, position.lng]}
           draggable
-          onDragEnd={(ev) => {
-            const ll = ev.latLng;
-            if (!ll) return;
-            onPosition({ lat: ll.lat(), lng: ll.lng() });
+          icon={pinIcon}
+          eventHandlers={{
+            dragend: (e) => {
+              const marker = e.target as L.Marker;
+              const ll = marker.getLatLng();
+              onPosition({ lat: ll.lat, lng: ll.lng });
+            },
           }}
-        >
-          <Pin
-            background="#9a7b4f"
-            borderColor="#7c623f"
-            glyphColor="#fffcfa"
-          />
-        </AdvancedMarker>
+        />
       ) : null}
-    </Map>
+    </MapContainer>
   );
 }
 
@@ -81,7 +102,6 @@ export function MapPinPicker({
   latName = "lat",
   lngName = "lng",
 }: Props) {
-  const apiKey = readApiKey();
   const [position, setPosition] = useState<LatLng | null>(() => {
     if (
       typeof defaultLat === "number" &&
@@ -99,7 +119,6 @@ export function MapPinPicker({
   useEffect(() => {
     if (cityKey && cityKey !== lastCity) {
       setLastCity(cityKey);
-      // Keep pin if defaults match current property; clear when user switches city
       if (
         !(
           typeof defaultLat === "number" &&
@@ -119,35 +138,17 @@ export function MapPinPicker({
     <div className={styles.mapPinPicker}>
       <span className={styles.zoneSelectLabel}>Konum (xəritə)</span>
       <p className={styles.fieldHint}>
-        Xəritədə dəqiq nöqtəni seçin — klikləyin və ya pin-i sürükləyin.
+        Pulsuz OpenStreetMap — klikləyin və ya pin-i sürükləyin.
       </p>
 
-      {!apiKey ? (
-        <div className={styles.mapPinMissing}>
-          <p>
-            Google Maps üçün API açarı lazımdır.{" "}
-            <code>.env.local</code> faylına əlavə edin:
-          </p>
-          <pre className={styles.mapPinEnvSample}>
-            {`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-key`}
-          </pre>
-          <p className={styles.fieldHint}>
-            Google Cloud → Maps JavaScript API aktiv edin. İstəyə bağlı:{" "}
-            <code>NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID</code>
-          </p>
-        </div>
-      ) : (
-        <div className={styles.mapPinFrame}>
-          <APIProvider apiKey={apiKey} language="az" region="AZ" libraries={["marker"]}>
-            <MapCanvas
-              key={zonePath}
-              zonePath={zonePath}
-              position={position}
-              onPosition={setPosition}
-            />
-          </APIProvider>
-        </div>
-      )}
+      <div className={styles.mapPinFrame}>
+        <MapCanvas
+          key={zonePath}
+          zonePath={zonePath}
+          position={position}
+          onPosition={setPosition}
+        />
+      </div>
 
       <input
         type="hidden"
@@ -167,9 +168,9 @@ export function MapPinPicker({
             {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
           </strong>
         </p>
-      ) : apiKey ? (
+      ) : (
         <p className={styles.fieldHint}>Hələ seçilməyib — xəritəyə klik edin</p>
-      ) : null}
+      )}
     </div>
   );
 }

@@ -766,6 +766,23 @@
   color: var(--muted);
 }
 
+.mapPinIcon {
+  background: transparent;
+  border: none;
+}
+
+.mapPinGlyph {
+  display: block;
+  width: 22px;
+  height: 22px;
+  margin: 0 auto;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--accent);
+  border: 2px solid var(--white);
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.35);
+}
+
 .grid4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

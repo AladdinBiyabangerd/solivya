@@ -42,11 +42,11 @@ export function PropertySite({
 
   const mapsEmbed =
     hasCoords
-      ? `https://maps.google.com/maps?q=${property.lat},${property.lng}&z=15&output=embed`
+      ? `https://www.openstreetmap.org/export/embed.html?bbox=${property.lng! - 0.012}%2C${property.lat! - 0.008}%2C${property.lng! + 0.012}%2C${property.lat! + 0.008}&layer=mapnik&marker=${property.lat}%2C${property.lng}`
       : null;
   const mapsLink =
     hasCoords
-      ? `https://www.google.com/maps?q=${property.lat},${property.lng}`
+      ? `https://www.openstreetmap.org/?mlat=${property.lat}&mlon=${property.lng}#map=16/${property.lat}/${property.lng}`
       : null;
 
   return (
@@ -213,7 +213,7 @@ export function PropertySite({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Google Maps-də aç
+                  Xəritədə aç
                 </a>
               ) : null}
             </div>
