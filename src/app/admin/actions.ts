@@ -109,3 +109,32 @@ export async function signOut() {
   }
   redirect("/login");
 }
+
+export async function updateProfile(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const phone = String(formData.get("phone") ?? "").trim();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { error } = await supabase
+    .from("owners")
+    .update({ phone: phone || null })
+    .eq("id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/profile");
+  revalidatePath("/profile");
+  return { message: "Profil yeniləndi." };
+}
