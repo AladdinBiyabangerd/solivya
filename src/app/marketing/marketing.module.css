@@ -260,6 +260,199 @@
   line-height: 1.6;
 }
 
+.sectionTextWide {
+  color: var(--muted);
+  max-width: 54ch;
+  font-size: 1.08rem;
+  margin: 0 0 1.1rem;
+  line-height: 1.65;
+}
+
+.sectionTextWide:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitleWide {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.4vw, 2.85rem);
+  font-weight: 600;
+  line-height: 1.12;
+  margin: 0 0 1.1rem;
+  max-width: 16ch;
+}
+
+/* —— Audience —— */
+.audience {
+  padding: 4.5rem 0 5rem;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
+.plainList {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  max-width: 40rem;
+  border-top: 1px solid var(--line);
+}
+
+.plainList li {
+  padding: 1.05rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+/* —— Includes —— */
+.includes {
+  padding: 5rem 0;
+  background: var(--bg);
+}
+
+.includeList {
+  list-style: none;
+  margin: 2.25rem 0 0;
+  padding: 0;
+  max-width: 40rem;
+  counter-reset: none;
+}
+
+.includeList li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.includeList li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.includeList strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.includeList span {
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.includeList em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* —— Process —— */
+.process {
+  padding: 5rem 0 5.25rem;
+  background: linear-gradient(180deg, var(--bg-soft), var(--bg));
+}
+
+.steps {
+  list-style: none;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  max-width: 40rem;
+  display: grid;
+  gap: 0;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1rem;
+  padding: 1.35rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.steps li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.stepNum {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.steps strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+  color: var(--text);
+}
+
+.steps p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+/* —— FAQ —— */
+.faq {
+  padding: 5rem 0;
+  background: var(--bg-soft);
+  border-top: 1px solid var(--line);
+}
+
+.faqList {
+  margin: 2rem 0 0;
+  padding: 0;
+  max-width: 40rem;
+}
+
+.faqItem {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.faqItem:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.faqItem dt {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.45rem;
+  color: var(--text);
+}
+
+.faqItem dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* —— Closing —— */
+.closing {
+  padding: 5rem 0 5.5rem;
+  background: var(--bg);
+}
+
+.closing .sectionText {
+  margin-bottom: 1.75rem;
+}
+
+.priceHint {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 /* —— Proof / demo —— */
 .proof {
   display: grid;
