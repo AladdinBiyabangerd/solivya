@@ -1,0 +1,11 @@
+[project]
+id = "xxlluexrhfbdbiloyyft"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[storage]
+enabled = true
