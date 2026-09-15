@@ -21,7 +21,7 @@ import {
   createProperty,
   deletePhoto,
   saveProperty,
-  setMainPhotoWithCrop,
+  replacePhotoCrop,
   uploadPhoto,
   type EditorState,
 } from "./property-actions";
@@ -116,7 +116,7 @@ function useIsNarrow(query = "(max-width: 960px)") {
 }
 
 type Props = {
-  property: Property | null;
+  property: Property;
   photos: Photo[];
   email: string;
   customLocations?: CustomLocation[];
@@ -143,7 +143,7 @@ function FieldGroup({
   );
 }
 
-function CreateForm() {
+export function CreateForm() {
   const [state, action, pending] = useActionState(createProperty, empty);
 
   return (
@@ -204,6 +204,10 @@ type MainCropTarget =
       photoId: string;
       imageUrl: string;
       fileName: string;
+      /** Re-crop only, or also promote to main. */
+      makeMain: boolean;
+      /** Aspect for the crop UI. */
+      role: "main" | "gallery";
     };
 
 type LightboxItem = {
@@ -348,10 +352,11 @@ const PhotoPanel = forwardRef<
   PhotoPanelHandle,
   { propertyId: string; photos: Photo[] }
 >(function PhotoPanel({ propertyId, photos }, ref) {
+  const router = useRouter();
   const [uploadState, setUploadState] = useState<EditorState>(empty);
   const [uploadPending, setUploadPending] = useState(false);
   const [mainCropState, mainCropAction, mainCropPending] = useActionState(
-    setMainPhotoWithCrop,
+    replacePhotoCrop,
     empty,
   );
   const [pending, setPending] = useState<PendingFile[]>([]);
@@ -475,7 +480,8 @@ const PhotoPanel = forwardRef<
     if (!mainCropState.ok) return;
     setMainCrop(null);
     setOptimisticMainSrc(null);
-  }, [mainCropState.ok]);
+    router.refresh();
+  }, [mainCropState.ok, router]);
 
   useEffect(() => {
     if (pending.length === 0) {
@@ -599,15 +605,27 @@ const PhotoPanel = forwardRef<
     });
   };
 
-  const requestSavedAsMain = (photo: Photo) => {
+  const requestSavedRecrop = (
+    photo: Photo,
+    role: "main" | "gallery",
+    makeMain: boolean,
+  ) => {
     const sourcePath = photo.original_path || photo.storage_path;
     setMainCrop({
       kind: "saved",
       photoId: photo.id,
       imageUrl: resolvePhotoSrc(sourcePath),
-      fileName: "esas.jpg",
+      fileName: role === "main" ? "esas.jpg" : "qalereya.jpg",
+      makeMain,
+      role,
     });
-    setOptimisticMainSrc(resolvePhotoSrc(photo.storage_path));
+    if (makeMain) {
+      setOptimisticMainSrc(resolvePhotoSrc(photo.storage_path));
+    }
+  };
+
+  const requestSavedAsMain = (photo: Photo) => {
+    requestSavedRecrop(photo, "main", true);
   };
 
   const onMainCropConfirm = (file: File) => {
@@ -631,7 +649,10 @@ const PhotoPanel = forwardRef<
     const formData = new FormData();
     formData.set("photo_id", mainCrop.photoId);
     formData.set("file", file);
-    setOptimisticMainSrc(URL.createObjectURL(file));
+    if (mainCrop.makeMain) formData.set("make_main", "1");
+    if (mainCrop.makeMain) {
+      setOptimisticMainSrc(URL.createObjectURL(file));
+    }
     mainCropAction(formData);
   };
 
@@ -705,31 +726,39 @@ const PhotoPanel = forwardRef<
                 }
                 role="listitem"
               >
-                {isMain ? (
-                  <div className={styles.thumbHit}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={resolvePhotoSrc(photo.storage_path)}
-                      alt={photo.alt || `Foto ${index + 1}`}
-                    />
+                <div className={styles.thumbHit}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={resolvePhotoSrc(photo.storage_path)}
+                    alt={photo.alt || `Foto ${index + 1}`}
+                  />
+                  {isMain ? (
                     <span className={styles.thumbMeta}>Əsas</span>
-                  </div>
-                ) : (
+                  ) : null}
+                </div>
+                <div className={styles.thumbActions}>
                   <button
                     type="button"
-                    className={styles.thumbPick}
-                    title="Əsas et"
-                    onClick={() => requestSavedAsMain(photo)}
+                    className={styles.thumbCropBtn}
+                    onClick={() =>
+                      requestSavedRecrop(
+                        photo,
+                        isMain ? "main" : "gallery",
+                        false,
+                      )
+                    }
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={resolvePhotoSrc(photo.storage_path)}
-                      alt={photo.alt || `Foto ${index + 1}`}
-                    />
-                    <span className={styles.thumbPickLabel}>Əsas et</span>
+                    Kəs
                   </button>
-                )}
-                <div className={styles.thumbActions}>
+                  {!isMain ? (
+                    <button
+                      type="button"
+                      className={styles.thumbMainBtn}
+                      onClick={() => requestSavedAsMain(photo)}
+                    >
+                      Əsas et
+                    </button>
+                  ) : null}
                   <form action={deletePhoto}>
                     <input type="hidden" name="photo_id" value={photo.id} />
                     <button className={styles.thumbDanger} type="submit">
@@ -875,16 +904,34 @@ const PhotoPanel = forwardRef<
         <PhotoCropSingle
           imageUrl={mainCrop.imageUrl}
           fileName={mainCrop.fileName}
-          aspect={SITE_MAIN_ASPECT}
-          title="Əsas (hero) kəsimi"
+          aspect={
+            mainCrop.kind === "saved" && mainCrop.role === "gallery"
+              ? SITE_PHOTO_ASPECT
+              : SITE_MAIN_ASPECT
+          }
+          title={
+            mainCrop.kind === "saved" && !mainCrop.makeMain
+              ? mainCrop.role === "main"
+                ? "Əsas fotonu yenidən kəs"
+                : "Qalereya fotonu yenidən kəs"
+              : "Əsas (hero) kəsimi"
+          }
           hint={
             mainCrop.kind === "saved" &&
             !photos.find((p) => p.id === mainCrop.photoId)?.original_path
-              ? "16:9 · orijinal yoxdursa cari fotodan · zoom ilə yerləşdir"
-              : "16:9 · yükləmədəki orijinaldan · zoom ilə yerləşdir"
+              ? mainCrop.role === "gallery"
+                ? "4:3 · orijinal yoxdursa cari fotodan"
+                : "16:9 · orijinal yoxdursa cari fotodan"
+              : mainCrop.kind === "saved" && mainCrop.role === "gallery"
+                ? "4:3 · yükləmədəki orijinaldan · zoom ilə yerləşdir"
+                : "16:9 · yükləmədəki orijinaldan · zoom ilə yerləşdir"
           }
           confirmLabel={
-            mainCropPending ? "Yadda saxlanılır…" : "Kəs · əsas et"
+            mainCropPending
+              ? "Yadda saxlanılır…"
+              : mainCrop.kind === "saved" && !mainCrop.makeMain
+                ? "Kəs · saxla"
+                : "Kəs · əsas et"
           }
           onConfirm={onMainCropConfirm}
           onCancel={() => {
@@ -1380,26 +1427,20 @@ export function PropertyEditor({
   customLocations = [],
 }: Props) {
   return (
-    <div className={styles.panelWide}>
+    <>
       <header className={styles.panelHeader}>
         <div className={styles.panelHeaderRow}>
-          <h1 className={styles.title}>
-            {property ? property.brand_name || "Mənzil" : "İlk mənzil"}
-          </h1>
+          <h1 className={styles.title}>{property.brand_name || "Mənzil"}</h1>
           <p className={styles.emailLine}>{email}</p>
         </div>
       </header>
 
-      {property ? (
-        <EditForm
-          property={property}
-          photos={photos}
-          email={email}
-          customLocations={customLocations}
-        />
-      ) : (
-        <CreateForm />
-      )}
-    </div>
+      <EditForm
+        property={property}
+        photos={photos}
+        email={email}
+        customLocations={customLocations}
+      />
+    </>
   );
 }

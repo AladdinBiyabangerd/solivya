@@ -541,17 +541,18 @@ export async function setMainPhoto(formData: FormData): Promise<void> {
   revalidatePath(`/site/${property.slug}`);
 }
 
-/** Re-crop from original (or current) then set as main hero. */
-export async function setMainPhotoWithCrop(
+/** Re-crop from original (or current). Optionally promote to main. */
+export async function replacePhotoCrop(
   _prev: EditorState,
   formData: FormData,
 ): Promise<EditorState> {
   const { supabase, user } = await requireUser();
   const photoId = String(formData.get("photo_id") ?? "");
   const file = formData.get("file");
+  const makeMain = formData.get("make_main") === "1";
 
   if (!photoId || !(file instanceof File) || file.size === 0) {
-    return { error: "Əsas kəsim tapılmadı." };
+    return { error: "Kəsim tapılmadı." };
   }
   if (file.size > 5 * 1024 * 1024) {
     return { error: "Maksimum 5MB." };
@@ -559,7 +560,7 @@ export async function setMainPhotoWithCrop(
 
   const { data: photo } = await supabase
     .from("photos")
-    .select("id, storage_path, original_path, property_id")
+    .select("id, storage_path, original_path, property_id, sort_order")
     .eq("id", photoId)
     .maybeSingle();
 
@@ -574,7 +575,8 @@ export async function setMainPhotoWithCrop(
 
   if (!property) return { error: "Mənzil tapılmadı." };
 
-  const path = `${user.id}/${photo.property_id}/main-${Date.now()}.jpg`;
+  const prefix = makeMain ? "main" : "crop";
+  const path = `${user.id}/${photo.property_id}/${prefix}-${Date.now()}.jpg`;
   const { error: uploadError } = await supabase.storage
     .from("property-photos")
     .upload(path, file, {
@@ -602,11 +604,24 @@ export async function setMainPhotoWithCrop(
     await supabase.storage.from("property-photos").remove([oldPath]);
   }
 
-  await promotePhotoToMain(supabase, photo.property_id, photoId);
+  if (makeMain) {
+    await promotePhotoToMain(supabase, photo.property_id, photoId);
+  }
 
   revalidatePath("/admin");
   revalidatePath(`/site/${property.slug}`);
-  return { ok: "Əsas foto kəsilib təyin olundu." };
+  return {
+    ok: makeMain ? "Əsas foto kəsilib təyin olundu." : "Foto yenidən kəsildi.",
+  };
+}
+
+/** @deprecated use replacePhotoCrop with make_main=1 */
+export async function setMainPhotoWithCrop(
+  prev: EditorState,
+  formData: FormData,
+): Promise<EditorState> {
+  formData.set("make_main", "1");
+  return replacePhotoCrop(prev, formData);
 }
 
 function parseCustomLocations(raw: unknown): CustomLocation[] {
