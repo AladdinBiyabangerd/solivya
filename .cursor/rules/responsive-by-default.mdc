@@ -1,0 +1,27 @@
+---
+description: Always preserve mobile/desktop responsiveness on UI changes
+alwaysApply: true
+---
+
+# Responsive by default (Solivya)
+
+Every UI change must keep the page usable on phone, tablet, and desktop — even when the user does not mention responsive.
+
+## Required habits
+
+- Design for **~360–390px** first, then **~768**, then **≥1100**. Do not ship desktop-only layouts.
+- After nav, hero, grids, or spacing changes: check for **horizontal overflow**, overlapping controls, and clipped tap targets.
+- Prefer **reflow** (stack / hide secondary links / wrap) over shrinking text until unreadable.
+- Multi-column grids (`.split`, includes, steps, FAQ+price) must collapse cleanly under ~900px; single-column on narrow phones when content feels cramped.
+- Keep primary actions reachable: brand, language toggle, **Giriş**, and main CTAs must not collide on small screens.
+- Long AZ/RU strings: verify the **longest locale**, not only Azerbaijani.
+- Do not rely on the user asking for a responsive check — treat it as part of finishing the change.
+
+## Quick fail checks
+
+```text
+❌ Nav/brand/lang/login overlapping at 320–390px
+❌ Page scrollWidth > viewport width
+❌ Side-by-side sections that stay 2-col on phones and become unreadable
+✅ Mid nav links may hide on very small screens if lang + Giriş stay visible
+```
