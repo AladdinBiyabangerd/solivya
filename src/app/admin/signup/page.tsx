@@ -15,14 +15,17 @@ export default async function AdminSignupPage() {
   return (
     <main className={styles.shell}>
       <div className={styles.card}>
+        <a className={styles.authBack} href={landingHref}>
+          ← Solivya
+        </a>
         <p className={styles.eyebrow}>
           <SolivyaLogo size="sm" href={landingHref} />
           <span aria-hidden="true"> · </span>
-          admin
+          Sahib paneli
         </p>
         <h1 className={styles.title}>Hesab yarat</h1>
         <p className={styles.lead}>
-          Günlük kirayə sahibləri üçün panelə qeydiyyat.
+          Günlük kirayə sahibləri üçün panel — qeydiyyatdan sonra sayta qayıdırsan.
         </p>
         <SignupForm />
         <p className={styles.switch}>

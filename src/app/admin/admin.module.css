@@ -16,7 +16,28 @@
 
 .card {
   width: min(420px, 100%);
+  padding: 1.75rem 1.5rem 1.85rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow);
 }
+
+.authBack {
+  display: inline-block;
+  margin: 0 0 1.15rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.authBack:hover {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
 
 /* —— Shared type —— */
 .eyebrow {
@@ -254,36 +275,181 @@
   border-bottom-color: #7f1d1d;
 }
 
-/* —— Admin workspace —— */
-.shellTop {
+/* —— Admin workspace (sidebar shell) —— */
+.appShell {
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr);
   color: var(--text);
+  background: var(--bg);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.35rem 1rem 1.25rem;
+  border-right: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, var(--bg-soft) 0%, var(--surface) 42%, var(--surface) 100%);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+}
+
+.sideBrand {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0 0.35rem;
+}
+
+.sideEyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sideNav {
+  display: grid;
+  gap: 0.25rem;
+  flex: 1 1 auto;
+}
+
+.sideNavLink,
+.sideNavActive {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.55rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.sideNavLink {
+  color: var(--muted);
+}
+
+.sideNavLink:hover {
+  color: var(--text);
+  background: rgba(28, 25, 23, 0.04);
+}
+
+.sideNavActive {
+  color: var(--text);
+  background: rgba(154, 123, 79, 0.14);
+}
+
+.sideFooter {
+  padding: 0.75rem 0.35rem 0.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.sideHomeLink {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.sideHomeLink:hover {
+  color: var(--accent);
+}
+
+.appMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   background:
     radial-gradient(
-      ellipse 55% 40% at 0% 0%,
-      rgba(154, 123, 79, 0.1),
+      ellipse 55% 40% at 100% 0%,
+      rgba(154, 123, 79, 0.08),
       transparent 50%
     ),
-    linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 28%, var(--bg) 100%);
+    var(--bg);
 }
 
-.topBar {
-  width: min(1180px, calc(100% - 2.5rem));
-  margin: 0 auto;
-  padding: 1.35rem 0 1.1rem;
+.appTop {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
+  gap: 0.75rem;
+  padding: 0.85rem 1.35rem;
   border-bottom: 1px solid var(--line);
+  background: rgba(255, 252, 250, 0.72);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-.topLeft {
-  display: flex;
+.menuBtn {
+  display: none;
   align-items: center;
-  gap: 1.15rem;
-  min-width: 0;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menuBtn:hover {
+  border-color: var(--accent);
+}
+
+.appTopTitle {
+  margin: 0;
   flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.appTopCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--cta);
+  color: var(--surface);
+  flex-shrink: 0;
+}
+
+.appTopCta:hover {
+  background: var(--cta-hover);
+}
+
+.appContent {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.drawerRoot {
+  display: none;
 }
 
 .topBrand {
@@ -298,108 +464,9 @@
   color: var(--accent);
 }
 
-.topNav {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem 1rem;
-  min-width: 0;
-}
-
-.topNavLink,
-.topNavActive {
-  font-size: 0.88rem;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 0.35rem 0;
-  border-bottom: 1px solid transparent;
-  white-space: nowrap;
-}
-
-.topNavLink {
-  color: var(--muted);
-}
-
-.topNavLink:hover {
-  color: var(--text);
-  border-bottom-color: var(--line);
-}
-
-.topNavActive {
-  color: var(--text);
-  border-bottom-color: var(--accent);
-}
-
-.topNavCta,
-.topNavCtaActive {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.35rem;
-  padding: 0.35rem 0.9rem;
-  border-radius: var(--radius);
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.topNavCta {
-  background: var(--cta);
-  color: var(--surface);
-}
-
-.topNavCta:hover {
-  background: var(--cta-hover);
-}
-
-.topNavCtaActive {
-  background: var(--accent);
-  color: var(--white);
-}
-
-.topActions {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.profileIcon,
-.profileIconActive {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  border-radius: 999px;
-  text-decoration: none;
-  flex-shrink: 0;
-  transition:
-    color 0.15s ease,
-    background 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.profileIcon {
-  color: var(--muted);
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-
-.profileIcon:hover {
-  color: var(--text);
-  border-color: var(--accent);
-}
-
-.profileIconActive {
-  color: var(--white);
-  background: var(--accent);
-  border: 1px solid var(--accent);
-}
-
-.profileGlyph {
-  display: block;
+/* Legacy aliases kept so older class refs don't break if leftover */
+.shellTop {
+  min-height: 100vh;
 }
 
 .profileSignOut {
@@ -434,10 +501,14 @@
 }
 
 .emptyState {
-  padding: 2rem 0 1rem;
+  padding: 2.25rem 1.35rem;
   display: grid;
   gap: 0.75rem;
   max-width: 28rem;
+  margin-top: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 2px);
 }
 
 .emptyTitle {
@@ -456,32 +527,37 @@
 
 .propertyList {
   list-style: none;
-  margin: 0.5rem 0 0;
+  margin: 0.75rem 0 0;
   padding: 0;
   display: grid;
-  gap: 0;
-  border-top: 1px solid var(--line);
+  gap: 0.65rem;
 }
 
 .propertyRow {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr) auto auto;
+  grid-template-columns: 5rem minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.85rem 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--line);
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--surface);
   text-decoration: none;
   color: inherit;
-  transition: background 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .propertyRow:hover {
-  background: rgba(255, 252, 250, 0.55);
+  border-color: rgba(154, 123, 79, 0.45);
+  background: #fffcfa;
 }
 
 .propertyThumb {
-  width: 4.5rem;
-  height: 3.35rem;
+  width: 5rem;
+  height: 3.65rem;
   border-radius: var(--radius);
   overflow: hidden;
   background: var(--bg-soft);
@@ -585,9 +661,9 @@
 }
 
 .panelWide {
-  width: min(1180px, calc(100% - 2.5rem));
-  margin: 0 auto;
-  padding: 1.15rem 0 3rem;
+  width: min(960px, 100%);
+  margin: 0;
+  padding: 1.35rem 1.35rem 3rem;
 }
 
 .panelHeader {
@@ -607,6 +683,15 @@
   font-size: 0.82rem;
   color: var(--muted);
 }
+
+.dashHeaderActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
 
 .editorStack {
   display: grid;
@@ -2119,18 +2204,58 @@
   }
 }
 
-@media (max-width: 720px) {
-  .topBar,
-  .panelWide {
-    width: min(1180px, calc(100% - 1.5rem));
+@media (max-width: 900px) {
+  .appShell {
+    grid-template-columns: 1fr;
   }
 
-  .topLeft {
-    gap: 0.85rem;
-  }
-
-  .topNav {
+  .sidebar {
     display: none;
+  }
+
+  .menuBtn {
+    display: inline-flex;
+  }
+
+  .drawerRoot {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+  }
+
+  .drawerScrim {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: rgba(28, 25, 23, 0.42);
+    cursor: pointer;
+  }
+
+  .drawerPanel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(17.5rem, 86vw);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.35rem 1rem 1.25rem;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    overflow: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .appTop,
+  .panelWide {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .propertyRow {

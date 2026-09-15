@@ -49,6 +49,13 @@ export default async function AdminHome() {
           <p className={styles.dashLead}>
             Saytlarınızı buradan açın, redaktə edin və ya yeni mənzil əlavə edin.
           </p>
+          {properties.length > 0 ? (
+            <div className={styles.dashHeaderActions}>
+              <Link href="/admin/new" className={styles.submit}>
+                Yeni mənzil
+              </Link>
+            </div>
+          ) : null}
         </header>
 
         {properties.length === 0 ? (

@@ -15,14 +15,17 @@ export default async function AdminLoginPage() {
   return (
     <main className={styles.shell}>
       <div className={styles.card}>
+        <a className={styles.authBack} href={landingHref}>
+          ← Solivya
+        </a>
         <p className={styles.eyebrow}>
           <SolivyaLogo size="sm" href={landingHref} />
           <span aria-hidden="true"> · </span>
-          admin
+          Sahib paneli
         </p>
-        <h1 className={styles.title}>Sahib girişi</h1>
+        <h1 className={styles.title}>Daxil ol</h1>
         <p className={styles.lead}>
-          Mənzil səhifəni idarə etmək üçün daxil ol.
+          Hesabına gir — sonra landing-dən panelə keçə bilərsən.
         </p>
         <LoginForm />
         <p className={styles.switch}>
