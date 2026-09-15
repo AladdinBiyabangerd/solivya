@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { listPublishedPropertySitemapEntries } from "@/lib/properties";
 import {
+  browseUrl,
   hreflangLanguages,
   marketingUrl,
   propertyUrl,
@@ -29,6 +30,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   }));
 
+  const browseEntries: MetadataRoute.Sitemap = LOCALES.map((locale) => ({
+    url: browseUrl(locale, origin),
+    ...(marketingLastMod ? { lastModified: marketingLastMod } : {}),
+    alternates: {
+      languages: hreflangLanguages(
+        browseUrl("az", origin),
+        browseUrl("ru", origin),
+      ),
+    },
+  }));
+
   const propertyEntries: MetadataRoute.Sitemap = properties.flatMap(
     (property) => {
       const lastModified = new Date(property.updated_at);
@@ -46,5 +58,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   // No changeFrequency / priority — major engines ignore them.
-  return [...marketingEntries, ...propertyEntries];
+  return [...marketingEntries, ...browseEntries, ...propertyEntries];
 }

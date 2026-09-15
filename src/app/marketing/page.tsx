@@ -57,6 +57,7 @@ export default async function MarketingHome({ searchParams }: Props) {
   const wa = salesWhatsAppHref(t.waMessage);
   const langAzHref = "/?lang=az";
   const langRuHref = "/?lang=ru";
+  const browseHref = `/browse?lang=${locale}`;
 
   const jsonLd = marketingJsonLd({
     locale,
@@ -91,6 +92,9 @@ export default async function MarketingHome({ searchParams }: Props) {
               <nav className={styles.navLinks} aria-label={t.navAria}>
                 <a className={styles.navLink} href="#necə">
                   {t.navHow}
+                </a>
+                <a className={styles.navLink} href={browseHref}>
+                  {t.navBrowse}
                 </a>
                 <a className={styles.navLink} href={demoUrl}>
                   {t.navDemo}
@@ -142,8 +146,8 @@ export default async function MarketingHome({ searchParams }: Props) {
             >
               {t.ctaWhatsApp}
             </a>
-            <a className={styles.btnGhost} href={demoUrl}>
-              {t.ctaDemo}
+            <a className={styles.btnGhost} href={browseHref}>
+              {t.ctaBrowse}
             </a>
           </div>
         </div>
@@ -152,6 +156,21 @@ export default async function MarketingHome({ searchParams }: Props) {
           <span />
         </div>
       </header>
+
+      <section className={styles.guestBand} id="menziller" aria-labelledby="guest-title">
+        <div className={`${styles.wrap} ${styles.guestInner}`}>
+          <div>
+            <p className={styles.sectionLabel}>{t.guestLabel}</p>
+            <h2 className={styles.sectionTitle} id="guest-title">
+              {t.guestTitle}
+            </h2>
+            <p className={styles.sectionText}>{t.guestText}</p>
+          </div>
+          <a className={styles.btn} href={browseHref}>
+            {t.guestCta}
+          </a>
+        </div>
+      </section>
 
       <section className={styles.splitBand} id="problem">
         <div className={`${styles.wrap} ${styles.split}`}>

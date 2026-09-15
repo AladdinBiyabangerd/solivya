@@ -350,6 +350,32 @@
   border-bottom: 1px solid var(--line);
 }
 
+.guestBand {
+  padding: 1.75rem 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.guestInner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+}
+
+.guestInner .sectionTitle {
+  max-width: 16ch;
+}
+
+.guestInner .sectionText {
+  margin-bottom: 0;
+  max-width: 38ch;
+}
+
+.guestInner .btn {
+  flex-shrink: 0;
+}
+
 .plainList {
   list-style: none;
   margin: 0.75rem 0 0;
@@ -750,10 +776,16 @@
   }
 
   .splitBand,
+  .guestBand,
   .includes,
   .process,
   .dealBand {
     padding-block: 2rem;
+  }
+
+  .guestInner {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .closingInner {

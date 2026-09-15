@@ -5,6 +5,7 @@ export type MarketingCopy = {
   metaDescription: string;
   navAria: string;
   navHow: string;
+  navBrowse: string;
   navDemo: string;
   navPrice: string;
   navLogin: string;
@@ -13,7 +14,12 @@ export type MarketingCopy = {
   lead: string;
   ctaWhatsApp: string;
   ctaDemo: string;
+  ctaBrowse: string;
   waMessage: string;
+  guestLabel: string;
+  guestTitle: string;
+  guestText: string;
+  guestCta: string;
   problemLabel: string;
   problemTitle: string;
   problemText: string;
@@ -58,6 +64,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
       "Günlük kirayə mənzilin üçün öz brendli sayt. WhatsApp ilə sorğu, gözəl foto, aydın qiymət — marketplace komissiyası olmadan.",
     navAria: "Əsas",
     navHow: "Necə",
+    navBrowse: "Mənzillər",
     navDemo: "Demo",
     navPrice: "Qiymət",
     navLogin: "Giriş",
@@ -66,8 +73,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     lead: "Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra birbaşa sənin WhatsApp-ına yazır.",
     ctaWhatsApp: "WhatsApp ilə sifariş",
     ctaDemo: "Canlı demo",
+    ctaBrowse: "Mənzillərə bax",
     waMessage:
       "Salam, Solivya ilə günlük kirayə səhifəsi yaratmaq istəyirəm",
+    guestLabel: "Axtarırsan?",
+    guestTitle: "Mənzil axtarırsan",
+    guestText:
+      "Sahibdən link gözləmədən nəşr olunmuş günlük kirayə mənzillərə bax — foto, qiymət, qaydalar bir səhifədə.",
+    guestCta: "Mənzillərə bax",
     problemLabel: "Problem",
     problemTitle: "Elan var. Brend yoxdur.",
     problemText:
@@ -163,6 +176,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
       "Своя брендовая страница для вашей квартиры посуточно. Фото, цена, правила и WhatsApp — без комиссии маркетплейса.",
     navAria: "Основное",
     navHow: "Как",
+    navBrowse: "Квартиры",
     navDemo: "Демо",
     navPrice: "Цена",
     navLogin: "Вход",
@@ -171,8 +185,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     lead: "Гость видит фото, цену и правила в одной ссылке — и пишет вам прямо в WhatsApp.",
     ctaWhatsApp: "Заказать в WhatsApp",
     ctaDemo: "Живое демо",
+    ctaBrowse: "Смотреть квартиры",
     waMessage:
       "Здравствуйте, хочу создать страницу для посуточной аренды через Solivya",
+    guestLabel: "Ищете жильё?",
+    guestTitle: "Нужна квартира",
+    guestText:
+      "Смотрите опубликованные квартиры посуточно без личной ссылки — фото, цена и правила на одной странице.",
+    guestCta: "Смотреть квартиры",
     problemLabel: "Проблема",
     problemTitle: "Объявление есть. Бренда нет.",
     problemText:

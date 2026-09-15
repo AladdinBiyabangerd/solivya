@@ -11,6 +11,7 @@ export function GET() {
 
 - Marketing: ${origin}/?lang=az
 - Marketing (RU): ${origin}/?lang=ru
+- Browse listings: ${origin}/browse?lang=az
 - Demo listing: https://demo.solivya.homes/?lang=az
 - Owner app: https://app.solivya.homes/login
 

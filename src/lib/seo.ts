@@ -12,6 +12,10 @@ export function marketingUrl(locale: LocaleCode, origin = siteUrl()): string {
   return `${origin}/?lang=${locale}`;
 }
 
+export function browseUrl(locale: LocaleCode, origin = siteUrl()): string {
+  return `${origin}/browse?lang=${locale}`;
+}
+
 export function propertyUrl(
   slug: string,
   locale: LocaleCode,

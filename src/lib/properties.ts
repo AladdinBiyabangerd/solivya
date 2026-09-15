@@ -174,3 +174,62 @@ export async function listPublishedPropertySitemapEntries(): Promise<
 
   return (data as { slug: string; updated_at: string }[] | null) ?? [];
 }
+
+export type PublishedListingCard = {
+  slug: string;
+  brandName: string;
+  title: string;
+  zone: string;
+  rooms: number;
+  guests: number;
+  priceNight: number;
+  coverSrc: string | null;
+  coverAlt: string;
+};
+
+type ListingRow = Property & {
+  photos: Pick<Photo, "storage_path" | "sort_order" | "alt">[] | null;
+};
+
+/** Published listings for the public browse catalog. */
+export async function listPublishedListings(
+  locale: LocaleCode,
+): Promise<PublishedListingCard[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("properties")
+    .select(
+      "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, photos(storage_path, sort_order, alt)",
+    )
+    .eq("published", true)
+    .order("updated_at", { ascending: false });
+
+  if (error) {
+    console.error("listPublishedListings", error.message);
+    return [];
+  }
+
+  const rows = (data as unknown as ListingRow[] | null) ?? [];
+
+  return rows.map((row) => {
+    const photos = Array.isArray(row.photos) ? [...row.photos] : [];
+    photos.sort((a, b) => a.sort_order - b.sort_order);
+    const cover = photos[0];
+    const title =
+      locale === "ru"
+        ? row.title_ru || row.title_az
+        : row.title_az || row.title_ru;
+
+    return {
+      slug: row.slug,
+      brandName: row.brand_name,
+      title,
+      zone: row.zone,
+      rooms: row.rooms,
+      guests: row.guests,
+      priceNight: Number(row.price_night),
+      coverSrc: cover ? resolvePhotoSrc(cover.storage_path) : null,
+      coverAlt: cover?.alt || row.brand_name,
+    };
+  });
+}
