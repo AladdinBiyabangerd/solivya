@@ -61,7 +61,7 @@ export default async function AdminPreviewPage({
     priceNight: item.priceNight,
     coverSrc: item.coverSrc,
     coverAlt: item.coverAlt,
-    href: `/preview/${item.slug}?lang=${locale}`,
+    href: `/admin/preview/${item.slug}?lang=${locale}`,
   }));
 
   return (

@@ -8,7 +8,7 @@ Hazır linklər (domen alınana qədər local / sonra production):
 |---|---|
 | Satış landing | `https://solivya.homes` (local: `http://127.0.0.1:3000`) |
 | Demo səhifə | `https://demo.solivya.homes` (local: `http://demo.localhost:3000`) |
-| Hesab / admin | `https://app.solivya.homes` |
+| Hesab / admin | `https://solivya.homes/admin` |
 
 ---
 

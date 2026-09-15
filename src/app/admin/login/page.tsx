@@ -27,7 +27,7 @@ export default async function AdminLoginPage() {
         <LoginForm />
         <p className={styles.switch}>
           Hesabın yoxdur?{" "}
-          <Link className={styles.switchLink} href="/signup">
+          <Link className={styles.switchLink} href="/admin/signup">
             Qeydiyyat
           </Link>
         </p>

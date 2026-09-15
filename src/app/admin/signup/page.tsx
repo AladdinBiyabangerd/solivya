@@ -27,7 +27,7 @@ export default async function AdminSignupPage() {
         <SignupForm />
         <p className={styles.switch}>
           Artıq hesabın var?{" "}
-          <Link className={styles.switchLink} href="/login">
+          <Link className={styles.switchLink} href="/admin/login">
             Daxil ol
           </Link>
         </p>

@@ -4,25 +4,24 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { marketingHomeHref } from "@/lib/site";
 
 export type AuthState = {
   error?: string;
   message?: string;
 };
 
-/** Stay on the admin host (app.localhost / app.solivya.homes), not marketing. */
-async function redirectToAdminHome(): Promise<never> {
+/** After auth, return to marketing landing — panel via explicit CTA. */
+async function redirectToMarketingHome(): Promise<never> {
   const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "http";
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "";
+  const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
 
   revalidatePath("/", "layout");
   revalidatePath("/admin", "layout");
+  revalidatePath("/marketing", "layout");
 
-  if (host) {
-    redirect(`${proto}://${host}/`);
-  }
-  redirect("/");
+  redirect(marketingHomeHref({ isLocal }));
   throw new Error("unreachable");
 }
 
@@ -47,7 +46,7 @@ export async function signIn(
     return { error: error.message };
   }
 
-  return redirectToAdminHome();
+  return redirectToMarketingHome();
 }
 
 export async function signUp(
@@ -84,7 +83,7 @@ export async function signUp(
   }
 
   if (data.session) {
-    return redirectToAdminHome();
+    return redirectToMarketingHome();
   }
 
   return {
@@ -97,17 +96,11 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
 
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "http";
-
   revalidatePath("/", "layout");
   revalidatePath("/admin", "layout");
+  revalidatePath("/marketing", "layout");
 
-  if (host) {
-    redirect(`${proto}://${host}/login`);
-  }
-  redirect("/login");
+  redirect("/admin/login");
 }
 
 export async function updateProfile(
@@ -122,7 +115,7 @@ export async function updateProfile(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/admin/login");
   }
 
   const { error } = await supabase
@@ -135,6 +128,5 @@ export async function updateProfile(
   }
 
   revalidatePath("/admin/profile");
-  revalidatePath("/profile");
   return { message: "Profil yeniləndi." };
 }

@@ -45,7 +45,7 @@ npm install
 npm run dev
 ```
 
-Lokal tenant hostları: `localhost:3000` (marketing), `app.localhost:3000` (admin), `{slug}.localhost:3000` (sayt).
+Lokal: `localhost:3000` (marketing + `/admin` panel), `{slug}.localhost:3000` (sayt). Köhnə `app.localhost` → `/admin`-ə yönləndirilir.
 
 **Build** — production build
 
@@ -74,13 +74,13 @@ npm run start
 4. **Domains** (Project → Settings → Domains):
    - `solivya.homes`
    - `www.solivya.homes` (vercel.json `www` → apex 301 edir)
-   - `app.solivya.homes`
+   - `app.solivya.homes` (opsional; middleware apex `/admin`-ə 308 edir)
    - `*.solivya.homes` (property subdomainləri: `demo.solivya.homes` və s.)
 5. DNS (Vercel-in göstərdiyi record-lar):
    - Apex `solivya.homes` — A / ALIAS
-   - `www`, `app`, `*` — CNAME → `cname.vercel-dns.com`
+   - `www`, `app` (legacy), `*` — CNAME → `cname.vercel-dns.com`
 6. **Supabase** → Authentication → URL configuration:
-   - Site URL: `https://app.solivya.homes`
-   - Redirect URLs: `https://app.solivya.homes/**`, `https://solivya.homes/**`, lokal `http://app.localhost:3000/**`
+   - Site URL: `https://solivya.homes`
+   - Redirect URLs: `https://solivya.homes/**`, lokal `http://localhost:3000/**`
 
-Tenant routing production-da host əsasında işləyir: apex = marketing, `app.` = admin, digər subdomain = property saytı.
+Tenant routing: apex = marketing + path `/admin` (owner panel), digər subdomain = property saytı. `app.` legacy redirect.

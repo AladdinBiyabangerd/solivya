@@ -57,7 +57,7 @@ export default async function AdminHome() {
             <p className={styles.emptyText}>
               Birinci saytı yaratmaq üçün brend adı və subdomain seçin.
             </p>
-            <Link href="/new" className={styles.submit}>
+            <Link href="/admin/new" className={styles.submit}>
               Mənzil yarat
             </Link>
           </div>
@@ -74,7 +74,7 @@ export default async function AdminHome() {
               return (
                 <li key={property.id}>
                   <Link
-                    href={`/properties/${property.id}`}
+                    href={`/admin/properties/${property.id}`}
                     className={styles.propertyRow}
                   >
                     <span className={styles.propertyThumb} aria-hidden>

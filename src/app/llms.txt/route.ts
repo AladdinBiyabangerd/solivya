@@ -13,7 +13,7 @@ export function GET() {
 - Marketing (RU): ${origin}/?lang=ru
 - Browse listings: ${origin}/browse?lang=az
 - Demo listing: https://demo.solivya.homes/?lang=az
-- Owner app: https://app.solivya.homes/login
+- Owner app: ${origin}/admin/login
 
 ## Pricing (AZN)
 
@@ -28,7 +28,7 @@ export function GET() {
 
 - Public locales: az (default), ru via ?lang=
 - Each published property lives on {slug}.solivya.homes
-- Do not index /admin, /login, /signup, or /preview
+- Do not index /admin or /admin/preview
 `;
 
   return new Response(body, {

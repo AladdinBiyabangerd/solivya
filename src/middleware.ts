@@ -3,6 +3,10 @@ import {
   tenantRewritePath,
   resolveTenant,
   requestHost,
+  legacyAdminRedirectPath,
+  apexHostFromRequestHost,
+  isAdminPath,
+  isAdminPublicPath,
 } from "@/lib/tenant";
 import { updateSession } from "@/utils/supabase/middleware";
 
@@ -35,8 +39,25 @@ function isRootSeoOrAssetPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const tenant = resolveTenant(requestHost(request.headers));
+  const hostHeader = requestHost(request.headers);
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "solivya.homes";
+  const tenant = resolveTenant(hostHeader, rootDomain);
   const pathname = request.nextUrl.pathname;
+
+  // Legacy app.* → apex /admin…
+  if (tenant.zone === "admin-legacy") {
+    const apex = apexHostFromRequestHost(hostHeader, rootDomain);
+    const proto =
+      request.headers.get("x-forwarded-proto") ??
+      request.nextUrl.protocol.replace(":", "") ??
+      "https";
+    const target = new URL(
+      `${proto}://${apex}${legacyAdminRedirectPath(pathname)}`,
+    );
+    target.search = request.nextUrl.search;
+    return NextResponse.redirect(target, 308);
+  }
+
   const rewritePath = isRootSeoOrAssetPath(pathname)
     ? null
     : tenantRewritePath(tenant, pathname);
@@ -51,24 +72,20 @@ export async function middleware(request: NextRequest) {
 
   const { response, user } = await updateSession(request, rewriteUrl);
 
-  if (tenant.zone === "admin") {
-    const isPublicAuth =
-      pathname === "/login" ||
-      pathname.startsWith("/login/") ||
-      pathname === "/signup" ||
-      pathname.startsWith("/signup/");
-
-    if (!user && !isPublicAuth) {
+  if (isAdminPath(pathname)) {
+    if (!user && !isAdminPublicPath(pathname)) {
       const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
+      loginUrl.pathname = "/admin/login";
+      loginUrl.search = "";
       const redirectResponse = NextResponse.redirect(loginUrl);
       copyCookies(response, redirectResponse);
       return redirectResponse;
     }
 
-    if (user && isPublicAuth) {
+    if (user && isAdminPublicPath(pathname)) {
       const homeUrl = request.nextUrl.clone();
       homeUrl.pathname = "/";
+      homeUrl.search = "";
       const redirectResponse = NextResponse.redirect(homeUrl);
       copyCookies(response, redirectResponse);
       return redirectResponse;

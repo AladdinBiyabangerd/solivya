@@ -45,7 +45,7 @@ async function requireUser() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/login");
+    redirect("/admin/login");
   }
   return { supabase, user };
 }

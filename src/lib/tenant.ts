@@ -1,6 +1,6 @@
 export type TenantZone =
   | { zone: "marketing" }
-  | { zone: "admin" }
+  | { zone: "admin-legacy" }
   | { zone: "site"; slug: string };
 
 const RESERVED = new Set(["www", "app", "api"]);
@@ -16,8 +16,9 @@ export function requestHost(headers: {
 
 /**
  * Resolve host → Solivya zone.
- * Local: localhost | app.localhost | {slug}.localhost
- * Prod:  solivya.homes | app.solivya.homes | {slug}.solivya.homes
+ * Local: localhost | app.localhost (legacy redirect) | {slug}.localhost
+ * Prod:  solivya.homes | app.solivya.homes (legacy redirect) | {slug}.solivya.homes
+ * Owner admin is path-based: solivya.homes/admin
  * Vercel preview (*.vercel.app) → marketing
  */
 export function resolveTenant(
@@ -31,7 +32,7 @@ export function resolveTenant(
   }
 
   if (host === "app.localhost") {
-    return { zone: "admin" };
+    return { zone: "admin-legacy" };
   }
 
   if (host.endsWith(".localhost")) {
@@ -52,7 +53,7 @@ export function resolveTenant(
   }
 
   if (host === `app.${rootDomain}`) {
-    return { zone: "admin" };
+    return { zone: "admin-legacy" };
   }
 
   const suffix = `.${rootDomain}`;
@@ -64,6 +65,38 @@ export function resolveTenant(
   }
 
   return { zone: "marketing" };
+}
+
+/** Map legacy app.* paths onto apex /admin… */
+export function legacyAdminRedirectPath(pathname: string): string {
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return pathname;
+  }
+  if (pathname === "/" || pathname === "") {
+    return "/admin";
+  }
+  return `/admin${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
+}
+
+/** Apex host for redirects off app.* (preserves local port). */
+export function apexHostFromRequestHost(
+  hostHeader: string | null,
+  rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "solivya.homes",
+): string {
+  const raw = (hostHeader ?? "localhost").trim();
+  const [hostname, port] = raw.split(":");
+  const host = hostname.toLowerCase();
+
+  let apex = host;
+  if (host === "app.localhost") {
+    apex = "localhost";
+  } else if (host === `app.${rootDomain}`) {
+    apex = rootDomain;
+  } else if (host.startsWith("app.")) {
+    apex = host.slice("app.".length);
+  }
+
+  return port ? `${apex}:${port}` : apex;
 }
 
 export function tenantRewritePath(
@@ -85,9 +118,23 @@ export function tenantRewritePath(
   switch (tenant.zone) {
     case "marketing":
       return `/marketing${rest || ""}`;
-    case "admin":
-      return `/admin${rest || ""}`;
+    case "admin-legacy":
+      // Middleware redirects before rewrite; never serve from app.* host.
+      return null;
     case "site":
       return `/site/${tenant.slug}${rest || ""}`;
   }
+}
+
+export function isAdminPublicPath(pathname: string): boolean {
+  return (
+    pathname === "/admin/login" ||
+    pathname.startsWith("/admin/login/") ||
+    pathname === "/admin/signup" ||
+    pathname.startsWith("/admin/signup/")
+  );
+}
+
+export function isAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
 }

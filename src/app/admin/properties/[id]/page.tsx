@@ -63,7 +63,7 @@ export default async function EditPropertyPage({ params }: PageProps) {
     <AdminShell active="edit">
       <div className={styles.panelWide}>
         <p className={styles.backLinkWrap}>
-          <Link href="/" className={styles.backLink}>
+          <Link href="/admin" className={styles.backLink}>
             ← Mənzillər
           </Link>
         </p>

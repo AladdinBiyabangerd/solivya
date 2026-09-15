@@ -45,7 +45,7 @@ export async function AdminShell({ active, children }: Props) {
           <SolivyaLogo size="sm" className={styles.topBrand} href={landingHref} />
           <nav className={styles.topNav} aria-label="Admin">
             <Link
-              href="/"
+              href="/admin"
               className={
                 active === "home" || active === "edit"
                   ? styles.topNavActive
@@ -58,7 +58,7 @@ export async function AdminShell({ active, children }: Props) {
         </div>
         <div className={styles.topActions}>
           <Link
-            href="/new"
+            href="/admin/new"
             className={
               active === "new" ? styles.topNavCtaActive : styles.topNavCta
             }
@@ -66,7 +66,7 @@ export async function AdminShell({ active, children }: Props) {
             Yeni
           </Link>
           <Link
-            href="/profile"
+            href="/admin/profile"
             className={
               active === "profile"
                 ? styles.profileIconActive

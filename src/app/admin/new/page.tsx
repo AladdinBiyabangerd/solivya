@@ -9,7 +9,7 @@ export default function NewPropertyPage() {
       <div className={styles.panelWide}>
         <header className={styles.panelHeader}>
           <p className={styles.backLinkWrap}>
-            <Link href="/" className={styles.backLink}>
+            <Link href="/admin" className={styles.backLink}>
               ← Mənzillər
             </Link>
           </p>
