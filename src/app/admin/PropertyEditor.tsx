@@ -29,6 +29,7 @@ import {
   SITE_MAIN_ASPECT,
   SITE_PHOTO_ASPECT,
 } from "@/lib/cropImage";
+import { ZonePicker } from "./ZonePicker";
 import styles from "./admin.module.css";
 
 const empty: EditorState = {};
@@ -1022,25 +1023,19 @@ function EditForm({
             data-step="2"
           >
             <FieldGroup title="Yerləşmə">
-              <div className={styles.grid2}>
-                <label className={styles.label}>
-                  Zona
-                  <input
-                    className={styles.input}
-                    name="zone"
-                    defaultValue={property.zone}
-                  />
-                </label>
-                <label className={styles.label}>
-                  WhatsApp
-                  <input
-                    className={styles.input}
-                    name="whatsapp_e164"
-                    defaultValue={property.whatsapp_e164}
-                    placeholder="994501234567"
-                  />
-                </label>
+              <div className={styles.label}>
+                Zona
+                <ZonePicker defaultValue={property.zone} />
               </div>
+              <label className={styles.label}>
+                WhatsApp
+                <input
+                  className={styles.input}
+                  name="whatsapp_e164"
+                  defaultValue={property.whatsapp_e164}
+                  placeholder="994501234567"
+                />
+              </label>
               <label className={styles.label}>
                 Zona qeydi
                 <textarea
