@@ -679,6 +679,33 @@
   margin-top: 0.2rem;
 }
 
+.photoCountWarn,
+.photoCountOk {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.photoCountWarn {
+  color: #9a3412;
+}
+
+.photoCountOk {
+  color: var(--olive);
+}
+
+.pendingSaveHint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.pendingSaveHint strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .hint {
   color: var(--muted);
   font-size: 0.8rem;

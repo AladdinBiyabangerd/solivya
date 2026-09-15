@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Amenity, LocaleCode } from "@/types/database";
+import { MIN_SITE_PHOTOS } from "@/lib/photoLayout";
 import { createClient } from "@/utils/supabase/server";
 
 export type EditorState = {
@@ -119,6 +120,18 @@ export async function saveProperty(
 
   const locale = String(formData.get("locale_default") ?? "az") as LocaleCode;
   const published = formData.get("published") === "on";
+
+  if (published) {
+    const { count } = await supabase
+      .from("photos")
+      .select("*", { count: "exact", head: true })
+      .eq("property_id", id);
+    if ((count ?? 0) < MIN_SITE_PHOTOS) {
+      return {
+        error: `Publish üçün ən azı ${MIN_SITE_PHOTOS} foto lazımdır (indi: ${count ?? 0}).`,
+      };
+    }
+  }
 
   const { error } = await supabase
     .from("properties")

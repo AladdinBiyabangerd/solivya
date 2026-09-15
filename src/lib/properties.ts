@@ -42,6 +42,10 @@ export function toSitePropertyView(
     gallery[0]?.src ??
     "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1800&q=80";
 
+  // Site layout: [0]=hero+large tile, [1..4]=gallery, [5]=map (if any), rest unused on page
+  const galleryPhotos = gallery.slice(0, 5);
+  const mapImage = gallery[5]?.src;
+
   const title =
     locale === "ru"
       ? property.title_ru || property.title_az
@@ -77,8 +81,8 @@ export function toSitePropertyView(
         : `Salam, «${title}» haqqında məlumat almaq istəyirəm`,
     stickyWhatsAppMessage: ui.stickyWhatsAppMessage,
     heroImage,
-    photos: gallery.slice(0, 5),
-    mapImage: gallery.length > 5 ? gallery[gallery.length - 1]?.src : undefined,
+    photos: galleryPhotos,
+    mapImage,
     locale,
     ui,
   };

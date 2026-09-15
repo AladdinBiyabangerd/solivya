@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  forwardRef,
   useActionState,
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
   type FormEvent,
@@ -10,8 +12,10 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import type { Photo, Property } from "@/types/database";
 import { resolvePhotoSrc } from "@/lib/storage";
+import { MIN_SITE_PHOTOS, sitePhotoPlan } from "@/lib/photoLayout";
 import {
   createProperty,
   deletePhoto,
@@ -185,6 +189,11 @@ type LightboxItem = {
   alt: string;
 };
 
+export type PhotoPanelHandle = {
+  flushUploads: () => Promise<EditorState | null>;
+  effectiveCount: () => number;
+};
+
 function PhotoLightbox({
   items,
   index,
@@ -312,17 +321,12 @@ function PhotoLightbox({
   );
 }
 
-function PhotoPanel({
-  propertyId,
-  photos,
-}: {
-  propertyId: string;
-  photos: Photo[];
-}) {
-  const [uploadState, uploadAction, uploadPending] = useActionState(
-    uploadPhoto,
-    empty,
-  );
+const PhotoPanel = forwardRef<
+  PhotoPanelHandle,
+  { propertyId: string; photos: Photo[] }
+>(function PhotoPanel({ propertyId, photos }, ref) {
+  const [uploadState, setUploadState] = useState<EditorState>(empty);
+  const [uploadPending, setUploadPending] = useState(false);
   const [mainCropState, mainCropAction, mainCropPending] = useActionState(
     setMainPhotoWithCrop,
     empty,
@@ -382,6 +386,67 @@ function PhotoPanel({
     setPickError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [uploadState.ok]);
+
+  const buildUploadFormData = (): FormData | EditorState => {
+    if (pending.length === 0) {
+      return { error: "Əvvəl foto seç." };
+    }
+    if (mainKey) {
+      const mainItem = pending.find((item) => item.key === mainKey);
+      if (mainItem && !mainItem.mainFile) {
+        setMainCrop({
+          kind: "pending",
+          key: mainItem.key,
+          imageUrl: mainItem.originalUrl,
+          fileName: mainItem.originalFile.name,
+        });
+        return { error: "Əsas foto üçün əvvəl hero kəsimini tamamla." };
+      }
+    }
+    const ordered = mainKey
+      ? [
+          ...pending.filter((item) => item.key === mainKey),
+          ...pending.filter((item) => item.key !== mainKey),
+        ]
+      : pending;
+    const formData = new FormData();
+    formData.set("property_id", propertyId);
+    if (mainKey) formData.set("make_first_main", "1");
+    for (const item of ordered) {
+      const uploadFile =
+        item.key === mainKey && item.mainFile ? item.mainFile : item.file;
+      formData.append("files", uploadFile);
+      formData.append("originals", item.originalFile);
+    }
+    return formData;
+  };
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      effectiveCount: () => photos.length + pending.length,
+      flushUploads: async () => {
+        if (pending.length === 0) return null;
+        const built = buildUploadFormData();
+        if (!(built instanceof FormData)) {
+          setPickError(built.error ?? "Foto yüklənmədi.");
+          return built;
+        }
+        setUploadPending(true);
+        setUploadState(empty);
+        try {
+          const result = await uploadPhoto(empty, built);
+          setUploadState(result);
+          return result;
+        } finally {
+          setUploadPending(false);
+        }
+      },
+    }),
+    // pending/mainKey read via closure; refresh each render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pending, mainKey, photos.length, propertyId],
+  );
 
   useEffect(() => {
     if (!mainCropState.ok) return;
@@ -563,52 +628,30 @@ function PhotoPanel({
     setPickError(null);
   };
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (pending.length === 0) {
-      setPickError("Əvvəl foto seç.");
-      return;
-    }
-    if (mainKey) {
-      const mainItem = pending.find((item) => item.key === mainKey);
-      if (mainItem && !mainItem.mainFile) {
-        setPickError("Əsas foto üçün əvvəl hero kəsimini tamamla.");
-        setMainCrop({
-          kind: "pending",
-          key: mainItem.key,
-          imageUrl: mainItem.originalUrl,
-          fileName: mainItem.originalFile.name,
-        });
-        return;
-      }
-    }
-    const ordered = mainKey
-      ? [
-          ...pending.filter((item) => item.key === mainKey),
-          ...pending.filter((item) => item.key !== mainKey),
-        ]
-      : pending;
-    const formData = new FormData();
-    formData.set("property_id", propertyId);
-    if (mainKey) formData.set("make_first_main", "1");
-    for (const item of ordered) {
-      const uploadFile =
-        item.key === mainKey && item.mainFile ? item.mainFile : item.file;
-      formData.append("files", uploadFile);
-      formData.append("originals", item.originalFile);
-    }
-    uploadAction(formData);
-  };
-
   const activeLightbox =
     lightboxIndex !== null ? lightboxItems[lightboxIndex] : null;
+
+  const totalCount = photos.length + pending.length;
+  const plan = sitePhotoPlan(totalCount);
 
   return (
     <aside className={styles.photoPanel}>
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Qalereya 4:3 · əsas 16:9 (orijinaldan) · böyüt · yüklə
+          Minimum {MIN_SITE_PHOTOS} · 1 əsas + 4 qalereya
+          {plan.map ? " · +xəritə" : ""}
+          {plan.spare > 0 ? ` · +${plan.spare} ehtiyat` : ""}
+        </p>
+        <p
+          className={
+            plan.missing > 0 ? styles.photoCountWarn : styles.photoCountOk
+          }
+        >
+          {totalCount} / {MIN_SITE_PHOTOS}
+          {plan.missing > 0
+            ? ` · daha ${plan.missing} foto lazımdır`
+            : " · qalereya doludur"}
         </p>
       </header>
 
@@ -670,16 +713,13 @@ function PhotoPanel({
         </div>
       ) : null}
 
-      <form
-        className={hasPhotos ? styles.dropZone : styles.dropZoneEmpty}
-        onSubmit={onSubmit}
-      >
+      <div className={hasPhotos ? styles.dropZone : styles.dropZoneEmpty}>
         <label className={styles.dropLabel}>
           <span className={styles.dropTitle}>
             {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Əvvəl qalereya kəsimi · əsas seçəndə orijinaldan hero kəsimi
+            Kəs · əlavə et · Yadda saxla ilə yüklənir · min {MIN_SITE_PHOTOS}
           </span>
           <input
             ref={fileInputRef}
@@ -741,21 +781,18 @@ function PhotoPanel({
           </div>
         ) : null}
 
+        {pending.length > 0 ? (
+          <p className={styles.pendingSaveHint}>
+            {pending.length} foto gözləyir — <strong>Yadda saxla</strong> ilə
+            yüklənəcək
+            {uploadPending ? "…" : ""}
+          </p>
+        ) : null}
+
         {pickError ? <p className={styles.error}>{pickError}</p> : null}
         <Status state={uploadState} />
         <Status state={mainCropState} />
-        <button
-          className={styles.submitSecondary}
-          type="submit"
-          disabled={uploadPending || pending.length === 0}
-        >
-          {uploadPending
-            ? "Yüklənir…"
-            : pending.length > 0
-              ? `${pending.length} foto yüklə`
-              : "Yüklə"}
-        </button>
-      </form>
+      </div>
 
       {lightboxIndex !== null && activeLightbox ? (
         <PhotoLightbox
@@ -826,7 +863,7 @@ function PhotoPanel({
       ) : null}
     </aside>
   );
-}
+});
 
 function WizardNav({
   step,
@@ -876,10 +913,10 @@ function EditForm({
   property: Property;
   photos: Photo[];
 }) {
-  const [saveState, saveAction, savePending] = useActionState(
-    saveProperty,
-    empty,
-  );
+  const router = useRouter();
+  const [saveState, setSaveState] = useState<EditorState>(empty);
+  const [savePending, setSavePending] = useState(false);
+  const photoRef = useRef<PhotoPanelHandle>(null);
   const narrow = useIsNarrow();
   const [step, setStep] = useState(0);
   const url = liveUrl(property.slug);
@@ -892,6 +929,40 @@ function EditForm({
   const goNext = () => setStep((s) => Math.min(s + 1, last));
   const goBack = () => setStep((s) => Math.max(s - 1, 0));
   const visible = (index: number) => !narrow || step === index;
+
+  const onSave = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSavePending(true);
+    setSaveState(empty);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const publishing = formData.get("published") === "on";
+    const photoCount = photoRef.current?.effectiveCount() ?? photos.length;
+
+    if (publishing && photoCount < MIN_SITE_PHOTOS) {
+      setSaveState({
+        error: `Publish üçün ən azı ${MIN_SITE_PHOTOS} foto lazımdır (indi: ${photoCount}).`,
+      });
+      setSavePending(false);
+      return;
+    }
+
+    const uploadResult = await photoRef.current?.flushUploads();
+    if (uploadResult?.error) {
+      setSaveState(uploadResult);
+      setSavePending(false);
+      return;
+    }
+
+    try {
+      const result = await saveProperty(empty, formData);
+      setSaveState(result);
+      if (result.ok) router.refresh();
+    } finally {
+      setSavePending(false);
+    }
+  };
 
   return (
     <div className={styles.editorStack}>
@@ -907,7 +978,7 @@ function EditForm({
       ) : null}
 
       <div className={styles.editorSplit}>
-        <form className={styles.form} action={saveAction}>
+        <form className={styles.form} onSubmit={onSave}>
           <input type="hidden" name="id" value={property.id} />
 
           <div
@@ -1170,7 +1241,9 @@ function EditForm({
                   />
                   <span>
                     <strong>Publish</strong>
-                    <em>Canlı səhifə açıq</em>
+                    <em>
+                      Canlı səhifə · ən azı {MIN_SITE_PHOTOS} foto
+                    </em>
                   </span>
                 </label>
               </div>
@@ -1204,7 +1277,11 @@ function EditForm({
           hidden={!visible(5)}
           data-step="5"
         >
-          <PhotoPanel propertyId={property.id} photos={photos} />
+          <PhotoPanel
+            ref={photoRef}
+            propertyId={property.id}
+            photos={photos}
+          />
         </div>
       </div>
 
