@@ -1,12 +1,29 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export type AuthState = {
   error?: string;
   message?: string;
 };
+
+/** Stay on the admin host (app.localhost / app.solivya.homes), not marketing. */
+async function redirectToAdminHome(): Promise<never> {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "http";
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin", "layout");
+
+  if (host) {
+    redirect(`${proto}://${host}/`);
+  }
+  redirect("/");
+}
 
 export async function signIn(
   _prev: AuthState,
@@ -29,7 +46,7 @@ export async function signIn(
     return { error: error.message };
   }
 
-  redirect("/");
+  await redirectToAdminHome();
 }
 
 export async function signUp(
@@ -61,17 +78,12 @@ export async function signUp(
     return { error: error.message };
   }
 
-  // Ensure owners row has phone when provided (trigger only sets email).
   if (data.user && phone) {
-    await supabase
-      .from("owners")
-      .update({ phone })
-      .eq("id", data.user.id);
+    await supabase.from("owners").update({ phone }).eq("id", data.user.id);
   }
 
-  // If email confirmation is disabled, session exists → go to panel.
   if (data.session) {
-    redirect("/");
+    await redirectToAdminHome();
   }
 
   return {
@@ -83,5 +95,16 @@ export async function signUp(
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "http";
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin", "layout");
+
+  if (host) {
+    redirect(`${proto}://${host}/login`);
+  }
   redirect("/login");
 }

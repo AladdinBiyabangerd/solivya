@@ -2,6 +2,12 @@ import { type NextRequest, NextResponse } from "next/server";
 import { tenantRewritePath, resolveTenant } from "@/lib/tenant";
 import { updateSession } from "@/utils/supabase/middleware";
 
+function copyCookies(from: NextResponse, to: NextResponse) {
+  from.cookies.getAll().forEach((cookie) => {
+    to.cookies.set(cookie);
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const tenant = resolveTenant(request.headers.get("host"));
   const pathname = request.nextUrl.pathname;
@@ -27,13 +33,17 @@ export async function middleware(request: NextRequest) {
     if (!user && !isPublicAuth) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
-      return NextResponse.redirect(loginUrl);
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      copyCookies(response, redirectResponse);
+      return redirectResponse;
     }
 
     if (user && isPublicAuth) {
       const homeUrl = request.nextUrl.clone();
       homeUrl.pathname = "/";
-      return NextResponse.redirect(homeUrl);
+      const redirectResponse = NextResponse.redirect(homeUrl);
+      copyCookies(response, redirectResponse);
+      return redirectResponse;
     }
   }
 

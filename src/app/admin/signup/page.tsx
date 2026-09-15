@@ -2,6 +2,8 @@ import Link from "next/link";
 import { SignupForm } from "./SignupForm";
 import styles from "../admin.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminSignupPage() {
   return (
     <main className={styles.shell}>
