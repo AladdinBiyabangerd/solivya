@@ -69,6 +69,7 @@ export default async function AdminPreviewPage({
       property={property}
       siblings={siblings}
       ownerListingsHref={`/admin?lang=${locale}`}
+      platformHomeHref="http://localhost:3000/"
       preview
       draft={!record.property.published}
     />

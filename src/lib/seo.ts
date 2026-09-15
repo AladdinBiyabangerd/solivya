@@ -199,6 +199,10 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
   const lodgingId = `${canonical}#lodging`;
   const city =
     property.locale === "ru" ? "Баку" : "Bakı";
+  const imageRaw = property.photos[0]?.src || property.heroImage;
+  const image = imageRaw.startsWith("http")
+    ? imageRaw
+    : `${origin}${imageRaw}`;
 
   return {
     "@context": "https://schema.org",
@@ -209,7 +213,7 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
         name: property.brandName,
         description: property.lead,
         url: canonical,
-        image: property.heroImage,
+        image,
         telephone: property.whatsappE164
           ? `+${property.whatsappE164.replace(/\D/g, "")}`
           : undefined,
@@ -251,7 +255,7 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
         about: { "@id": lodgingId },
         primaryImageOfPage: {
           "@type": "ImageObject",
-          url: property.heroImage,
+          url: image,
         },
       },
       {

@@ -55,6 +55,25 @@
   color: var(--text);
 }
 
+.brandRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.platformMark {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.92;
+}
+
+.platformMark:hover {
+  opacity: 1;
+}
+
 .topLink {
   font-size: 0.9rem;
   font-weight: 500;
@@ -119,20 +138,17 @@
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-/* Soft full-bleed wash — hides letterboxing when the photo is contain-fitted. */
-.heroMediaFill {
   object-fit: cover;
-  filter: blur(28px) brightness(0.55) saturate(1.08);
-  transform: scale(1.14);
+  object-position: center;
 }
 
-/* Keep the hero photo sharp: fit inside the frame instead of upscaling past cover. */
+.heroMediaFill {
+  filter: blur(24px) brightness(0.55) saturate(1.05);
+  transform: scale(1.12);
+}
+
 .heroMediaPhoto {
-  object-fit: contain;
-  object-position: center;
-  filter: brightness(0.78) saturate(1.04);
+  filter: brightness(0.78) saturate(1.02);
 }
 
 .heroOverlay {

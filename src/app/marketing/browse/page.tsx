@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { SolivyaLogo } from "@/components/brand/SolivyaLogo";
 import { resolveLocale, SITE_UI } from "@/components/site/i18n";
 import {
   listPublishedByOwner,
@@ -114,9 +115,7 @@ export default async function BrowsePage({ searchParams }: Props) {
 
       <header className={styles.top}>
         <div className={`${marketing.wrap} ${marketing.topInner}`}>
-          <a className={marketing.navBrand} href={homeHref}>
-            Solivya
-          </a>
+          <SolivyaLogo size="sm" className={marketing.navBrand} href={homeHref} />
           <div className={marketing.navRight}>
             <nav className={marketing.navLinks} aria-label={t.navAria}>
               <a className={marketing.navLink} href={homeHref}>
@@ -242,7 +241,9 @@ export default async function BrowsePage({ searchParams }: Props) {
       <footer className={marketing.footer}>
         <div className={`${marketing.wrap} ${marketing.footerInner}`}>
           <div className={marketing.footerMeta}>
-            <p className={marketing.footerBrand}>Solivya</p>
+            <p className={marketing.footerBrand}>
+              <SolivyaLogo size="sm" href={homeHref} />
+            </p>
             <p className={marketing.footerNote}>{t.footerNote}</p>
           </div>
           <p className={marketing.footerCredit}>

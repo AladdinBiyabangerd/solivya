@@ -5,6 +5,7 @@ import {
   listPublishedSiblings,
   toSitePropertyView,
 } from "@/lib/properties";
+import { resolvePhotoSrc } from "@/lib/storage";
 import { jsonLdScript, pageMetadata, propertyJsonLd, propertyUrl } from "@/lib/seo";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -45,6 +46,12 @@ export async function generateMetadata({
     locale,
   );
   const canonical = propertyUrl(slug, locale);
+  const ogImage = record.photos[0]
+    ? resolvePhotoSrc(
+        [...record.photos].sort((a, b) => a.sort_order - b.sort_order)[0]
+          .storage_path,
+      )
+    : localized.heroImage;
 
   return pageMetadata({
     locale,
@@ -53,7 +60,7 @@ export async function generateMetadata({
     description: localized.lead,
     images: [
       {
-        url: localized.heroImage,
+        url: ogImage,
         width: 1200,
         height: 630,
         alt: localized.title,
@@ -105,6 +112,9 @@ export default async function SiteHome({ params, searchParams }: Props) {
   const ownerListingsHref = isLocal
     ? `http://localhost:3000/browse?owner=${record.property.owner_id}&lang=${locale}`
     : `https://${root}/browse?owner=${record.property.owner_id}&lang=${locale}`;
+  const platformHomeHref = isLocal
+    ? `http://localhost:3000/?lang=${locale}`
+    : `https://${root}/?lang=${locale}`;
 
   return (
     <>
@@ -116,6 +126,7 @@ export default async function SiteHome({ params, searchParams }: Props) {
         property={property}
         siblings={siblings}
         ownerListingsHref={ownerListingsHref}
+        platformHomeHref={platformHomeHref}
       />
     </>
   );

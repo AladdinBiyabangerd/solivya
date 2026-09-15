@@ -1,4 +1,5 @@
 import { resolvePhotoSrc } from "@/lib/storage";
+import { BRAND } from "@/lib/site";
 import type { Amenity, LocaleCode, Photo, Property } from "@/types/database";
 import { SITE_UI } from "@/components/site/i18n";
 import type { SitePropertyView } from "@/components/site/types";
@@ -38,11 +39,9 @@ export function toSitePropertyView(
     alt: photo.alt || property.brand_name,
   }));
 
-  const heroImage =
-    gallery[0]?.src ??
-    "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1800&q=80";
+  const heroImage = BRAND.coverSrc;
 
-  // Site layout: [0]=hero+large tile, [1..4]=gallery, [5]=map (if any), rest unused on page
+  // Site layout: hero = Solivya brand cover; gallery = owner photos [0..4]; map tile [5]
   const galleryPhotos = gallery.slice(0, 5);
   const mapImage = gallery[5]?.src;
 

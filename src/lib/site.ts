@@ -5,6 +5,18 @@ export const SITE = {
   url: "https://solivya.homes",
 } as const;
 
+/** Shared brand assets in /public/brand. */
+export const BRAND = {
+  markSrc: "/brand/solivya-mark.svg",
+  coverSrc: "/brand/solivya-cover.jpg",
+  markAlt: "Solivya",
+} as const;
+
+/** Absolute URL for brand cover (Open Graph / JSON-LD). */
+export function brandCoverAbsoluteUrl(origin = siteUrl()): string {
+  return `${origin}${BRAND.coverSrc}`;
+}
+
 /** Builder credit in the site footer — portfolio hub for SEO and attribution. */
 export const BUILDER = {
   name: "Aladdin Biyabangerd",
@@ -22,6 +34,19 @@ export function builderPortfolioUrl(locale: string): string {
   url.searchParams.set("utm_campaign", "portfolio");
   url.searchParams.set("utm_content", "footer_credit");
   return url.toString();
+}
+
+/** Absolute marketing home (landing), with optional lang. */
+export function marketingHomeHref(
+  options: { locale?: string; isLocal?: boolean } = {},
+): string {
+  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
+  const isLocal = options.isLocal ?? false;
+  const base = isLocal ? "http://localhost:3000" : `https://${root}`;
+  if (options.locale === "az" || options.locale === "ru") {
+    return `${base}/?lang=${options.locale}`;
+  }
+  return `${base}/`;
 }
 
 export function siteUrl(): string {

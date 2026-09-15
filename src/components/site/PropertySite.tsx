@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { SolivyaLogo } from "@/components/brand/SolivyaLogo";
 import styles from "./site.module.css";
 import { SiteAnalytics } from "./SiteAnalytics";
 import { SiteGallery } from "./SiteGallery";
@@ -25,6 +26,8 @@ type Props = {
   siblings?: SiblingListing[];
   /** Public catalog of this owner's listings (cross-subdomain). */
   ownerListingsHref?: string;
+  /** Marketing home (Solivya root). */
+  platformHomeHref?: string;
   /** Owner-only preview route — banner + relative lang links. */
   preview?: boolean;
   draft?: boolean;
@@ -34,6 +37,7 @@ export function PropertySite({
   property,
   siblings = [],
   ownerListingsHref,
+  platformHomeHref = "https://solivya.homes/",
   preview = false,
   draft = false,
 }: Props) {
@@ -109,7 +113,10 @@ export function PropertySite({
 
         <div className={styles.topbar}>
           <div className={`${styles.wrap} ${styles.topbarInner}`}>
-            <div className={styles.brand}>{property.brandName}</div>
+            <div className={styles.brandRow}>
+              <SolivyaLogo size="sm" href={platformHomeHref} />
+              <div className={styles.brand}>{property.brandName}</div>
+            </div>
             <div className={styles.topActions}>
               <div className={styles.langSwitch} aria-label="Language">
                 <a

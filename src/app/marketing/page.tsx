@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { SolivyaLogo } from "@/components/brand/SolivyaLogo";
 import { resolveLocale } from "@/components/site/i18n";
 import {
   jsonLdScript,
@@ -7,7 +8,7 @@ import {
   marketingUrl,
   pageMetadata,
 } from "@/lib/seo";
-import { BUILDER, builderPortfolioUrl } from "@/lib/site";
+import { BRAND, BUILDER, builderPortfolioUrl } from "@/lib/site";
 import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
 
@@ -75,19 +76,18 @@ export default async function MarketingHome({ searchParams }: Props) {
       <header className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=2000&q=80"
-            alt=""
-          />
+          <img src={BRAND.coverSrc} alt="" />
         </div>
         <div className={styles.heroOverlay} aria-hidden="true" />
         <div className={styles.heroGrain} aria-hidden="true" />
 
         <div className={styles.topbar}>
           <div className={`${styles.wrap} ${styles.topInner}`}>
-            <a className={styles.navBrand} href={`/?lang=${locale}`}>
-              Solivya
-            </a>
+            <SolivyaLogo
+              size="sm"
+              className={styles.navBrand}
+              href={`/?lang=${locale}`}
+            />
             <div className={styles.navRight}>
               <nav className={styles.navLinks} aria-label={t.navAria}>
                 <a className={styles.navLink} href="#necə">
@@ -134,7 +134,9 @@ export default async function MarketingHome({ searchParams }: Props) {
         </div>
 
         <div className={`${styles.wrap} ${styles.heroContent}`}>
-          <p className={`${styles.brandMark} ${styles.anim1}`}>Solivya</p>
+          <div className={`${styles.brandMark} ${styles.anim1}`}>
+            <SolivyaLogo size="lg" onDark href={`/?lang=${locale}`} />
+          </div>
           <h1 className={`${styles.headline} ${styles.anim2}`}>{t.headline}</h1>
           <p className={`${styles.lead} ${styles.anim3}`}>{t.lead}</p>
           <div className={`${styles.actions} ${styles.anim4}`}>
@@ -331,7 +333,9 @@ export default async function MarketingHome({ searchParams }: Props) {
       <footer className={styles.footer}>
         <div className={`${styles.wrap} ${styles.footerInner}`}>
           <div className={styles.footerMeta}>
-            <p className={styles.footerBrand}>Solivya</p>
+            <p className={styles.footerBrand}>
+              <SolivyaLogo size="sm" href={`/?lang=${locale}`} />
+            </p>
             <p className={styles.footerNote}>{t.footerNote}</p>
           </div>
           <p className={styles.footerCredit}>

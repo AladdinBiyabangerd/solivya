@@ -1,3 +1,6 @@
+import { SolivyaLogo } from "@/components/brand/SolivyaLogo";
+import { marketingHomeHref } from "@/lib/site";
+import { headers } from "next/headers";
 import Link from "next/link";
 import styles from "./admin.module.css";
 
@@ -30,14 +33,16 @@ function ProfileGlyph() {
   );
 }
 
-export function AdminShell({ active, children }: Props) {
+export async function AdminShell({ active, children }: Props) {
+  const host = (await headers()).get("host") ?? "";
+  const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
+  const landingHref = marketingHomeHref({ isLocal });
+
   return (
     <main className={styles.shellTop}>
       <header className={styles.topBar}>
         <div className={styles.topLeft}>
-          <Link href="/" className={styles.topBrand}>
-            Solivya
-          </Link>
+          <SolivyaLogo size="sm" className={styles.topBrand} href={landingHref} />
           <nav className={styles.topNav} aria-label="Admin">
             <Link
               href="/"

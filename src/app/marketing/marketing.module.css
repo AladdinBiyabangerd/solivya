@@ -77,11 +77,10 @@
 }
 
 .navBrand {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
   color: var(--text);
+  text-decoration: none;
 }
 
 .navRight {
@@ -170,13 +169,7 @@
 }
 
 .brandMark {
-  font-family: var(--font-display);
-  font-size: clamp(3.4rem, 10vw, 6.4rem);
-  font-weight: 600;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
   margin: 0 0 1.15rem;
-  text-shadow: 0 12px 40px rgba(28, 25, 23, 0.35);
 }
 
 .headline {
@@ -634,8 +627,6 @@
 }
 
 .footerBrand {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
   margin: 0;
 }
 
@@ -748,7 +739,7 @@
   }
 
   .brandMark {
-    font-size: clamp(3rem, 14vw, 4.2rem);
+    margin-bottom: 1rem;
   }
 
   .actions {
