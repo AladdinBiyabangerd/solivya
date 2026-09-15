@@ -1,9 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 
-export default async function Home() {
+export default async function MarketingHome() {
   const supabase = await createClient();
   const { error } = await supabase.auth.getSession();
-
   const connected = !error;
 
   return (
@@ -18,7 +17,7 @@ export default async function Home() {
         padding: "2rem",
       }}
     >
-      <div style={{ maxWidth: 420, textAlign: "center" }}>
+      <div style={{ maxWidth: 440, textAlign: "center" }}>
         <p
           style={{
             letterSpacing: "0.08em",
@@ -28,13 +27,15 @@ export default async function Home() {
             marginBottom: 12,
           }}
         >
-          Solivya
+          Solivya · marketing
         </p>
         <h1 style={{ fontSize: "1.75rem", marginBottom: 12 }}>
-          Layihə işə düşdü
+          solivya.homes
         </h1>
         <p style={{ color: "#57534E", lineHeight: 1.6, marginBottom: 20 }}>
-          Next.js + Supabase qoşuldu. Növbəti: Vercel deploy və DNS (Addım 3).
+          Satış landing buraya gələcək. Local test:{" "}
+          <code>localhost</code>, <code>app.localhost</code>,{" "}
+          <code>demo.localhost</code>
         </p>
         <p
           style={{

@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Solivya
 
-## Getting Started
+Solivya — sahib brendli **günlük kirayə** üçün kiçik veb saytdır.
 
-First, run the development server:
+Məqsəd sadədir: qonaq elanda bütün lazımi məlumatı görsün — şəkillər, otaqlar, qiymət, rezervasiya — və ev sahibi öz brendi ilə tanınsın. Başqa platformanın görünüşü deyil; evi olan insanın öz səhifəsi.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Hazırda layihə qurulur: dizayn nümunəsi var, əsas sayt isə işə salınıb və məlumat bazasına bağlanıb.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Kim üçündür?
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Evini və ya mənzilini günlük kirayəyə verənlər
+- Öz brendi ilə sadə, gözəl rezervasiya səhifəsi istəyənlər
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Nə olacaq?
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Qonaq səhifədə evi görəcək, tarix seçəcək və rezervasiya edəcək.  
+Sahib isə öz brendi, şəkilləri və qiymətləri ilə səhifəni idarə edəcək.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Texniki hissə
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Stack:** Next.js · React · TypeScript · Tailwind CSS · Supabase
