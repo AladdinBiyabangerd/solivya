@@ -1,37 +1,56 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { resolveLocale } from "@/components/site/i18n";
+import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
 
-export const metadata: Metadata = {
-  title: "Solivya — Sahib brendli günlük kirayə səhifəsi",
-  description:
-    "Günlük kirayə mənzilin üçün öz brendli sayt. WhatsApp ilə sorğu, gözəl foto, aydın qiymət — marketplace komissiyası olmadan.",
+type Props = {
+  searchParams: Promise<{ lang?: string }>;
 };
 
-function salesWhatsAppHref(): string {
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const { lang } = await searchParams;
+  const locale = resolveLocale(lang, "az");
+  const t = MARKETING[locale];
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  };
+}
+
+function salesWhatsAppHref(message: string): string {
   const phone = (
     process.env.NEXT_PUBLIC_SALES_WHATSAPP || "994501234567"
   ).replace(/\D/g, "");
-  const text =
-    "Salam, Solivya ilə günlük kirayə səhifəsi yaratmaq istəyirəm";
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
-export default async function MarketingHome() {
+export default async function MarketingHome({ searchParams }: Props) {
+  const { lang } = await searchParams;
+  const locale = resolveLocale(lang, "az");
+  const t = MARKETING[locale];
+
   const host = (await headers()).get("host") ?? "localhost:3000";
   const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
   const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
 
   const demoUrl = isLocal
-    ? "http://demo.localhost:3000"
-    : `https://demo.${root}`;
+    ? `http://demo.localhost:3000/?lang=${locale}`
+    : `https://demo.${root}/?lang=${locale}`;
   const signupUrl = isLocal
     ? "http://app.localhost:3000/signup"
     : `https://app.${root}/signup`;
-  const wa = salesWhatsAppHref();
+  const loginUrl = isLocal
+    ? "http://app.localhost:3000/login"
+    : `https://app.${root}/login`;
+  const wa = salesWhatsAppHref(t.waMessage);
+  const langAzHref = "/?lang=az";
+  const langRuHref = "/?lang=ru";
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} lang={locale}>
       <header className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -45,32 +64,55 @@ export default async function MarketingHome() {
 
         <div className={styles.topbar}>
           <div className={`${styles.wrap} ${styles.topInner}`}>
-            <a className={styles.navBrand} href="/">
+            <a className={styles.navBrand} href={`/?lang=${locale}`}>
               Solivya
             </a>
-            <nav className={styles.navLinks} aria-label="Əsas">
-              <a className={styles.navLink} href="#necə">
-                Necə
+            <div className={styles.navRight}>
+              <nav className={styles.navLinks} aria-label={t.navAria}>
+                <a className={styles.navLink} href="#necə">
+                  {t.navHow}
+                </a>
+                <a className={styles.navLink} href={demoUrl}>
+                  {t.navDemo}
+                </a>
+                <a className={styles.navLink} href="#qiymet">
+                  {t.navPrice}
+                </a>
+              </nav>
+              <div className={styles.langSwitch} aria-label={t.langAria}>
+                <a
+                  className={
+                    locale === "az" ? styles.langActive : styles.langLink
+                  }
+                  href={langAzHref}
+                  hrefLang="az"
+                >
+                  AZ
+                </a>
+                <span className={styles.langSep} aria-hidden="true">
+                  /
+                </span>
+                <a
+                  className={
+                    locale === "ru" ? styles.langActive : styles.langLink
+                  }
+                  href={langRuHref}
+                  hrefLang="ru"
+                >
+                  RU
+                </a>
+              </div>
+              <a className={styles.navLogin} href={loginUrl}>
+                {t.navLogin}
               </a>
-              <a className={styles.navLink} href={demoUrl}>
-                Demo
-              </a>
-              <a className={styles.navLink} href="#qiymet">
-                Qiymət
-              </a>
-            </nav>
+            </div>
           </div>
         </div>
 
         <div className={`${styles.wrap} ${styles.heroContent}`}>
           <p className={`${styles.brandMark} ${styles.anim1}`}>Solivya</p>
-          <h1 className={`${styles.headline} ${styles.anim2}`}>
-            Günlük kirayə üçün öz brendli səhifən
-          </h1>
-          <p className={`${styles.lead} ${styles.anim3}`}>
-            Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra
-            birbaşa sənin WhatsApp-ına yazır.
-          </p>
+          <h1 className={`${styles.headline} ${styles.anim2}`}>{t.headline}</h1>
+          <p className={`${styles.lead} ${styles.anim3}`}>{t.lead}</p>
           <div className={`${styles.actions} ${styles.anim4}`}>
             <a
               className={styles.btn}
@@ -78,10 +120,10 @@ export default async function MarketingHome() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              WhatsApp ilə sifariş
+              {t.ctaWhatsApp}
             </a>
             <a className={styles.btnGhost} href={demoUrl}>
-              Canlı demo
+              {t.ctaDemo}
             </a>
           </div>
         </div>
@@ -94,22 +136,17 @@ export default async function MarketingHome() {
       <section className={styles.splitBand} id="problem">
         <div className={`${styles.wrap} ${styles.split}`}>
           <div>
-            <p className={styles.sectionLabel}>Problem</p>
-            <h2 className={styles.sectionTitle}>Elan var. Brend yoxdur.</h2>
-            <p className={styles.sectionText}>
-              bina.az, Instagram, WhatsApp — eyni suallar hər gün: qiymət,
-              wifi, depozit, boş tarix. Foto 20 dəfə göndərilir. Solivya bir
-              səhifədə toplayır; linki bio-ya qoyursan, qonaq oxuyub yazır.
-            </p>
+            <p className={styles.sectionLabel}>{t.problemLabel}</p>
+            <h2 className={styles.sectionTitle}>{t.problemTitle}</h2>
+            <p className={styles.sectionText}>{t.problemText}</p>
           </div>
           <div id="kim">
-            <p className={styles.sectionLabel}>Kim üçündür</p>
-            <h2 className={styles.sectionTitle}>1–5 mənzilli sahib</h2>
+            <p className={styles.sectionLabel}>{t.audienceLabel}</p>
+            <h2 className={styles.sectionTitle}>{t.audienceTitle}</h2>
             <ul className={styles.plainList}>
-              <li>Günlük kirayə verən mənzil sahibləri</li>
-              <li>Airbnb / Booking + birbaşa qonaq istəyənlər</li>
-              <li>Instagram / WhatsApp-la işləyən, saytı olmayanlar</li>
-              <li>Özün idarə edən “sahibindən” elanlar</li>
+              {t.audienceItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -124,14 +161,11 @@ export default async function MarketingHome() {
           />
         </div>
         <div className={styles.proofCopy}>
-          <p className={styles.sectionLabel}>Nümunə</p>
-          <h2 className={styles.sectionTitle}>Belə görünür</h2>
-          <p className={styles.sectionText}>
-            Full-bleed foto, aydın qiymət, təchizat və qaydalar. Sticky
-            WhatsApp — AZ / RU. Qonaq telefonda dəqiqə içində yazır.
-          </p>
+          <p className={styles.sectionLabel}>{t.proofLabel}</p>
+          <h2 className={styles.sectionTitle}>{t.proofTitle}</h2>
+          <p className={styles.sectionText}>{t.proofText}</p>
           <a className={styles.btn} href={demoUrl}>
-            Demo səhifəni aç
+            {t.proofCta}
           </a>
         </div>
       </section>
@@ -140,40 +174,21 @@ export default async function MarketingHome() {
         <div className={styles.wrap}>
           <div className={styles.sectionHead}>
             <div>
-              <p className={styles.sectionLabel}>Nə daxildir</p>
-              <h2 className={styles.sectionTitle}>Səhifəndə nə olur</h2>
+              <p className={styles.sectionLabel}>{t.includesLabel}</p>
+              <h2 className={styles.sectionTitle}>{t.includesTitle}</h2>
             </div>
-            <p className={styles.sectionText}>
-              Hazır şablon + sənin məzmunun. Texniki başağrısı sənə qalmır.
-            </p>
+            <p className={styles.sectionText}>{t.includesLead}</p>
           </div>
           <ol className={styles.includeGrid}>
-            <li>
-              <strong>Öz subdomain</strong>
-              <span>
-                məs. <em>sahil.solivya.homes</em>
-              </span>
-            </li>
-            <li>
-              <strong>Foto qalereya</strong>
-              <span>yüklə, sıra dəyiş, sil</span>
-            </li>
-            <li>
-              <strong>Qiymət və qaydalar</strong>
-              <span>gecəlik, depozit, təchizat</span>
-            </li>
-            <li>
-              <strong>WhatsApp CTA</strong>
-              <span>bir toxunuşda yazışma</span>
-            </li>
-            <li>
-              <strong>AZ / RU</strong>
-              <span>qonaq dili dəyişir</span>
-            </li>
-            <li>
-              <strong>Sadə admin</strong>
-              <span>özün yenilə · publish</span>
-            </li>
+            {t.includes.map((item) => (
+              <li key={item.title}>
+                <strong>{item.title}</strong>
+                <span>
+                  {item.text}
+                  {item.accent ? <em>{item.accent}</em> : null}
+                </span>
+              </li>
+            ))}
           </ol>
         </div>
       </section>
@@ -182,26 +197,20 @@ export default async function MarketingHome() {
         <div className={styles.wrap}>
           <div className={styles.sectionHead}>
             <div>
-              <p className={styles.sectionLabel}>Necə işləyir</p>
-              <h2 className={styles.sectionTitle}>3 addım</h2>
+              <p className={styles.sectionLabel}>{t.processLabel}</p>
+              <h2 className={styles.sectionTitle}>{t.processTitle}</h2>
             </div>
           </div>
           <ol className={styles.steps}>
-            <li>
-              <span className={styles.stepNum}>01</span>
-              <strong>WhatsApp və ya qeydiyyat</strong>
-              <p>Mənzil adı, zona, qiymət və fotolar — yaz və ya paneldən.</p>
-            </li>
-            <li>
-              <span className={styles.stepNum}>02</span>
-              <strong>Səhifə hazırlanır</strong>
-              <p>Dizayn və qurulum bizdə. Subdomain açılır, publish edirsən.</p>
-            </li>
-            <li>
-              <span className={styles.stepNum}>03</span>
-              <strong>Linki paylaş</strong>
-              <p>Bio, elan, status. Qonaq oxuyur — sənə yazır. Aylıq 20 ₼.</p>
-            </li>
+            {t.steps.map((step, i) => (
+              <li key={step.title}>
+                <span className={styles.stepNum}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <strong>{step.title}</strong>
+                <p>{step.text}</p>
+              </li>
+            ))}
           </ol>
         </div>
       </section>
@@ -209,35 +218,28 @@ export default async function MarketingHome() {
       <section className={styles.dealBand} id="qiymet">
         <div className={`${styles.wrap} ${styles.split}`}>
           <div>
-            <p className={styles.sectionLabel}>Qiymət</p>
-            <h2 className={styles.sectionTitle}>Sadə və aydın</h2>
-            <p className={styles.sectionText}>
-              Komissiya yoxdur. Qurulum bir dəfə, sonra aylıq baxım. Bron
-              WhatsApp-ladır — qəsdən.
-            </p>
+            <p className={styles.sectionLabel}>{t.priceLabel}</p>
+            <h2 className={styles.sectionTitle}>{t.priceTitle}</h2>
+            <p className={styles.sectionText}>{t.priceLead}</p>
             <dl className={styles.priceList}>
               <div className={styles.priceItem}>
                 <dt>
-                  Qurulum
-                  <span className={styles.priceHint}>
-                    dizayn, subdomain, ilk məzmun
-                  </span>
+                  {t.setupLabel}
+                  <span className={styles.priceHint}>{t.setupHint}</span>
                 </dt>
                 <dd>100 ₼</dd>
               </div>
               <div className={styles.priceItem}>
                 <dt>
-                  Aylıq
-                  <span className={styles.priceHint}>
-                    hosting, SSL, admin
-                  </span>
+                  {t.monthlyLabel}
+                  <span className={styles.priceHint}>{t.monthlyHint}</span>
                 </dt>
                 <dd>20 ₼</dd>
               </div>
             </dl>
             <div className={styles.actions}>
               <a className={styles.btn} href={signupUrl}>
-                Hesab yarat
+                {t.signupCta}
               </a>
               <a
                 className={styles.btnSecondary}
@@ -245,36 +247,20 @@ export default async function MarketingHome() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                WhatsApp
+                {t.waShort}
               </a>
             </div>
           </div>
           <div id="sual">
-            <p className={styles.sectionLabel}>Suallar</p>
-            <h2 className={styles.sectionTitle}>Tez-tez</h2>
+            <p className={styles.sectionLabel}>{t.faqLabel}</p>
+            <h2 className={styles.sectionTitle}>{t.faqTitle}</h2>
             <dl className={styles.faqList}>
-              <div className={styles.faqItem}>
-                <dt>Airbnb / bina.az əvəzi?</dt>
-                <dd>
-                  Xeyr — sənin öz səhifən; marketplace deyil, vitrindir.
-                </dd>
-              </div>
-              <div className={styles.faqItem}>
-                <dt>Saytdan ödəniş?</dt>
-                <dd>İndilik yox. WhatsApp / nağd / köçürmə.</dd>
-              </div>
-              <div className={styles.faqItem}>
-                <dt>Özüm dəyişə bilərəm?</dt>
-                <dd>Bəli — foto, qiymət, qaydalar admin paneldən.</dd>
-              </div>
-              <div className={styles.faqItem}>
-                <dt>Neçə mənzil?</dt>
-                <dd>Başlanğıcda bir səhifə; əlavə ayrıca razılaşdırılır.</dd>
-              </div>
-              <div className={styles.faqItem}>
-                <dt>Nə qədər vaxt?</dt>
-                <dd>Foto/mətn hazırdırsa adətən 1–3 gün.</dd>
-              </div>
+              {t.faqs.map((item) => (
+                <div className={styles.faqItem} key={item.q}>
+                  <dt>{item.q}</dt>
+                  <dd>{item.a}</dd>
+                </div>
+              ))}
             </dl>
           </div>
         </div>
@@ -283,13 +269,9 @@ export default async function MarketingHome() {
       <section className={styles.closing}>
         <div className={`${styles.wrap} ${styles.closingInner}`}>
           <div>
-            <p className={styles.sectionLabel}>Başla</p>
-            <h2 className={styles.sectionTitleWide}>
-              Linkini bu həftə paylaş
-            </h2>
-            <p className={styles.sectionText}>
-              Demo-ya bax, WhatsApp-la yaz və ya hesab yarat.
-            </p>
+            <p className={styles.sectionLabel}>{t.closeLabel}</p>
+            <h2 className={styles.sectionTitleWide}>{t.closeTitle}</h2>
+            <p className={styles.sectionText}>{t.closeText}</p>
           </div>
           <div className={styles.actions}>
             <a
@@ -298,10 +280,10 @@ export default async function MarketingHome() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              WhatsApp ilə sifariş
+              {t.ctaWhatsApp}
             </a>
             <a className={styles.btnSecondary} href={demoUrl}>
-              Demo
+              {t.navDemo}
             </a>
           </div>
         </div>
@@ -310,9 +292,7 @@ export default async function MarketingHome() {
       <footer className={styles.footer}>
         <div className={`${styles.wrap} ${styles.footerInner}`}>
           <p className={styles.footerBrand}>Solivya</p>
-          <p className={styles.footerNote}>
-            Sahib brendli günlük kirayə səhifələri · Bakı
-          </p>
+          <p className={styles.footerNote}>{t.footerNote}</p>
         </div>
       </footer>
     </div>
