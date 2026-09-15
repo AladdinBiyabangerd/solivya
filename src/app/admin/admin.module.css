@@ -817,6 +817,147 @@
   background: #7f1d1d;
 }
 
+.cropModal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(28, 25, 23, 0.88);
+}
+
+.cropPanel {
+  width: min(720px, 100%);
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.cropHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.cropProgress {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.cropTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cropHint {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.cropCancel {
+  min-height: 2.1rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cropCancel:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.cropCancel:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.cropStage {
+  position: relative;
+  width: 100%;
+  height: min(52vh, 420px);
+  background: #1c1917;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.cropControls {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.cropZoom {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cropZoom input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.cropConfirm {
+  min-height: 2.6rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cropConfirm:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.cropConfirm:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+@media (max-width: 960px) {
+  .cropModal {
+    padding: 0.5rem;
+    align-items: stretch;
+  }
+
+  .cropPanel {
+    width: 100%;
+    min-height: min(100vh, 100dvh);
+    border-radius: 0;
+    align-content: start;
+  }
+
+  .cropStage {
+    height: min(48vh, 360px);
+  }
+}
+
 .lightbox {
   position: fixed;
   inset: 0;

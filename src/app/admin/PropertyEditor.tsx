@@ -20,6 +20,10 @@ import {
   uploadPhoto,
   type EditorState,
 } from "./property-actions";
+import {
+  PhotoCropQueue,
+  type CropQueueItem,
+} from "./PhotoCropQueue";
 import styles from "./admin.module.css";
 
 const empty: EditorState = {};
@@ -297,9 +301,13 @@ function PhotoPanel({
   const [mainKey, setMainKey] = useState<string | null>(null);
   const [pickError, setPickError] = useState<string | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [cropQueue, setCropQueue] = useState<CropQueueItem[]>([]);
+  const [cropIndex, setCropIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
+  const cropQueueRef = useRef(cropQueue);
+  cropQueueRef.current = cropQueue;
   const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
   const main = sorted[0] ?? null;
   const hasPhotos = sorted.length > 0;
@@ -312,6 +320,7 @@ function PhotoPanel({
   useEffect(() => {
     return () => {
       pendingRef.current.forEach((item) => URL.revokeObjectURL(item.url));
+      cropQueueRef.current.forEach((item) => URL.revokeObjectURL(item.url));
     };
   }, []);
 
@@ -348,11 +357,31 @@ function PhotoPanel({
     }
   }, [pending.length, lightboxIndex]);
 
+  const clearCropQueue = () => {
+    setCropQueue((prev) => {
+      prev.forEach((item) => URL.revokeObjectURL(item.url));
+      return [];
+    });
+    setCropIndex(0);
+  };
+
   const addFiles = (list: FileList | null) => {
     if (!list?.length) return;
     setPickError(null);
-    const next: PendingFile[] = [];
+
+    const room = Math.max(0, 12 - pending.length);
+    if (room === 0) {
+      setPickError("Maksimum 12 foto.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const next: CropQueueItem[] = [];
     for (const file of Array.from(list)) {
+      if (next.length >= room) {
+        setPickError("Maksimum 12 foto seçin.");
+        break;
+      }
       if (file.size > 5 * 1024 * 1024) {
         setPickError(`"${file.name}" 5MB-dan böyükdür.`);
         continue;
@@ -363,17 +392,36 @@ function PhotoPanel({
         url: URL.createObjectURL(file),
       });
     }
-    setPending((prev) => {
-      const merged = [...prev, ...next];
-      if (merged.length > 12) {
-        setPickError("Maksimum 12 foto seçin.");
-        const kept = merged.slice(0, 12);
-        merged.slice(12).forEach((item) => URL.revokeObjectURL(item.url));
-        return kept;
-      }
-      return merged;
-    });
+
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (next.length === 0) return;
+
+    setCropQueue((prev) => {
+      prev.forEach((item) => URL.revokeObjectURL(item.url));
+      return next;
+    });
+    setCropIndex(0);
+  };
+
+  const onCropConfirm = (file: File) => {
+    const current = cropQueue[cropIndex];
+    if (!current) return;
+
+    const pendingItem: PendingFile = {
+      key: `${current.key}-cropped`,
+      file,
+      url: URL.createObjectURL(file),
+    };
+    setPending((prev) => [...prev, pendingItem]);
+
+    URL.revokeObjectURL(current.url);
+    const nextIndex = cropIndex + 1;
+    if (nextIndex >= cropQueue.length) {
+      setCropQueue([]);
+      setCropIndex(0);
+      return;
+    }
+    setCropIndex(nextIndex);
   };
 
   const removePending = (key: string) => {
@@ -414,7 +462,7 @@ function PhotoPanel({
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Seç · böyüt · sol/sağ keç · əsas et · X · yüklə
+          Seç · hər fotonu 4:3 kəs · böyüt · əsas · yüklə
         </p>
       </header>
 
@@ -487,7 +535,7 @@ function PhotoPanel({
             {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Kliklə böyüt · sol/sağ keç · Əsas et · X ilə çıxar
+            Hər şəkil ayrı kəsilir · 4:3 · sonra yüklə
           </span>
           <input
             ref={fileInputRef}
@@ -589,6 +637,15 @@ function PhotoPanel({
               </button>
             </>
           }
+        />
+      ) : null}
+
+      {cropQueue.length > 0 ? (
+        <PhotoCropQueue
+          queue={cropQueue}
+          index={cropIndex}
+          onConfirm={onCropConfirm}
+          onCancel={clearCropQueue}
         />
       ) : null}
     </aside>
