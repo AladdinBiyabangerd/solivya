@@ -1,10 +1,10 @@
-import { propertyPhotoUrl, resolvePhotoSrc } from "@/lib/storage";
+import { resolvePhotoSrc } from "@/lib/storage";
 import type { Amenity, LocaleCode, Photo, Property } from "@/types/database";
+import { SITE_UI } from "@/components/site/i18n";
 import type { SitePropertyView } from "@/components/site/types";
 import { createClient } from "@/utils/supabase/server";
 
 export type PropertyWithPhotos = Property & {
-  zone_note: string;
   photos: Photo[];
 };
 
@@ -31,6 +31,7 @@ export function toSitePropertyView(
   photos: Photo[],
   locale: LocaleCode = property.locale_default,
 ): SitePropertyView {
+  const ui = SITE_UI[locale];
   const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
   const gallery = sorted.map((photo) => ({
     src: resolvePhotoSrc(photo.storage_path),
@@ -41,14 +42,22 @@ export function toSitePropertyView(
     gallery[0]?.src ??
     "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1800&q=80";
 
-  const title = locale === "ru" ? property.title_ru : property.title_az;
-  const lead = locale === "ru" ? property.lead_ru : property.lead_az;
+  const title =
+    locale === "ru"
+      ? property.title_ru || property.title_az
+      : property.title_az || property.title_ru;
+  const lead =
+    locale === "ru"
+      ? property.lead_ru || property.lead_az
+      : property.lead_az || property.lead_ru;
   const zoneNote = property.zone_note ?? "";
 
   return {
     slug: property.slug,
     brandName: property.brand_name,
-    kicker: `${property.zone} · Günlük kirayə`,
+    kicker: property.zone
+      ? `${property.zone} · ${ui.rentalKicker}`
+      : ui.rentalKicker,
     title,
     lead,
     zone: property.zone,
@@ -56,7 +65,7 @@ export function toSitePropertyView(
     rooms: property.rooms,
     guests: property.guests,
     priceNight: Number(property.price_night),
-    priceNote: property.price_note || "gecədən başlayaraq",
+    priceNote: property.price_note || (locale === "ru" ? "за ночь" : "gecədən başlayaraq"),
     minNights: property.min_nights,
     deposit: Number(property.deposit),
     amenities: asAmenities(property.amenities),
@@ -66,16 +75,16 @@ export function toSitePropertyView(
       locale === "ru"
         ? `Здравствуйте, хочу узнать о жилье «${title}»`
         : `Salam, «${title}» haqqında məlumat almaq istəyirəm`,
+    stickyWhatsAppMessage: ui.stickyWhatsAppMessage,
     heroImage,
     photos: gallery.slice(0, 5),
     mapImage: gallery.length > 5 ? gallery[gallery.length - 1]?.src : undefined,
     locale,
+    ui,
   };
 }
 
-export async function getPublishedPropertyBySlug(
-  slug: string,
-): Promise<SitePropertyView | null> {
+export async function getPublishedPropertyRecord(slug: string) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -86,7 +95,7 @@ export async function getPublishedPropertyBySlug(
     .maybeSingle();
 
   if (error) {
-    console.error("getPublishedPropertyBySlug", error.message);
+    console.error("getPublishedPropertyRecord", error.message);
     return null;
   }
 
@@ -94,5 +103,15 @@ export async function getPublishedPropertyBySlug(
 
   const row = data as unknown as PropertyWithPhotos;
   const photos = Array.isArray(row.photos) ? row.photos : [];
-  return toSitePropertyView(row, photos, row.locale_default);
+  return { property: row, photos };
+}
+
+export async function getPublishedPropertyBySlug(
+  slug: string,
+  locale?: LocaleCode,
+): Promise<SitePropertyView | null> {
+  const record = await getPublishedPropertyRecord(slug);
+  if (!record) return null;
+  const resolved = locale ?? record.property.locale_default;
+  return toSitePropertyView(record.property, record.photos, resolved);
 }

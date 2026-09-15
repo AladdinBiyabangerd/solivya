@@ -1,4 +1,5 @@
 import type { Amenity, LocaleCode } from "@/types/database";
+import type { SiteUiCopy } from "./i18n";
 
 export type SitePhoto = {
   src: string;
@@ -23,10 +24,12 @@ export type SitePropertyView = {
   rules: string[];
   whatsappE164: string;
   whatsappMessage: string;
+  stickyWhatsAppMessage: string;
   heroImage: string;
   photos: SitePhoto[];
   mapImage?: string;
   locale: LocaleCode;
+  ui: SiteUiCopy;
 };
 
 export function whatsappHref(e164: string, message: string): string {

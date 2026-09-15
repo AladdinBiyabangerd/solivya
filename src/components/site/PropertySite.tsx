@@ -11,10 +11,11 @@ type Props = {
 };
 
 export function PropertySite({ property }: Props) {
+  const { ui, locale } = property;
   const wa = whatsappHref(property.whatsappE164, property.whatsappMessage);
   const stickyWa = whatsappHref(
     property.whatsappE164,
-    "Salam, tarix soruşmaq istəyirəm",
+    property.stickyWhatsAppMessage,
   );
 
   const mapStyle = property.mapImage
@@ -24,7 +25,7 @@ export function PropertySite({ property }: Props) {
     : undefined;
 
   return (
-    <div style={{ paddingBottom: "5.5rem" }}>
+    <div style={{ paddingBottom: "5.5rem" }} lang={locale}>
       <header className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -35,9 +36,32 @@ export function PropertySite({ property }: Props) {
         <div className={styles.topbar}>
           <div className={`${styles.wrap} ${styles.topbarInner}`}>
             <div className={styles.brand}>{property.brandName}</div>
-            <a className={styles.topLink} href="#elaqe">
-              Əlaqə
-            </a>
+            <div className={styles.topActions}>
+              <div className={styles.langSwitch} aria-label="Language">
+                <a
+                  className={
+                    locale === "az" ? styles.langActive : styles.langLink
+                  }
+                  href="/?lang=az"
+                  hrefLang="az"
+                >
+                  {ui.langAz}
+                </a>
+                <span aria-hidden="true">/</span>
+                <a
+                  className={
+                    locale === "ru" ? styles.langActive : styles.langLink
+                  }
+                  href="/?lang=ru"
+                  hrefLang="ru"
+                >
+                  {ui.langRu}
+                </a>
+              </div>
+              <a className={styles.topLink} href="#elaqe">
+                {ui.contact}
+              </a>
+            </div>
           </div>
         </div>
 
@@ -52,19 +76,24 @@ export function PropertySite({ property }: Props) {
               <span>{property.priceNote}</span>
             </div>
             <div className={styles.metaItem}>
-              {property.rooms} otaq · {property.guests} qonaq
+              {ui.roomsGuests(property.rooms, property.guests)}
             </div>
             <div className={styles.metaItem}>
-              Min. {property.minNights} gecə
+              {ui.minNights(property.minNights)}
             </div>
           </div>
 
           <div className={styles.heroActions}>
-            <a className={styles.btn} href={wa} target="_blank" rel="noopener noreferrer">
-              WhatsApp ilə soruş
+            <a
+              className={styles.btn}
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {ui.askWhatsApp}
             </a>
             <a className={styles.btnGhost} href="#qalereya">
-              Fotolara bax
+              {ui.viewPhotos}
             </a>
           </div>
         </div>
@@ -85,8 +114,8 @@ export function PropertySite({ property }: Props) {
 
       <section className={`${styles.section} ${styles.amenities}`}>
         <div className={styles.wrap}>
-          <p className={styles.sectionLabel}>Təchizat</p>
-          <h2 className={styles.sectionTitle}>Rahat qalış üçün hər şey</h2>
+          <p className={styles.sectionLabel}>{ui.amenitiesLabel}</p>
+          <h2 className={styles.sectionTitle}>{ui.amenitiesTitle}</h2>
           <ul className={styles.amenityList}>
             {property.amenities.map((item) => (
               <li key={item.title}>
@@ -101,8 +130,8 @@ export function PropertySite({ property }: Props) {
       <section className={styles.section} id="elaqe">
         <div className={`${styles.wrap} ${styles.split}`}>
           <div>
-            <p className={styles.sectionLabel}>Qaydalar</p>
-            <h2 className={styles.sectionTitle}>Şəffaf və sadə</h2>
+            <p className={styles.sectionLabel}>{ui.rulesLabel}</p>
+            <h2 className={styles.sectionTitle}>{ui.rulesTitle}</h2>
             <ul className={styles.rules}>
               {property.rules.map((rule) => (
                 <li key={rule}>{rule}</li>
@@ -114,7 +143,7 @@ export function PropertySite({ property }: Props) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              WhatsApp ilə yaz
+              {ui.writeWhatsApp}
             </a>
           </div>
 
@@ -122,7 +151,7 @@ export function PropertySite({ property }: Props) {
             <div
               className={styles.mapVisual}
               role="img"
-              aria-label="Yerləşmə vizualı"
+              aria-label={ui.mapAria}
               style={mapStyle}
             />
             <div className={styles.mapInfo}>
@@ -133,8 +162,8 @@ export function PropertySite({ property }: Props) {
         </div>
       </section>
 
-      <div className={styles.stickyCta} aria-label="Sürətli əlaqə">
-        <p>Boş tarix üçün yazın — adətən tez cavab</p>
+      <div className={styles.stickyCta} aria-label={ui.contact}>
+        <p>{ui.stickyText}</p>
         <a
           className={styles.btn}
           href={stickyWa}
