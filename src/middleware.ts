@@ -1,19 +1,40 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { tenantRewritePath, resolveTenant } from "@/lib/tenant";
 import { updateSession } from "@/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   const tenant = resolveTenant(request.headers.get("host"));
-  const rewritePath = tenantRewritePath(tenant, request.nextUrl.pathname);
+  const pathname = request.nextUrl.pathname;
+  const rewritePath = tenantRewritePath(tenant, pathname);
 
-  if (!rewritePath) {
-    return updateSession(request);
+  const rewriteUrl = rewritePath
+    ? (() => {
+        const url = request.nextUrl.clone();
+        url.pathname = rewritePath;
+        return url;
+      })()
+    : undefined;
+
+  const { response, user } = await updateSession(request, rewriteUrl);
+
+  if (tenant.zone === "admin") {
+    const isLogin =
+      pathname === "/login" || pathname.startsWith("/login/");
+
+    if (!user && !isLogin) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (user && isLogin) {
+      const homeUrl = request.nextUrl.clone();
+      homeUrl.pathname = "/";
+      return NextResponse.redirect(homeUrl);
+    }
   }
 
-  const rewriteUrl = request.nextUrl.clone();
-  rewriteUrl.pathname = rewritePath;
-
-  return updateSession(request, rewriteUrl);
+  return response;
 }
 
 export const config = {
