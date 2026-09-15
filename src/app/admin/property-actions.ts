@@ -311,3 +311,57 @@ export async function movePhoto(formData: FormData): Promise<void> {
   revalidatePath("/admin");
   revalidatePath(`/site/${property.slug}`);
 }
+
+/** Make this photo the hero (sort_order 0). */
+export async function setMainPhoto(formData: FormData): Promise<void> {
+  const { supabase, user } = await requireUser();
+  const photoId = String(formData.get("photo_id") ?? "");
+  if (!photoId) return;
+
+  const { data: photo } = await supabase
+    .from("photos")
+    .select("id, sort_order, property_id")
+    .eq("id", photoId)
+    .maybeSingle();
+
+  if (!photo) return;
+
+  const { data: property } = await supabase
+    .from("properties")
+    .select("id, slug, owner_id")
+    .eq("id", photo.property_id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (!property) return;
+
+  const { data: siblings } = await supabase
+    .from("photos")
+    .select("id, sort_order")
+    .eq("property_id", photo.property_id)
+    .order("sort_order", { ascending: true });
+
+  if (!siblings?.length) return;
+
+  const target = siblings.find((row) => row.id === photoId);
+  if (!target) return;
+
+  if (target.sort_order === 0) {
+    revalidatePath("/admin");
+    return;
+  }
+
+  const before = siblings.filter((row) => row.sort_order < target.sort_order);
+  await Promise.all(
+    before.map((row) =>
+      supabase
+        .from("photos")
+        .update({ sort_order: row.sort_order + 1 })
+        .eq("id", row.id),
+    ),
+  );
+  await supabase.from("photos").update({ sort_order: 0 }).eq("id", photoId);
+
+  revalidatePath("/admin");
+  revalidatePath(`/site/${property.slug}`);
+}
