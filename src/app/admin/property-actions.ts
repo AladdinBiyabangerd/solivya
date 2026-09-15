@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Amenity, LocaleCode } from "@/types/database";
-import { MIN_SITE_PHOTOS } from "@/lib/photoLayout";
+import type { CustomLocation } from "@/lib/azerbaijan-locations";
+import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS } from "@/lib/photoLayout";
 import { createClient } from "@/utils/supabase/server";
 
 export type EditorState = {
@@ -196,8 +197,8 @@ export async function uploadPhoto(
     return { error: "Fayl seçilməyib." };
   }
 
-  if (files.length > 12) {
-    return { error: "Maksimum 12 foto seçin." };
+  if (files.length > MAX_SITE_PHOTOS) {
+    return { error: `Maksimum ${MAX_SITE_PHOTOS} foto (əsas daxil).` };
   }
 
   for (const file of files) {
@@ -576,4 +577,62 @@ export async function setMainPhotoWithCrop(
   revalidatePath("/admin");
   revalidatePath(`/site/${property.slug}`);
   return { ok: "Əsas foto kəsilib təyin olundu." };
+}
+
+function parseCustomLocations(raw: unknown): CustomLocation[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is CustomLocation => {
+    if (!item || typeof item !== "object") return false;
+    const row = item as Record<string, unknown>;
+    return (
+      typeof row.id === "string" &&
+      typeof row.parentKey === "string" &&
+      typeof row.name === "string" &&
+      row.name.trim().length > 0
+    );
+  });
+}
+
+export async function addOwnerCustomLocation(
+  parentKey: string,
+  name: string,
+): Promise<{ location?: CustomLocation; error?: string }> {
+  const { supabase, user } = await requireUser();
+  const trimmed = name.trim().replace(/\s+/g, " ");
+  if (!trimmed) return { error: "Ad boş ola bilməz." };
+  if (trimmed.length > 80) return { error: "Ad çox uzundur (max 80)." };
+
+  const { data: owner, error: readError } = await supabase
+    .from("owners")
+    .select("custom_locations")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (readError) return { error: readError.message };
+
+  const existing = parseCustomLocations(owner?.custom_locations);
+  const parent = String(parentKey ?? "");
+  const duplicate = existing.find(
+    (c) =>
+      c.parentKey === parent &&
+      c.name.localeCompare(trimmed, "az", { sensitivity: "base" }) === 0,
+  );
+  if (duplicate) return { location: duplicate };
+
+  const location: CustomLocation = {
+    id: `custom-${crypto.randomUUID()}`,
+    parentKey: parent,
+    name: trimmed,
+  };
+  const next = [...existing, location];
+
+  const { error: writeError } = await supabase
+    .from("owners")
+    .update({ custom_locations: next })
+    .eq("id", user.id);
+
+  if (writeError) return { error: writeError.message };
+
+  revalidatePath("/admin");
+  return { location };
 }

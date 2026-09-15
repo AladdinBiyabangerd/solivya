@@ -578,7 +578,10 @@
 }
 
 .zoneSelectOption {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   width: 100%;
   padding: 0.65rem 0.75rem;
   border: none;
@@ -599,6 +602,93 @@
 .zoneSelectOptionChosen {
   font-weight: 600;
   color: var(--accent-hover);
+}
+
+.zoneSelectCustomTag {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.zoneCustomTrigger {
+  display: block;
+  width: 100%;
+  margin-top: 0.15rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent-hover);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  min-height: 2.5rem;
+}
+
+.zoneCustomTrigger:hover {
+  background: var(--bg-soft);
+  border-color: rgba(28, 25, 23, 0.22);
+}
+
+.zoneCustomForm {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.zoneCustomHint {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.zoneCustomError {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #7f1d1d;
+}
+
+.zoneCustomActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.zoneCustomCancel,
+.zoneCustomSave {
+  flex: 1 1 auto;
+  min-height: 2.5rem;
+  min-width: 5.5rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.zoneCustomCancel {
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--text);
+}
+
+.zoneCustomSave {
+  border: 1px solid var(--cta);
+  background: var(--cta);
+  color: var(--white);
+}
+
+.zoneCustomSave:disabled,
+.zoneCustomCancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .grid4 {

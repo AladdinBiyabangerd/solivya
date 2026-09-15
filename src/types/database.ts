@@ -1,3 +1,5 @@
+import type { CustomLocation } from "@/lib/azerbaijan-locations";
+
 export type Amenity = {
   title: string;
   subtitle?: string;
@@ -9,6 +11,7 @@ export type Owner = {
   id: string;
   email: string;
   phone: string | null;
+  custom_locations: CustomLocation[];
   created_at: string;
 };
 
@@ -58,11 +61,13 @@ export type Database = {
           id: string;
           email: string;
           phone?: string | null;
+          custom_locations?: CustomLocation[];
           created_at?: string;
         };
         Update: {
           email?: string;
           phone?: string | null;
+          custom_locations?: CustomLocation[];
         };
         Relationships: [];
       };

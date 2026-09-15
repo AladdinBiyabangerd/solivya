@@ -3,6 +3,20 @@ import { signOut } from "./actions";
 import { PropertyEditor } from "./PropertyEditor";
 import styles from "./admin.module.css";
 import type { Photo, Property } from "@/types/database";
+import type { CustomLocation } from "@/lib/azerbaijan-locations";
+
+function parseCustomLocations(raw: unknown): CustomLocation[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is CustomLocation => {
+    if (!item || typeof item !== "object") return false;
+    const row = item as Record<string, unknown>;
+    return (
+      typeof row.id === "string" &&
+      typeof row.parentKey === "string" &&
+      typeof row.name === "string"
+    );
+  });
+}
 
 export default async function AdminHome() {
   const supabase = await createClient();
@@ -18,6 +32,16 @@ export default async function AdminHome() {
     .limit(1);
 
   const property = (properties?.[0] as Property | undefined) ?? null;
+
+  const { data: ownerRow } = await supabase
+    .from("owners")
+    .select("custom_locations")
+    .eq("id", user!.id)
+    .maybeSingle();
+
+  const customLocations = parseCustomLocations(
+    (ownerRow as { custom_locations?: unknown } | null)?.custom_locations,
+  );
 
   let photos: Photo[] = [];
   if (property) {
@@ -45,6 +69,7 @@ export default async function AdminHome() {
         property={property}
         photos={photos}
         email={user?.email ?? ""}
+        customLocations={customLocations}
       />
     </main>
   );

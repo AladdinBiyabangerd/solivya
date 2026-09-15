@@ -1,6 +1,10 @@
 /**
  * Hierarchical locations for daily-rental listings in Azerbaijan.
- * Level 1: şəhər · Level 2: rayon · Level 3: zona / məhəllə (when useful).
+ *
+ * Official / everyday naming (DSK + bina.az style):
+ * - Level 1: şəhər / rayon (respublika şəhəri və ya inzibati rayon)
+ * - Level 2: rayon (Bakıda şəhər rayonu; digər yerlərdə birbaşa nişangah ola bilər)
+ * - Level 3: nişangah / qəsəbə (məhəllə, qəsəbə, tanınmış ərazi — “zona” rəsmi termin deyil)
  */
 
 export type LocationNode = {
@@ -8,6 +12,27 @@ export type LocationNode = {
   name: string;
   children?: LocationNode[];
 };
+
+/** Owner-only extras not in the shared catalog. */
+export type CustomLocation = {
+  id: string;
+  /** "" = top level; "baki" under city; "baki/sabail" under rayon. */
+  parentKey: string;
+  name: string;
+};
+
+export function locationParentKey(parts: string[]): string {
+  return parts.filter(Boolean).join("/");
+}
+
+export function customNodesForParent(
+  customs: CustomLocation[],
+  parentKey: string,
+): LocationNode[] {
+  return customs
+    .filter((c) => c.parentKey === parentKey)
+    .map((c) => ({ id: c.id, name: c.name }));
+}
 
 export const AZ_LOCATIONS: LocationNode[] = [
   {
@@ -355,31 +380,52 @@ export function matchesSearch(name: string, query: string): boolean {
   return normalizeSearch(name).includes(q);
 }
 
-export function findCityByName(name: string): LocationNode | undefined {
+export function findCityByName(
+  name: string,
+  customs: CustomLocation[] = [],
+): LocationNode | undefined {
   const n = normalizeSearch(name);
-  return AZ_LOCATIONS.find((c) => normalizeSearch(c.name) === n);
+  return (
+    AZ_LOCATIONS.find((c) => normalizeSearch(c.name) === n) ??
+    customNodesForParent(customs, "").find((c) => normalizeSearch(c.name) === n)
+  );
 }
 
-/** Resolve a saved zone string into [city, rayon?, zona?]. */
-export function resolveZoneSelection(value: string): {
+function findChildByName(
+  nodes: LocationNode[] | undefined,
+  name: string,
+): LocationNode | undefined {
+  if (!nodes?.length) return undefined;
+  const q = normalizeSearch(name);
+  return (
+    nodes.find((n) => normalizeSearch(n.name) === q) ??
+    nodes.find((n) => {
+      const nn = normalizeSearch(n.name);
+      return q.startsWith(nn) || nn.startsWith(q);
+    })
+  );
+}
+
+/** Resolve a saved zone string into [şəhər, rayon?, nişangah?]. */
+export function resolveZoneSelection(
+  value: string,
+  customs: CustomLocation[] = [],
+): {
   cityId: string;
   rayonId: string;
-  zonaId: string;
+  nishangahId: string;
   labels: string[];
 } | null {
   const parts = parseZonePath(value);
   if (parts.length === 0) return null;
 
-  // Prefer full path starting with city
-  let city = findCityByName(parts[0]);
+  let city = findCityByName(parts[0], customs);
   let rest = parts.slice(1);
 
   // Legacy: "Səbail · Bulvar" without Bakı prefix
   if (!city && parts.length >= 1) {
     for (const c of AZ_LOCATIONS) {
-      const rayon = c.children?.find(
-        (r) => normalizeSearch(r.name) === normalizeSearch(parts[0]),
-      );
+      const rayon = findChildByName(c.children, parts[0]);
       if (rayon) {
         city = c;
         rest = parts;
@@ -388,39 +434,60 @@ export function resolveZoneSelection(value: string): {
     }
   }
 
-  if (!city) return null;
+  // Fully custom path not yet in owner list — synthesize ids from names
+  if (!city) {
+    const labels = parts;
+    return {
+      cityId: `orphan:${normalizeSearch(parts[0])}`,
+      rayonId: parts[1] ? `orphan:${normalizeSearch(parts[1])}` : "",
+      nishangahId: parts[2] ? `orphan:${normalizeSearch(parts[2])}` : "",
+      labels,
+    };
+  }
 
   const labels = [city.name];
   let rayonId = "";
-  let zonaId = "";
+  let nishangahId = "";
 
   if (rest.length === 0) {
-    return { cityId: city.id, rayonId: "", zonaId: "", labels };
+    return { cityId: city.id, rayonId: "", nishangahId: "", labels };
   }
 
-  const rayon = city.children?.find(
-    (r) => normalizeSearch(r.name) === normalizeSearch(rest[0]),
-  );
+  const systemCity = AZ_LOCATIONS.find((c) => c.id === city!.id);
+  const rayonPool = [
+    ...(systemCity?.children ?? []),
+    ...customNodesForParent(customs, city.id),
+  ];
+  const rayon = findChildByName(rayonPool, rest[0]);
   if (!rayon) {
-    return { cityId: city.id, rayonId: "", zonaId: "", labels };
+    // Custom rayon name not yet registered — keep label for display
+    labels.push(rest[0]);
+    rayonId = `orphan:${normalizeSearch(rest[0])}`;
+    if (rest[1]) {
+      labels.push(rest[1]);
+      nishangahId = `orphan:${normalizeSearch(rest[1])}`;
+    }
+    return { cityId: city.id, rayonId, nishangahId, labels };
   }
 
   labels.push(rayon.name);
   rayonId = rayon.id;
 
-  if (rest.length >= 2 && rayon.children?.length) {
-    const zonaQuery = normalizeSearch(rest[1]);
-    const zona =
-      rayon.children.find((z) => normalizeSearch(z.name) === zonaQuery) ??
-      rayon.children.find((z) => {
-        const n = normalizeSearch(z.name);
-        return zonaQuery.startsWith(n) || n.startsWith(zonaQuery);
-      });
-    if (zona) {
-      labels.push(zona.name);
-      zonaId = zona.id;
+  if (rest.length >= 2) {
+    const systemRayon = systemCity?.children?.find((r) => r.id === rayon.id);
+    const nishPool = [
+      ...(systemRayon?.children ?? []),
+      ...customNodesForParent(customs, locationParentKey([city.id, rayon.id])),
+    ];
+    const nish = findChildByName(nishPool, rest[1]);
+    if (nish) {
+      labels.push(nish.name);
+      nishangahId = nish.id;
+    } else {
+      labels.push(rest[1]);
+      nishangahId = `orphan:${normalizeSearch(rest[1])}`;
     }
   }
 
-  return { cityId: city.id, rayonId, zonaId, labels };
+  return { cityId: city.id, rayonId, nishangahId, labels };
 }

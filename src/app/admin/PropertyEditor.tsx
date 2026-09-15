@@ -14,8 +14,9 @@ import {
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Photo, Property } from "@/types/database";
+import type { CustomLocation } from "@/lib/azerbaijan-locations";
 import { resolvePhotoSrc } from "@/lib/storage";
-import { MIN_SITE_PHOTOS, sitePhotoPlan } from "@/lib/photoLayout";
+import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS, sitePhotoPlan } from "@/lib/photoLayout";
 import {
   createProperty,
   deletePhoto,
@@ -97,6 +98,7 @@ type Props = {
   property: Property | null;
   photos: Photo[];
   email: string;
+  customLocations?: CustomLocation[];
 };
 
 function Status({ state }: { state: EditorState }) {
@@ -487,9 +489,9 @@ const PhotoPanel = forwardRef<
     if (!list?.length) return;
     setPickError(null);
 
-    const room = Math.max(0, 12 - pending.length);
+    const room = Math.max(0, MAX_SITE_PHOTOS - photos.length - pending.length);
     if (room === 0) {
-      setPickError("Maksimum 12 foto.");
+      setPickError(`Maksimum ${MAX_SITE_PHOTOS} foto (əsas daxil).`);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -497,7 +499,7 @@ const PhotoPanel = forwardRef<
     const next: CropQueueItem[] = [];
     for (const file of Array.from(list)) {
       if (next.length >= room) {
-        setPickError("Maksimum 12 foto seçin.");
+        setPickError(`Maksimum ${MAX_SITE_PHOTOS} foto (əsas daxil).`);
         break;
       }
       if (file.size > 5 * 1024 * 1024) {
@@ -639,19 +641,26 @@ const PhotoPanel = forwardRef<
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
         <p className={styles.hint}>
-          Minimum {MIN_SITE_PHOTOS} · 1 əsas + 4 qalereya
+          Min {MIN_SITE_PHOTOS} · maks {MAX_SITE_PHOTOS} (əsas daxil) · 1
+          əsas + əlavələr
           {plan.map ? " · +xəritə" : ""}
           {plan.spare > 0 ? ` · +${plan.spare} ehtiyat` : ""}
         </p>
         <p
           className={
-            plan.missing > 0 ? styles.photoCountWarn : styles.photoCountOk
+            plan.missing > 0
+              ? styles.photoCountWarn
+              : totalCount >= MAX_SITE_PHOTOS
+                ? styles.photoCountOk
+                : styles.photoCountOk
           }
         >
-          {totalCount} / {MIN_SITE_PHOTOS}
+          {totalCount} / {MAX_SITE_PHOTOS}
           {plan.missing > 0
-            ? ` · daha ${plan.missing} foto lazımdır`
-            : " · qalereya doludur"}
+            ? ` · daha ${plan.missing} lazımdır (min ${MIN_SITE_PHOTOS})`
+            : totalCount >= MAX_SITE_PHOTOS
+              ? " · limit doludur"
+              : " · qalereya hazırdır"}
         </p>
       </header>
 
@@ -719,7 +728,8 @@ const PhotoPanel = forwardRef<
             {hasPhotos ? "Foto əlavə et" : "Fotoları seç"}
           </span>
           <span className={styles.dropHint}>
-            Kəs · əlavə et · Yadda saxla ilə yüklənir · min {MIN_SITE_PHOTOS}
+            Kəs · əlavə et · Yadda saxla ilə yüklənir · min{" "}
+            {MIN_SITE_PHOTOS} · maks {MAX_SITE_PHOTOS}
           </span>
           <input
             ref={fileInputRef}
@@ -909,9 +919,13 @@ function WizardNav({
 function EditForm({
   property,
   photos,
+  email,
+  customLocations = [],
 }: {
   property: Property;
   photos: Photo[];
+  email: string;
+  customLocations?: CustomLocation[];
 }) {
   const router = useRouter();
   const [saveState, setSaveState] = useState<EditorState>(empty);
@@ -1095,8 +1109,12 @@ function EditForm({
           >
             <FieldGroup title="Yerləşmə">
               <div className={styles.label}>
-                Zona
-                <ZonePicker defaultValue={property.zone} />
+                Ünvan
+                <ZonePicker
+                  defaultValue={property.zone}
+                  ownerKey={email}
+                  initialCustoms={customLocations}
+                />
               </div>
               <label className={styles.label}>
                 WhatsApp
@@ -1108,12 +1126,13 @@ function EditForm({
                 />
               </label>
               <label className={styles.label}>
-                Zona qeydi
+                Yerləşmə qeydi
                 <textarea
                   className={styles.textarea}
                   name="zone_note"
                   rows={2}
                   defaultValue={property.zone_note}
+                  placeholder="Metroya yaxınlıq, giriş və s."
                 />
               </label>
             </FieldGroup>
@@ -1299,7 +1318,12 @@ function EditForm({
   );
 }
 
-export function PropertyEditor({ property, photos, email }: Props) {
+export function PropertyEditor({
+  property,
+  photos,
+  email,
+  customLocations = [],
+}: Props) {
   return (
     <div className={styles.panelWide}>
       <header className={styles.panelHeader}>
@@ -1312,7 +1336,12 @@ export function PropertyEditor({ property, photos, email }: Props) {
       </header>
 
       {property ? (
-        <EditForm property={property} photos={photos} />
+        <EditForm
+          property={property}
+          photos={photos}
+          email={email}
+          customLocations={customLocations}
+        />
       ) : (
         <CreateForm />
       )}
