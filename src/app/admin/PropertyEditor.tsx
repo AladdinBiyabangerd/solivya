@@ -11,7 +11,6 @@ import { resolvePhotoSrc } from "@/lib/storage";
 import {
   createProperty,
   deletePhoto,
-  movePhoto,
   saveProperty,
   setMainPhoto,
   uploadPhoto,
@@ -155,7 +154,9 @@ function PhotoPanel({
     <aside className={styles.photoPanel}>
       <header className={styles.photoPanelHead}>
         <h2 className={styles.sectionHeading}>Fotolar</h2>
-        <p className={styles.hint}>Əsas foto hero olur · max 5MB</p>
+        <p className={styles.hint}>
+          Bir neçə foto seç · üzərinə kliklə → əsas · max 5MB
+        </p>
       </header>
 
       {main ? (
@@ -178,46 +179,33 @@ function PhotoPanel({
                 }
                 role="listitem"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={resolvePhotoSrc(photo.storage_path)}
-                  alt={photo.alt || `Foto ${index + 1}`}
-                />
-                <div className={styles.thumbActions}>
-                  {!isMain ? (
-                    <form action={setMainPhoto}>
-                      <input type="hidden" name="photo_id" value={photo.id} />
-                      <button className={styles.thumbMainBtn} type="submit">
-                        Əsas
-                      </button>
-                    </form>
-                  ) : (
+                {isMain ? (
+                  <div className={styles.thumbHit}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={resolvePhotoSrc(photo.storage_path)}
+                      alt={photo.alt || `Foto ${index + 1}`}
+                    />
                     <span className={styles.thumbMeta}>Əsas</span>
-                  )}
-                  <form action={movePhoto}>
+                  </div>
+                ) : (
+                  <form action={setMainPhoto} className={styles.thumbPickForm}>
                     <input type="hidden" name="photo_id" value={photo.id} />
-                    <input type="hidden" name="direction" value="up" />
                     <button
-                      className={styles.thumbIcon}
                       type="submit"
-                      aria-label="Sola"
-                      disabled={index === 0}
+                      className={styles.thumbPick}
+                      title="Əsas et"
                     >
-                      ←
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={resolvePhotoSrc(photo.storage_path)}
+                        alt={photo.alt || `Foto ${index + 1}`}
+                      />
+                      <span className={styles.thumbPickLabel}>Əsas et</span>
                     </button>
                   </form>
-                  <form action={movePhoto}>
-                    <input type="hidden" name="photo_id" value={photo.id} />
-                    <input type="hidden" name="direction" value="down" />
-                    <button
-                      className={styles.thumbIcon}
-                      type="submit"
-                      aria-label="Sağa"
-                      disabled={index === sorted.length - 1}
-                    >
-                      →
-                    </button>
-                  </form>
+                )}
+                <div className={styles.thumbActions}>
                   <form action={deletePhoto}>
                     <input type="hidden" name="photo_id" value={photo.id} />
                     <button className={styles.thumbDanger} type="submit">
@@ -238,26 +226,20 @@ function PhotoPanel({
         <input type="hidden" name="property_id" value={propertyId} />
         <label className={styles.dropLabel}>
           <span className={styles.dropTitle}>
-            {hasPhotos ? "Foto əlavə et" : "İlk fotonu yüklə"}
+            {hasPhotos ? "Foto əlavə et" : "Fotoları yüklə"}
           </span>
-          <span className={styles.dropHint}>jpg / png / webp · max 5MB</span>
+          <span className={styles.dropHint}>
+            Eyni anda bir neçə · jpg / png / webp · max 5MB
+          </span>
           <input
             className={styles.dropFile}
             type="file"
-            name="file"
+            name="files"
             accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
             required
           />
         </label>
-        {hasPhotos ? (
-          <input
-            className={styles.input}
-            name="alt"
-            placeholder="Alt mətn (istəyə görə)"
-          />
-        ) : (
-          <input type="hidden" name="alt" value="" />
-        )}
         <Status state={uploadState} />
         <button
           className={styles.submitSecondary}

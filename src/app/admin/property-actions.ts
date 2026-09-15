@@ -139,8 +139,10 @@ export async function saveProperty(
       deposit: Number(formData.get("deposit") ?? 0),
       amenities: parseAmenities(String(formData.get("amenities") ?? "")),
       rules: parseRules(String(formData.get("rules") ?? "")),
-      whatsapp_e164: String(formData.get("whatsapp_e164") ?? "")
-        .replace(/\D/g, ""),
+      whatsapp_e164: String(formData.get("whatsapp_e164") ?? "").replace(
+        /\D/g,
+        "",
+      ),
       locale_default: locale === "ru" ? "ru" : "az",
       published,
     })
@@ -166,14 +168,29 @@ export async function uploadPhoto(
   const { supabase, user } = await requireUser();
 
   const propertyId = String(formData.get("property_id") ?? "");
-  const file = formData.get("file");
+  const fromMulti = formData
+    .getAll("files")
+    .filter((item): item is File => item instanceof File && item.size > 0);
+  const single = formData.get("file");
+  const files =
+    fromMulti.length > 0
+      ? fromMulti
+      : single instanceof File && single.size > 0
+        ? [single]
+        : [];
 
-  if (!propertyId || !(file instanceof File) || file.size === 0) {
+  if (!propertyId || files.length === 0) {
     return { error: "Fayl seçilməyib." };
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    return { error: "Maksimum 5MB." };
+  if (files.length > 12) {
+    return { error: "Maksimum 12 foto seçin." };
+  }
+
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024) {
+      return { error: `"${file.name}" 5MB-dan böyükdür.` };
+    }
   }
 
   const { data: property } = await supabase
@@ -192,38 +209,59 @@ export async function uploadPhoto(
     .select("*", { count: "exact", head: true })
     .eq("property_id", propertyId);
 
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext)
-    ? ext
-    : "jpg";
-  const path = `${user.id}/${propertyId}/${Date.now()}.${safeExt}`;
+  let nextOrder = count ?? 0;
+  let uploaded = 0;
+  const alt = String(formData.get("alt") ?? "").trim();
 
-  const { error: uploadError } = await supabase.storage
-    .from("property-photos")
-    .upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: file.type || `image/${safeExt}`,
+  for (const file of files) {
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext)
+      ? ext
+      : "jpg";
+    const path = `${user.id}/${propertyId}/${Date.now()}-${uploaded}.${safeExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("property-photos")
+      .upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type || `image/${safeExt}`,
+      });
+
+    if (uploadError) {
+      if (uploaded === 0) return { error: uploadError.message };
+      break;
+    }
+
+    const { error: insertError } = await supabase.from("photos").insert({
+      property_id: propertyId,
+      storage_path: path,
+      alt: uploaded === 0 ? alt : "",
+      sort_order: nextOrder,
     });
 
-  if (uploadError) {
-    return { error: uploadError.message };
-  }
+    if (insertError) {
+      if (uploaded === 0) return { error: insertError.message };
+      break;
+    }
 
-  const { error: insertError } = await supabase.from("photos").insert({
-    property_id: propertyId,
-    storage_path: path,
-    alt: String(formData.get("alt") ?? "").trim(),
-    sort_order: count ?? 0,
-  });
-
-  if (insertError) {
-    return { error: insertError.message };
+    nextOrder += 1;
+    uploaded += 1;
   }
 
   revalidatePath("/admin");
   revalidatePath(`/site/${property.slug}`);
-  return { ok: "Foto yükləndi." };
+
+  if (uploaded === 0) {
+    return { error: "Foto yüklənmədi." };
+  }
+
+  return {
+    ok:
+      uploaded === 1
+        ? "Foto yükləndi."
+        : `${uploaded} foto yükləndi. Əsas etmək üçün üzərinə kliklə.`,
+  };
 }
 
 export async function deletePhoto(formData: FormData): Promise<void> {
