@@ -47,6 +47,8 @@ export type MarketingCopy = {
   closeTitle: string;
   closeText: string;
   footerNote: string;
+  /** Prefix before builder name in the marketing footer. */
+  footerCredit: string;
 };
 
 export const MARKETING: Record<LocaleCode, MarketingCopy> = {
@@ -153,6 +155,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     closeTitle: "Linkini bu həftə paylaş",
     closeText: "Demo-ya bax, WhatsApp-la yaz və ya hesab yarat.",
     footerNote: "Sahib brendli günlük kirayə səhifələri · Bakı",
+    footerCredit: "Dizayn edib hazırlayan",
   },
   ru: {
     metaTitle: "Solivya — брендовая страница для посуточной аренды",
@@ -257,5 +260,6 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     closeTitle: "Поделитесь ссылкой на этой неделе",
     closeText: "Смотрите демо, пишите в WhatsApp или создайте аккаунт.",
     footerNote: "Брендовые страницы для посуточной аренды · Баку",
+    footerCredit: "Дизайн и разработка —",
   },
 };

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { resolveLocale } from "@/components/site/i18n";
+import { jsonLdScript, marketingJsonLd } from "@/lib/seo";
+import { BUILDER, SITE, builderPortfolioUrl, siteUrl } from "@/lib/site";
 import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
 
@@ -14,9 +16,34 @@ export async function generateMetadata({
   const { lang } = await searchParams;
   const locale = resolveLocale(lang, "az");
   const t = MARKETING[locale];
+  const origin = siteUrl();
+  const url = `${origin}/?lang=${locale}`;
   return {
     title: t.metaTitle,
     description: t.metaDescription,
+    authors: [{ name: BUILDER.name, url: BUILDER.portfolioOrigin }],
+    creator: BUILDER.name,
+    publisher: SITE.name,
+    alternates: {
+      canonical: url,
+      languages: {
+        az: `${origin}/?lang=az`,
+        ru: `${origin}/?lang=ru`,
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: locale === "ru" ? "ru_RU" : "az_AZ",
+      url,
+      siteName: SITE.name,
+      title: t.metaTitle,
+      description: t.metaDescription,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t.metaTitle,
+      description: t.metaDescription,
+    },
   };
 }
 
@@ -49,8 +76,18 @@ export default async function MarketingHome({ searchParams }: Props) {
   const langAzHref = "/?lang=az";
   const langRuHref = "/?lang=ru";
 
+  const jsonLd = marketingJsonLd({
+    locale,
+    title: t.metaTitle,
+    description: t.metaDescription,
+  });
+
   return (
     <div className={styles.page} lang={locale}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
+      />
       <header className={styles.hero}>
         <div className={styles.heroMedia} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -291,8 +328,21 @@ export default async function MarketingHome({ searchParams }: Props) {
 
       <footer className={styles.footer}>
         <div className={`${styles.wrap} ${styles.footerInner}`}>
-          <p className={styles.footerBrand}>Solivya</p>
-          <p className={styles.footerNote}>{t.footerNote}</p>
+          <div className={styles.footerMeta}>
+            <p className={styles.footerBrand}>Solivya</p>
+            <p className={styles.footerNote}>{t.footerNote}</p>
+          </div>
+          <p className={styles.footerCredit}>
+            {t.footerCredit}{" "}
+            <a
+              href={builderPortfolioUrl(locale)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {BUILDER.name}
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          </p>
         </div>
       </footer>
     </div>

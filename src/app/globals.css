@@ -1,15 +1,20 @@
 @import "tailwindcss";
 
 :root {
+  /* Roles: charcoal = brand/CTA/price; ivory = chrome; muted = copy;
+     accent = small decoration; olive = availability/status only */
   --bg: #f7f3ee;
   --bg-soft: #efe9e1;
   --text: #1c1917;
   --muted: #57534e;
   --accent: #9a7b4f;
   --accent-hover: #7c623f;
+  --cta: #1c1917;
+  --cta-hover: #3a3632;
   --line: rgba(28, 25, 23, 0.12);
   --olive: #3f5e4a;
   --white: #fffcfa;
+  --surface: #fffcfa;
   --shadow: 0 24px 60px rgba(28, 25, 23, 0.12);
   --radius: 4px;
   --font-display: var(--font-fraunces), Georgia, serif;
@@ -24,6 +29,8 @@
   --color-accent: var(--accent);
   --color-olive: var(--olive);
   --color-white: var(--white);
+  --color-surface: var(--surface);
+  --color-cta: var(--cta);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
 }

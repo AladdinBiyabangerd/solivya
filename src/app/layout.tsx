@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { BUILDER, SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -15,8 +16,12 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Solivya",
+  metadataBase: new URL(siteUrl()),
+  title: SITE.name,
   description: "Sahib brendli günlük kirayə microsite",
+  authors: [{ name: BUILDER.name, url: BUILDER.portfolioOrigin }],
+  creator: BUILDER.name,
+  publisher: SITE.name,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
