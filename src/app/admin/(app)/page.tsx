@@ -6,6 +6,7 @@ import { resolvePhotoSrc } from "@/lib/storage";
 import { requestHost } from "@/lib/tenant";
 import type { Property } from "@/types/database";
 import { PropertySiteActions } from "../components/PropertySiteActions";
+import { DeletePropertyButton } from "../components/DeletePropertyButton";
 import styles from "../admin.module.css";
 
 type PropertyListRow = Property & {
@@ -166,6 +167,10 @@ export default async function AdminHome({ searchParams }: PageProps) {
                   <Link href={editHref} className={styles.propertyAction}>
                     Redaktə
                   </Link>
+                  <DeletePropertyButton
+                    propertyId={property.id}
+                    label={property.brand_name || title}
+                  />
                 </span>
               </li>
             );

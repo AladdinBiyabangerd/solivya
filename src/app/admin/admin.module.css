@@ -753,6 +753,35 @@
   padding: 0.25rem 0.15rem;
 }
 
+.propertyDeleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7f1d1d;
+  background: var(--surface);
+  border: 1px solid rgba(127, 29, 29, 0.28);
+  border-radius: var(--radius);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.propertyDeleteBtn:hover:not(:disabled) {
+  border-color: #7f1d1d;
+  background: rgba(127, 29, 29, 0.06);
+}
+
+.propertyDeleteBtn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .panelWide {
   width: 100%;
   margin: 0;

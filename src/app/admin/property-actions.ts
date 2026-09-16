@@ -661,3 +661,53 @@ export async function addOwnerCustomLocation(
   revalidatePath("/admin");
   return { location };
 }
+
+/** Delete a property the current owner owns (photos cascade; storage cleaned). */
+export async function deleteProperty(formData: FormData): Promise<void> {
+  const { supabase, user } = await requireUser();
+  const propertyId = String(formData.get("property_id") ?? "").trim();
+  if (!propertyId) return;
+
+  const { data: property } = await supabase
+    .from("properties")
+    .select("id, slug, owner_id")
+    .eq("id", propertyId)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (!property) return;
+
+  const { data: photos } = await supabase
+    .from("photos")
+    .select("storage_path, original_path")
+    .eq("property_id", property.id);
+
+  const toRemove: string[] = [];
+  for (const photo of photos ?? []) {
+    if (
+      photo.storage_path &&
+      !photo.storage_path.startsWith("http://") &&
+      !photo.storage_path.startsWith("https://")
+    ) {
+      toRemove.push(photo.storage_path);
+    }
+    if (
+      photo.original_path &&
+      !photo.original_path.startsWith("http://") &&
+      !photo.original_path.startsWith("https://")
+    ) {
+      toRemove.push(photo.original_path);
+    }
+  }
+  if (toRemove.length) {
+    await supabase.storage.from("property-photos").remove(toRemove);
+  }
+
+  await supabase.from("properties").delete().eq("id", property.id);
+
+  revalidatePath("/admin");
+  revalidatePath(`/site/${property.slug}`);
+  revalidatePath("/marketing/browse");
+  revalidatePath("/sitemap.xml");
+}
+
