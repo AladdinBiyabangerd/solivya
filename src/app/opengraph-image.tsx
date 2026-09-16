@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 
-export const alt = "Solivya — günlük kirayə səhifəsi · Bakı";
+export const alt = "Solivya — günlük kirayə səhifəsi · Azərbaycan";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -68,7 +68,7 @@ export default function OpenGraphImage() {
           }}
         >
           <span>solivya.homes</span>
-          <span style={{ color: "#9A7B4F" }}>Bakı</span>
+          <span style={{ color: "#9A7B4F" }}>Azərbaycan</span>
         </div>
       </div>
     ),

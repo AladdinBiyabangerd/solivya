@@ -25,14 +25,14 @@ export type BrowseCopy = {
 export const BROWSE: Record<LocaleCode, BrowseCopy> = {
   az: {
     // Template appends " — Solivya" (see root layout).
-    metaTitle: "Günlük kirayə mənzillər | Bakı",
+    metaTitle: "Günlük kirayə mənzillər | Azərbaycan",
     metaDescription:
-      "Bakıda günlük kirayə mənzillər. Foto, qiymət və qaydalar bir səhifədə — birbaşa sahibə WhatsApp. Komissiyasız vitrin.",
+      "Azərbaycan üzrə günlük kirayə mənzillər — Bakı, Gəncə, Sumqayıt və digər şəhər/rayonlar. Foto, qiymət və qaydalar bir səhifədə; birbaşa sahibə WhatsApp.",
     navAria: "Əsas",
     backHome: "Ana səhifə",
     langAria: "Dil",
     label: "Mənzillər",
-    title: "Bakıda günlük kirayə",
+    title: "Azərbaycanda günlük kirayə",
     ownerTitle: "Sahibin mənzilləri",
     lead: "Link gözləmədən bax. Hər mənzilin öz səhifəsi var — foto, qiymət, qaydalar; sonra birbaşa sahibə yazırsan.",
     ownerLead:
@@ -45,18 +45,18 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     priceNight: (n) => `${n} ₼ / gecə`,
     openListing: "Səhifəni aç",
     countLabel: (n) => (n === 1 ? "1 mənzil" : `${n} mənzil`),
-    footerNote: "Solivya · Bakı",
+    footerNote: "Solivya · Azərbaycan",
   },
   ru: {
     // Template appends " — Solivya" (see root layout).
-    metaTitle: "Квартиры посуточно | Баку",
+    metaTitle: "Квартиры посуточно | Азербайджан",
     metaDescription:
-      "Квартиры посуточно в Баку. Фото, цена и правила на одной странице — затем WhatsApp хозяину. Витрина без комиссии.",
+      "Квартиры посуточно по Азербайджану — Баку, Гянджа, Сумгаит и другие города. Фото, цена и правила на одной странице; затем WhatsApp хозяину.",
     navAria: "Основное",
     backHome: "На главную",
     langAria: "Язык",
     label: "Квартиры",
-    title: "Посуточно в Баку",
+    title: "Посуточно в Азербайджане",
     ownerTitle: "Квартиры хозяина",
     lead: "Без личной ссылки. У каждой квартиры своя страница — фото, цена, правила; потом пишете хозяину напрямую.",
     ownerLead:
@@ -70,6 +70,6 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     openListing: "Открыть",
     countLabel: (n) =>
       n === 1 ? "1 квартира" : n < 5 ? `${n} квартиры` : `${n} квартир`,
-    footerNote: "Solivya · Баку",
+    footerNote: "Solivya · Азербайджан",
   },
 };

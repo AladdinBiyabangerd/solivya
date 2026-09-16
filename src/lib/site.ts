@@ -5,6 +5,11 @@ export const SITE = {
   url: "https://solivya.homes",
 } as const;
 
+/** Locale display name for country-wide coverage (SEO copy + JSON-LD). */
+export function areaCountryName(locale: "az" | "ru"): string {
+  return locale === "ru" ? "Азербайджан" : "Azərbaycan";
+}
+
 /** Shared brand assets in /public/brand. */
 export const BRAND = {
   markSrc: "/brand/solivya-mark.svg",

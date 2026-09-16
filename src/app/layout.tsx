@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: `%s — ${SITE.name}`,
   },
   description:
-    "Bakıda günlük kirayə üçün sahib brendli səhifə — foto, qiymət, WhatsApp. İndilik pulsuz.",
+    "Azərbaycanda günlük kirayə üçün sahib brendli səhifə — şəhər və rayon üzrə, foto, qiymət, WhatsApp. İndilik pulsuz.",
   authors: [{ name: BUILDER.name, url: BUILDER.portfolioOrigin }],
   creator: BUILDER.name,
   publisher: SITE.name,

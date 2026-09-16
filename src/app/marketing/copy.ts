@@ -63,9 +63,9 @@ export type MarketingCopy = {
 export const MARKETING: Record<LocaleCode, MarketingCopy> = {
   az: {
     // Template appends " — Solivya" (see root layout).
-    metaTitle: "Günlük kirayə səhifəsi | Bakı",
+    metaTitle: "Günlük kirayə səhifəsi | Azərbaycan",
     metaDescription:
-      "Bakıda günlük kirayə mənzilin üçün öz brendli səhifə. Foto, qiymət, qaydalar bir linkdə — qonaq birbaşa WhatsApp-a yazır. İndilik pulsuz, komissiya yoxdur.",
+      "Azərbaycanın istənilən şəhər və rayonunda günlük kirayə üçün öz brendli səhifə. Foto, qiymət, qaydalar bir linkdə — qonaq birbaşa WhatsApp-a yazır. İndilik pulsuz, komissiya yoxdur.",
     navAria: "Əsas",
     navHow: "Necə",
     navBrowse: "Mənzillər",
@@ -82,7 +82,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     waMessage:
       "Salam, Solivya ilə günlük kirayə səhifəsi yaratmaq istəyirəm",
     guestLabel: "Axtarırsan?",
-    guestTitle: "Bakıda günlük kirayə axtarırsan",
+    guestTitle: "Azərbaycanda günlük kirayə axtarırsan",
     guestText:
       "Sahibdən link gözləmədən günlük kirayə mənzillərə bax — foto, qiymət, qaydalar bir səhifədə.",
     guestCta: "Mənzillərə bax",
@@ -124,7 +124,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     steps: [
       {
         title: "WhatsApp və ya qeydiyyat",
-        text: "Mənzil adı, zona, qiymət və fotolar — yaz və ya paneldən.",
+        text: "Mənzil adı, şəhər/rayon, qiymət və fotolar — yaz və ya paneldən.",
       },
       {
         title: "Səhifə hazırlanır",
@@ -152,7 +152,11 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     faqs: [
       {
         q: "Solivya nədir?",
-        a: "Bakıda günlük kirayə sahibləri üçün brendli bir səhifədir: foto, qiymət və qaydalar bir linkdə, qonaq WhatsApp-a yazır.",
+        a: "Azərbaycanda günlük kirayə sahibləri üçün brendli bir səhifədir: foto, qiymət və qaydalar bir linkdə, qonaq WhatsApp-a yazır.",
+      },
+      {
+        q: "Hansı şəhər və rayonlarda?",
+        a: "Bakı, Gəncə, Sumqayıt, Qəbələ, Lənkəran və digər şəhər/rayonlarda — admin paneldə zonanı seçirsən.",
       },
       {
         q: "Airbnb / bina.az əvəzi?",
@@ -182,14 +186,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     closeLabel: "Başla",
     closeTitle: "Linkini bu həftə paylaş",
     closeText: "Demo-ya bax, WhatsApp-la yaz və ya hesab yarat — indilik pulsuz.",
-    footerNote: "Sahib brendli günlük kirayə səhifələri · Bakı",
+    footerNote: "Sahib brendli günlük kirayə səhifələri · Azərbaycan",
     footerCredit: "Dizayn edib hazırlayan",
   },
   ru: {
     // Template appends " — Solivya" (see root layout).
-    metaTitle: "Страница для посуточной аренды | Баку",
+    metaTitle: "Страница для посуточной аренды | Азербайджан",
     metaDescription:
-      "Своя брендовая страница для квартиры посуточно в Баку. Фото, цена, правила в одной ссылке — гость пишет в WhatsApp. Пока бесплатно, без комиссии.",
+      "Своя брендовая страница для посуточной аренды в любом городе и районе Азербайджана. Фото, цена, правила в одной ссылке — гость пишет в WhatsApp. Пока бесплатно, без комиссии.",
     navAria: "Основное",
     navHow: "Как",
     navBrowse: "Квартиры",
@@ -206,7 +210,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     waMessage:
       "Здравствуйте, хочу создать страницу для посуточной аренды через Solivya",
     guestLabel: "Ищете жильё?",
-    guestTitle: "Нужна квартира посуточно в Баку",
+    guestTitle: "Ищете посуточную аренду в Азербайджане",
     guestText:
       "Смотрите квартиры посуточно без личной ссылки — фото, цена и правила на одной странице.",
     guestCta: "Смотреть квартиры",
@@ -248,7 +252,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     steps: [
       {
         title: "WhatsApp или регистрация",
-        text: "Название, район, цена и фото — пишете нам или загружаете в панели.",
+        text: "Название, город/район, цена и фото — пишете нам или загружаете в панели.",
       },
       {
         title: "Страница готова",
@@ -276,7 +280,11 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     faqs: [
       {
         q: "Что такое Solivya?",
-        a: "Брендовая страница для хозяев посуточной аренды в Баку: фото, цена и правила в одной ссылке, гость пишет в WhatsApp.",
+        a: "Брендовая страница для хозяев посуточной аренды в Азербайджане: фото, цена и правила в одной ссылке, гость пишет в WhatsApp.",
+      },
+      {
+        q: "В каких городах и районах?",
+        a: "Баку, Гянджа, Сумгаит, Габала, Ленкоран и другие — зону выбираете в админке.",
       },
       {
         q: "Это вместо Airbnb / bina.az?",
@@ -306,7 +314,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     closeLabel: "Начать",
     closeTitle: "Поделитесь ссылкой на этой неделе",
     closeText: "Смотрите демо, пишите в WhatsApp или создайте аккаунт — пока бесплатно.",
-    footerNote: "Брендовые страницы для посуточной аренды · Баку",
+    footerNote: "Брендовые страницы для посуточной аренды · Азербайджан",
     footerCredit: "Дизайн и разработка —",
   },
 };

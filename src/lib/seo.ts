@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import type { LocaleCode, Photo } from "@/types/database";
 import type { SitePropertyView } from "@/components/site/types";
 import { mainPhotoShareUrl } from "@/lib/properties";
-import { brandCoverAbsoluteUrl, BUILDER, SITE, siteUrl } from "@/lib/site";
+import { parseZonePath } from "@/lib/azerbaijan-locations";
+import {
+  areaCountryName,
+  brandCoverAbsoluteUrl,
+  BUILDER,
+  SITE,
+  siteUrl,
+} from "@/lib/site";
 
 const OG_LOCALE: Record<LocaleCode, string> = {
   az: "az_AZ",
@@ -119,7 +126,7 @@ export function marketingJsonLd(
 ) {
   const origin = siteUrl();
   const pageUrl = marketingUrl(input.locale, origin);
-  const city = input.locale === "ru" ? "Баку" : "Bakı";
+  const country = areaCountryName(input.locale);
   const appName =
     input.locale === "ru"
       ? "Solivya — страница для посуточной аренды"
@@ -139,8 +146,8 @@ export function marketingJsonLd(
         url: BUILDER.portfolioOrigin,
       },
       areaServed: {
-        "@type": "City",
-        name: city,
+        "@type": "Country",
+        name: country,
       },
     },
     {
@@ -173,8 +180,8 @@ export function marketingJsonLd(
       },
       provider: { "@id": `${origin}/#organization` },
       areaServed: {
-        "@type": "City",
-        name: city,
+        "@type": "Country",
+        name: country,
       },
     },
     {
@@ -254,12 +261,31 @@ export function propertyMetaDescription(property: SitePropertyView): string {
   if (lead) return lead;
 
   const zone = property.zone?.trim();
+  const country = areaCountryName(property.locale);
   if (property.locale === "ru") {
-    const where = zone ? ` в ${zone}` : " в Баку";
-    return `${property.title} — квартира посуточно${where}. Фото, цена и правила — напишите хозяину в WhatsApp.`;
+    const where = zone ? ` · ${zone}` : ` · ${country}`;
+    return `${property.title}${where} — квартира посуточно. Фото, цена и правила — напишите хозяину в WhatsApp.`;
   }
-  const where = zone ? ` · ${zone}` : " · Bakı";
+  const where = zone ? ` · ${zone}` : ` · ${country}`;
   return `${property.title}${where} — günlük kirayə. Foto, qiymət və qaydalar; WhatsApp ilə sahibə yazın.`;
+}
+
+function propertyPostalAddress(property: SitePropertyView) {
+  const country = areaCountryName(property.locale);
+  const parts = parseZonePath(property.zone || "");
+  if (parts.length === 0) {
+    return {
+      "@type": "PostalAddress" as const,
+      addressLocality: country,
+      addressCountry: "AZ",
+    };
+  }
+  return {
+    "@type": "PostalAddress" as const,
+    addressLocality: parts[parts.length - 1],
+    addressRegion: parts.length > 1 ? parts[0] : country,
+    addressCountry: "AZ",
+  };
 }
 
 export function faqJsonLd(
@@ -325,8 +351,6 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
   const { property, canonical } = input;
   const origin = siteUrl();
   const lodgingId = `${canonical}#lodging`;
-  const city =
-    property.locale === "ru" ? "Баку" : "Bakı";
   // Prefer owner main photo; brand cover is page chrome, not the listing image.
   const imageRaw = property.photos[0]?.src || brandCoverAbsoluteUrl(origin);
   const image = imageRaw.startsWith("http")
@@ -352,12 +376,7 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
         telephone: property.whatsappE164
           ? `+${property.whatsappE164.replace(/\D/g, "")}`
           : undefined,
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: property.zone || city,
-          addressRegion: city,
-          addressCountry: "AZ",
-        },
+        address: propertyPostalAddress(property),
         ...(hasGeo
           ? {
               geo: {

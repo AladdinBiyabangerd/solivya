@@ -4,7 +4,7 @@ export function GET() {
   const origin = siteUrl();
   const body = `# ${SITE.name}
 
-> Branded single-page sites for daily/short-term rental owners in Baku.
+> Branded single-page sites for daily/short-term rental owners across Azerbaijan (cities and regions).
 > Guests see photos, price, and rules, then message the owner on WhatsApp.
 > Currently free (setup + monthly); paid plans may come later. No marketplace commission.
 
