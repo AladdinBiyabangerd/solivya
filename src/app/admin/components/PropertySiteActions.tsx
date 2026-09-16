@@ -36,9 +36,9 @@ export function PropertySiteActions({ href, host }: Props) {
           e.stopPropagation();
           void copyUrl();
         }}
-        aria-label={`${host} ünvanını kopyala`}
+        aria-label={`${host} linkini kopyala`}
       >
-        {copied ? "Kopyalandı" : "Kopyala"}
+        {copied ? "Link kopyalandı" : "Linki kopyala"}
       </button>
       <a
         className={styles.propertySiteBtn}
@@ -48,7 +48,7 @@ export function PropertySiteActions({ href, host }: Props) {
         onClick={(e) => e.stopPropagation()}
         aria-label={`${host} saytını aç`}
       >
-        Aç
+        Saytı aç
       </a>
     </span>
   );
