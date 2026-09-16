@@ -357,7 +357,46 @@
 .appTopRight {
   display: flex;
   align-items: center;
+  gap: 0.45rem;
   justify-self: end;
+  min-width: 0;
+}
+
+.appTopHome {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.appTopHome:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.drawerHome {
+  display: block;
+  margin-top: auto;
+  padding: 0.75rem 0.35rem 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-top: 1px solid var(--line);
+}
+
+.drawerHome:hover {
+  color: var(--accent);
 }
 
 .appTopNav {
@@ -2311,6 +2350,15 @@
   .panelWide {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  .appTopHome {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.8rem;
+  }
+
+  .appTopRight {
+    gap: 0.35rem;
   }
 
   .propertyRow {
