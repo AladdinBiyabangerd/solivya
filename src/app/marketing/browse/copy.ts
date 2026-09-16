@@ -15,11 +15,26 @@ export type BrowseCopy = {
   emptyText: string;
   ownerEmptyTitle: string;
   ownerEmptyText: string;
+  filterEmptyTitle: string;
+  filterEmptyText: string;
   emptyDemo: string;
   priceNight: (n: number) => string;
   openListing: string;
   countLabel: (n: number) => string;
   footerNote: string;
+  filtersAria: string;
+  filtersToggle: string;
+  filtersApply: string;
+  filtersClear: string;
+  filterAny: string;
+  filterCity: string;
+  filterRayon: string;
+  filterNish: string;
+  filterPriceMin: string;
+  filterPriceMax: string;
+  filterRooms: string;
+  filterGuests: string;
+  filterAmenities: string;
 };
 
 export const BROWSE: Record<LocaleCode, BrowseCopy> = {
@@ -41,11 +56,27 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     emptyText: "Tezliklə yeni səhifələr əlavə olunacaq. İndilik nümunəyə baxa bilərsən.",
     ownerEmptyTitle: "Bu sahibin başqa canlı mənzili yoxdur",
     ownerEmptyText: "İndilik digər mənzillərə baxa və ya demo səhifəni aça bilərsən.",
+    filterEmptyTitle: "Bu filterə uyğun mənzil yoxdur",
+    filterEmptyText:
+      "Şərtləri yumşaldın və ya filterləri təmizləyib yenidən baxın.",
     emptyDemo: "Demo səhifəni aç",
     priceNight: (n) => `${n} ₼ / gecə`,
     openListing: "Səhifəni aç",
     countLabel: (n) => (n === 1 ? "1 mənzil" : `${n} mənzil`),
     footerNote: "Solivya · Azərbaycan",
+    filtersAria: "Mənzil filterləri",
+    filtersToggle: "Filter",
+    filtersApply: "Göstər",
+    filtersClear: "Təmizlə",
+    filterAny: "Hamısı",
+    filterCity: "Şəhər",
+    filterRayon: "Rayon",
+    filterNish: "Nişangah",
+    filterPriceMin: "Min qiymət",
+    filterPriceMax: "Max qiymət",
+    filterRooms: "Min otaq",
+    filterGuests: "Min qonaq",
+    filterAmenities: "Təchizat",
   },
   ru: {
     // Template appends " — Solivya" (see root layout).
@@ -65,11 +96,26 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     emptyText: "Скоро появятся новые страницы. Пока можно открыть демо.",
     ownerEmptyTitle: "У этого хозяина пока нет других объявлений",
     ownerEmptyText: "Можно посмотреть все квартиры или открыть демо.",
+    filterEmptyTitle: "Нет квартир по этим фильтрам",
+    filterEmptyText: "Ослабьте условия или сбросьте фильтры и посмотрите снова.",
     emptyDemo: "Открыть демо",
     priceNight: (n) => `${n} ₼ / ночь`,
     openListing: "Открыть",
     countLabel: (n) =>
       n === 1 ? "1 квартира" : n < 5 ? `${n} квартиры` : `${n} квартир`,
     footerNote: "Solivya · Азербайджан",
+    filtersAria: "Фильтры квартир",
+    filtersToggle: "Фильтр",
+    filtersApply: "Показать",
+    filtersClear: "Сбросить",
+    filterAny: "Все",
+    filterCity: "Город",
+    filterRayon: "Район",
+    filterNish: "Ориентир",
+    filterPriceMin: "Цена от",
+    filterPriceMax: "Цена до",
+    filterRooms: "Комнат от",
+    filterGuests: "Гостей от",
+    filterAmenities: "Удобства",
   },
 };

@@ -17,12 +17,19 @@ import {
 import { BUILDER, builderPortfolioUrl } from "@/lib/site";
 import { getCurrentUser } from "@/utils/supabase/auth";
 import { MARKETING } from "../copy";
+import { BrowseFilters } from "./BrowseFilters";
 import { BROWSE } from "./copy";
+import {
+  browseQueryString,
+  hasActiveListingFilters,
+  listingFiltersFromSearchParams,
+  type BrowseSearchParams,
+} from "./filterParams";
 import marketing from "../marketing.module.css";
 import styles from "./browse.module.css";
 
 type Props = {
-  searchParams: Promise<{ lang?: string; owner?: string }>;
+  searchParams: Promise<BrowseSearchParams>;
 };
 
 function listingHref(
@@ -48,7 +55,8 @@ function isOwnerId(value: string | undefined): value is string {
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const { lang, owner } = await searchParams;
+  const params = await searchParams;
+  const { lang, owner } = params;
   const locale = resolveLocale(lang, "az");
   const t = BROWSE[locale];
   const ownerMode = isOwnerId(owner);
@@ -68,15 +76,19 @@ export async function generateMetadata({
 }
 
 export default async function BrowsePage({ searchParams }: Props) {
-  const { lang, owner } = await searchParams;
+  const params = await searchParams;
+  const { lang, owner } = params;
   const locale = resolveLocale(lang, "az");
   const t = BROWSE[locale];
   const m = MARKETING[locale];
   const ui = SITE_UI[locale];
   const ownerMode = isOwnerId(owner);
+  const filters = listingFiltersFromSearchParams(params);
+  const filtersActive = hasActiveListingFilters(filters);
+
   const listings = ownerMode
-    ? await listPublishedByOwner(owner, locale)
-    : await listPublishedListings(locale);
+    ? await listPublishedByOwner(owner, locale, undefined, filters)
+    : await listPublishedListings(locale, filters);
 
   const host = (await headers()).get("host") ?? "localhost:3000";
   const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
@@ -91,17 +103,33 @@ export default async function BrowsePage({ searchParams }: Props) {
   const panelUrl = "/admin";
   const homeHref = `/?lang=${locale}`;
   const allBrowseHref = `/browse?lang=${locale}`;
-  const langAzHref = ownerMode
-    ? `/browse?owner=${owner}&lang=az`
-    : "/browse?lang=az";
-  const langRuHref = ownerMode
-    ? `/browse?owner=${owner}&lang=ru`
-    : "/browse?lang=ru";
+  const langAzHref = `/browse?${browseQueryString({
+    lang: "az",
+    owner: ownerMode ? owner : undefined,
+    filters,
+  })}`;
+  const langRuHref = `/browse?${browseQueryString({
+    lang: "ru",
+    owner: ownerMode ? owner : undefined,
+    filters,
+  })}`;
+  const clearFiltersHref = `/browse?${browseQueryString({
+    lang: locale,
+    owner: ownerMode ? owner : undefined,
+  })}`;
 
   const pageTitle = ownerMode ? t.ownerTitle : t.title;
   const pageLead = ownerMode ? t.ownerLead : t.lead;
-  const emptyTitle = ownerMode ? t.ownerEmptyTitle : t.emptyTitle;
-  const emptyText = ownerMode ? t.ownerEmptyText : t.emptyText;
+  const emptyTitle = filtersActive
+    ? t.filterEmptyTitle
+    : ownerMode
+      ? t.ownerEmptyTitle
+      : t.emptyTitle;
+  const emptyText = filtersActive
+    ? t.filterEmptyText
+    : ownerMode
+      ? t.ownerEmptyText
+      : t.emptyText;
 
   const jsonLd = browseJsonLd({
     locale,
@@ -188,19 +216,33 @@ export default async function BrowsePage({ searchParams }: Props) {
             ) : null}
           </header>
 
+          <BrowseFilters
+            locale={locale}
+            owner={ownerMode ? owner : undefined}
+            filters={filters}
+            copy={t}
+          />
+
           {listings.length === 0 ? (
             <div className={styles.empty}>
               <h2 className={styles.emptyTitle}>{emptyTitle}</h2>
               <p className={styles.emptyText}>{emptyText}</p>
               <div className={styles.emptyActions}>
+                {filtersActive ? (
+                  <Link className={marketing.btnGhost} href={clearFiltersHref}>
+                    {t.filtersClear}
+                  </Link>
+                ) : null}
                 {ownerMode ? (
                   <Link className={marketing.btnGhost} href={allBrowseHref}>
                     {t.title}
                   </Link>
                 ) : null}
-                <a className={marketing.btn} href={demoUrl}>
-                  {t.emptyDemo}
-                </a>
+                {!filtersActive ? (
+                  <a className={marketing.btn} href={demoUrl}>
+                    {t.emptyDemo}
+                  </a>
+                ) : null}
               </div>
             </div>
           ) : (
