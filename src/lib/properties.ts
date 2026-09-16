@@ -234,6 +234,20 @@ export type PublishedListingCard = {
   coverAlt: string;
 };
 
+export type ListingFilters = {
+  priceMin?: number;
+  priceMax?: number;
+  roomsMin?: number;
+  guestsMin?: number;
+  cityId?: string;
+  rayonId?: string;
+  nishangahId?: string;
+  amenityIds?: string[];
+};
+
+const LISTING_SELECT =
+  "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, city_id, rayon_id, nishangah_id, amenities, photos(storage_path, sort_order, alt)";
+
 type ListingRow = Property & {
   photos: Pick<Photo, "storage_path" | "sort_order" | "alt">[] | null;
 };
@@ -264,18 +278,67 @@ function mapListingRows(
   });
 }
 
+type FilterableQuery = {
+  gte: (column: string, value: number) => FilterableQuery;
+  lte: (column: string, value: number) => FilterableQuery;
+  eq: (column: string, value: string) => FilterableQuery;
+  contains: (column: string, value: string[]) => FilterableQuery;
+};
+
+function applyListingFilters<T extends FilterableQuery>(
+  query: T,
+  filters?: ListingFilters,
+): T {
+  if (!filters) return query;
+  let next = query;
+  if (typeof filters.priceMin === "number" && Number.isFinite(filters.priceMin)) {
+    next = next.gte("price_night", filters.priceMin) as T;
+  }
+  if (typeof filters.priceMax === "number" && Number.isFinite(filters.priceMax)) {
+    next = next.lte("price_night", filters.priceMax) as T;
+  }
+  if (typeof filters.roomsMin === "number" && Number.isFinite(filters.roomsMin)) {
+    next = next.gte("rooms", filters.roomsMin) as T;
+  }
+  if (
+    typeof filters.guestsMin === "number" &&
+    Number.isFinite(filters.guestsMin)
+  ) {
+    next = next.gte("guests", filters.guestsMin) as T;
+  }
+  if (filters.cityId) {
+    next = next.eq("city_id", filters.cityId) as T;
+  }
+  if (filters.rayonId) {
+    next = next.eq("rayon_id", filters.rayonId) as T;
+  }
+  if (filters.nishangahId) {
+    next = next.eq("nishangah_id", filters.nishangahId) as T;
+  }
+  const amenityIds = parseAmenityIds(filters.amenityIds ?? []);
+  if (amenityIds.length > 0) {
+    // jsonb array containment — AND (must include every selected id)
+    next = next.contains("amenities", amenityIds) as T;
+  }
+  return next;
+}
+
 /** Published listings for the public browse catalog. */
 export async function listPublishedListings(
   locale: LocaleCode,
+  filters?: ListingFilters,
 ): Promise<PublishedListingCard[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("properties")
-    .select(
-      "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, photos(storage_path, sort_order, alt)",
-    )
-    .eq("published", true)
-    .order("updated_at", { ascending: false });
+  const query = applyListingFilters(
+    supabase
+      .from("properties")
+      .select(LISTING_SELECT)
+      .eq("published", true)
+      .order("updated_at", { ascending: false }),
+    filters,
+  );
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("listPublishedListings", error.message);
@@ -300,16 +363,18 @@ export async function listPublishedByOwner(
   ownerId: string,
   locale: LocaleCode,
   excludeSlug?: string,
+  filters?: ListingFilters,
 ): Promise<PublishedListingCard[]> {
   const supabase = await createClient();
-  let query = supabase
-    .from("properties")
-    .select(
-      "slug, brand_name, title_az, title_ru, zone, rooms, guests, price_night, photos(storage_path, sort_order, alt)",
-    )
-    .eq("published", true)
-    .eq("owner_id", ownerId)
-    .order("updated_at", { ascending: false });
+  let query = applyListingFilters(
+    supabase
+      .from("properties")
+      .select(LISTING_SELECT)
+      .eq("published", true)
+      .eq("owner_id", ownerId)
+      .order("updated_at", { ascending: false }),
+    filters,
+  );
 
   if (excludeSlug) {
     query = query.neq("slug", excludeSlug);
