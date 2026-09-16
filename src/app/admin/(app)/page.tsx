@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { resolvePhotoSrc } from "@/lib/storage";
 import { requestHost } from "@/lib/tenant";
@@ -51,6 +52,9 @@ export default async function AdminHome({ searchParams }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/admin/login");
+  }
   const hostHeader = requestHost(await headers());
 
   const { data: rows } = await supabase
