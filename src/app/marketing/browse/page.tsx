@@ -92,8 +92,6 @@ export default async function BrowsePage({ searchParams }: Props) {
   const signupUrl = "/admin/signup";
   const loginUrl = "/admin/login";
   const panelUrl = "/admin";
-  const accountHref = loggedIn ? panelUrl : loginUrl;
-  const accountLabel = loggedIn ? m.navPanel : m.navLogin;
   const homeHref = `/?lang=${locale}`;
   const allBrowseHref = `/browse?lang=${locale}`;
   const langAzHref = ownerMode
