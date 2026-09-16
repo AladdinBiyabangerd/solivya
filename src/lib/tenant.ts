@@ -131,7 +131,9 @@ export function isAdminPublicPath(pathname: string): boolean {
     pathname === "/admin/login" ||
     pathname.startsWith("/admin/login/") ||
     pathname === "/admin/signup" ||
-    pathname.startsWith("/admin/signup/")
+    pathname.startsWith("/admin/signup/") ||
+    pathname === "/admin/forgot-password" ||
+    pathname.startsWith("/admin/forgot-password/")
   );
 }
 

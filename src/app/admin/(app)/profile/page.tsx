@@ -3,11 +3,19 @@ import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { signOut } from "../../actions";
 import { ProfileForm } from "./ProfileForm";
+import { ProfilePasswordSection } from "./ProfilePasswordSection";
 import styles from "../../admin.module.css";
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ password?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
+
+  const params = await searchParams;
+  const passwordUpdated = params.password === "updated";
 
   const supabase = await createClient();
   const { data: ownerRow } = await supabase
@@ -37,13 +45,21 @@ export default async function ProfilePage() {
           </div>
         </div>
         <p className={styles.dashLead}>
-          Əlaqə məlumatlarınızı buradan yeniləyin.
+          Telefon, email və şifrəni buradan yeniləyin.
         </p>
         {memberSince ? (
           <p className={styles.emailLine}>Üzv: {memberSince}</p>
         ) : null}
+        {passwordUpdated ? (
+          <p className={styles.success}>Şifrə yeniləndi.</p>
+        ) : null}
       </header>
-      <ProfileForm email={user.email ?? ""} phone={phone} />
+      <ProfileForm
+        email={user.email ?? ""}
+        pendingEmail={user.new_email ?? null}
+        phone={phone}
+      />
+      <ProfilePasswordSection email={user.email ?? ""} />
       <form className={styles.profileSignOut} action={signOut}>
         <button className={styles.ghost} type="submit">
           Çıxış

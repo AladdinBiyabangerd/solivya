@@ -8,10 +8,12 @@ const empty: AuthState = {};
 
 type Props = {
   email: string;
+  /** Pending address while Supabase waits for change confirmation. */
+  pendingEmail?: string | null;
   phone: string;
 };
 
-export function ProfileForm({ email, phone }: Props) {
+export function ProfileForm({ email, pendingEmail, phone }: Props) {
   const [state, action, pending] = useActionState(updateProfile, empty);
 
   return (
@@ -21,11 +23,21 @@ export function ProfileForm({ email, phone }: Props) {
         <input
           className={styles.input}
           type="email"
-          value={email}
-          disabled
-          readOnly
+          name="email"
+          autoComplete="email"
+          required
+          defaultValue={email}
+          placeholder="sahib@email.com"
         />
-        <span className={styles.fieldHint}>Giriş üçün istifadə olunur</span>
+        <span className={styles.fieldHint}>
+          Dəyişəndə yeni ünvana təsdiq məktubu gəlir. Təsdiqdən sonra giriş o
+          email ilə olur.
+        </span>
+        {pendingEmail ? (
+          <span className={styles.fieldHint}>
+            Təsdiq gözlənilir: <strong>{pendingEmail}</strong>
+          </span>
+        ) : null}
       </label>
       <label className={styles.label}>
         Telefon

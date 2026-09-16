@@ -128,12 +128,18 @@ export async function middleware(request: NextRequest) {
     }
 
     if (user && isAdminPublicPath(pathname)) {
-      const homeUrl = request.nextUrl.clone();
-      homeUrl.pathname = "/admin";
-      homeUrl.search = "";
-      const redirectResponse = NextResponse.redirect(homeUrl);
-      copyCookies(response, redirectResponse);
-      return redirectResponse;
+      // Logged-in owners may still request a reset email from this page.
+      const allowAuthedPublic =
+        pathname === "/admin/forgot-password" ||
+        pathname.startsWith("/admin/forgot-password/");
+      if (!allowAuthedPublic) {
+        const homeUrl = request.nextUrl.clone();
+        homeUrl.pathname = "/admin";
+        homeUrl.search = "";
+        const redirectResponse = NextResponse.redirect(homeUrl);
+        copyCookies(response, redirectResponse);
+        return redirectResponse;
+      }
     }
   }
 

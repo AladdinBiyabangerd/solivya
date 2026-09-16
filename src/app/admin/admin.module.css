@@ -240,6 +240,12 @@
   border-bottom-color: var(--accent);
 }
 
+.authForgot {
+  margin: -0.35rem 0 0;
+  text-align: right;
+  font-size: 0.88rem;
+}
+
 .ghost {
   min-height: 2.35rem;
   padding: 0.4rem 0.85rem;
@@ -513,6 +519,34 @@
   margin-top: 1.5rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--line);
+}
+
+.profilePassword {
+  max-width: 28rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.profilePasswordTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.profilePasswordActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.25rem;
+}
+
+.profilePasswordActions .submitSecondary {
+  text-decoration: none;
 }
 
 .dashLead {

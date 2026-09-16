@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="az">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Yeni e-poçtu təsdiqlə — Solivya</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #efe9e1;
+      color: #1c1917;
+      -webkit-font-smoothing: antialiased;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background-color: #efe9e1; padding: 32px 16px"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width: 560px;
+              background-color: #fffcfa;
+              border: 1px solid rgba(28, 25, 23, 0.12);
+              border-radius: 4px;
+            "
+          >
+            <tr>
+              <td
+                style="
+                  height: 4px;
+                  line-height: 4px;
+                  font-size: 0;
+                  background-color: #9a7b4f;
+                "
+              >
+                &nbsp;
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding: 36px 36px 8px">
+                <p
+                  style="
+                    margin: 0;
+                    font-family: Georgia, 'Times New Roman', serif;
+                    font-size: 22px;
+                    letter-spacing: 0.04em;
+                    color: #1c1917;
+                  "
+                >
+                  Solivya
+                </p>
+                <p
+                  style="
+                    margin: 8px 0 0;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Helvetica, Arial, sans-serif;
+                    font-size: 12px;
+                    letter-spacing: 0.08em;
+                    text-transform: uppercase;
+                    color: #9a7b4f;
+                  "
+                >
+                  Sahib paneli
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding: 20px 36px 8px">
+                <h1
+                  style="
+                    margin: 0;
+                    font-family: Georgia, 'Times New Roman', serif;
+                    font-size: 26px;
+                    font-weight: 400;
+                    line-height: 1.3;
+                    color: #1c1917;
+                  "
+                >
+                  Yeni e-poçt ünvanını təsdiqlə
+                </h1>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style="
+                  padding: 12px 36px 8px;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Helvetica, Arial, sans-serif;
+                  font-size: 15px;
+                  line-height: 1.6;
+                  color: #57534e;
+                "
+              >
+                <p style="margin: 0 0 12px">Salam,</p>
+                <p style="margin: 0">
+                  Hesabında e-poçt dəyişikliyi istənilib. Aşağıdakı düymə ilə
+                  <strong style="color: #1c1917; font-weight: 600"
+                    >{{ .NewEmail }}</strong
+                  >
+                  ünvanını təsdiqlə — bundan sonra giriş bu e-poçtla olacaq.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="left" style="padding: 28px 36px 12px">
+                <a
+                  href="{{ .ConfirmationURL }}"
+                  style="
+                    display: inline-block;
+                    background-color: #1c1917;
+                    color: #fffcfa;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Helvetica, Arial, sans-serif;
+                    font-size: 15px;
+                    font-weight: 600;
+                    line-height: 1;
+                    text-decoration: none;
+                    padding: 14px 22px;
+                    border-radius: 4px;
+                  "
+                >
+                  Yeni e-poçtu təsdiqlə
+                </a>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style="
+                  padding: 16px 36px 8px;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Helvetica, Arial, sans-serif;
+                  font-size: 13px;
+                  line-height: 1.55;
+                  color: #57534e;
+                "
+              >
+                <p style="margin: 0 0 8px">
+                  Düymə işləmirsə, bu linki brauzerə yapışdır:
+                </p>
+                <p style="margin: 0; word-break: break-all">
+                  <a
+                    href="{{ .ConfirmationURL }}"
+                    style="color: #9a7b4f; text-decoration: underline"
+                    >{{ .ConfirmationURL }}</a
+                  >
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style="
+                  padding: 28px 36px 36px;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Helvetica, Arial, sans-serif;
+                  font-size: 12px;
+                  line-height: 1.55;
+                  color: #57534e;
+                  border-top: 1px solid rgba(28, 25, 23, 0.12);
+                "
+              >
+                <p style="margin: 0 0 6px">
+                  Bu dəyişikliyi sən istəməmisənsə, nəzərə alma — köhnə e-poçt
+                  qalır.
+                </p>
+                <p style="margin: 0">
+                  <a
+                    href="https://solivya.homes"
+                    style="color: #1c1917; text-decoration: none"
+                    >solivya.homes</a
+                  >
+                  · Günlük kirayə sahibləri üçün
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,46 +1,43 @@
 "use client";
 
 import { useActionState } from "react";
-import { signIn, type AuthState } from "../../actions";
+import { updatePassword, type AuthState } from "../../actions";
 import styles from "../../admin.module.css";
 
 const initial: AuthState = {};
 
-export function LoginForm() {
-  const [state, formAction, pending] = useActionState(signIn, initial);
+export function UpdatePasswordForm() {
+  const [state, formAction, pending] = useActionState(updatePassword, initial);
 
   return (
     <form className={styles.form} action={formAction}>
       <label className={styles.label}>
-        Email
-        <input
-          className={styles.input}
-          type="email"
-          name="email"
-          autoComplete="email"
-          required
-          placeholder="sahib@email.com"
-        />
-      </label>
-      <label className={styles.label}>
-        Şifrə
+        Yeni şifrə
         <input
           className={styles.input}
           type="password"
           name="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           required
+          minLength={6}
+          placeholder="ən az 6 simvol"
+        />
+      </label>
+      <label className={styles.label}>
+        Şifrəni təkrarla
+        <input
+          className={styles.input}
+          type="password"
+          name="confirm"
+          autoComplete="new-password"
+          required
+          minLength={6}
           placeholder="••••••••"
         />
       </label>
-      <p className={styles.authForgot}>
-        <a className={styles.switchLink} href="/admin/forgot-password">
-          Şifrəni unutmusan?
-        </a>
-      </p>
       {state.error ? <p className={styles.error}>{state.error}</p> : null}
       <button className={styles.submit} type="submit" disabled={pending}>
-        {pending ? "Giriş…" : "Daxil ol"}
+        {pending ? "Saxlanılır…" : "Şifrəni yenilə"}
       </button>
     </form>
   );
