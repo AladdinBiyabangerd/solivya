@@ -56,7 +56,7 @@ export default async function AdminHome({ searchParams }: PageProps) {
   const { data: rows } = await supabase
     .from("properties")
     .select("*, photos(storage_path, sort_order)")
-    .eq("owner_id", user!.id)
+    .eq("owner_id", user.id)
     .order("created_at", { ascending: true });
 
   const properties = (rows as PropertyListRow[] | null) ?? [];
@@ -69,7 +69,7 @@ export default async function AdminHome({ searchParams }: PageProps) {
             <p className={styles.sectionLabel}>İdarə paneli</p>
             <h1 className={styles.title}>Mənzilləriniz</h1>
           </div>
-          <p className={styles.emailLine}>{user?.email ?? ""}</p>
+          <p className={styles.emailLine}>{user.email ?? ""}</p>
         </div>
         <p className={styles.dashLead}>
           Saytlarınızı buradan açın, redaktə edin və ya yeni mənzil əlavə edin.

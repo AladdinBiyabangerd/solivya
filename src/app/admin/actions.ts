@@ -2,26 +2,20 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { marketingHomeHref } from "@/lib/site";
 
 export type AuthState = {
   error?: string;
   message?: string;
 };
 
-/** After auth, return to marketing landing — panel via explicit CTA. */
-async function redirectToMarketingHome(): Promise<never> {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "";
-  const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
-
+/** After auth, open the owner panel on the apex domain. */
+async function redirectToAdminHome(): Promise<never> {
   revalidatePath("/", "layout");
   revalidatePath("/admin", "layout");
   revalidatePath("/marketing", "layout");
 
-  redirect(marketingHomeHref({ isLocal }));
+  redirect("/admin");
   throw new Error("unreachable");
 }
 
@@ -46,7 +40,7 @@ export async function signIn(
     return { error: error.message };
   }
 
-  return redirectToMarketingHome();
+  return redirectToAdminHome();
 }
 
 export async function signUp(
@@ -83,7 +77,7 @@ export async function signUp(
   }
 
   if (data.session) {
-    return redirectToMarketingHome();
+    return redirectToAdminHome();
   }
 
   return {

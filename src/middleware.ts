@@ -108,7 +108,7 @@ export async function middleware(request: NextRequest) {
 
     if (user && isAdminPublicPath(pathname)) {
       const homeUrl = request.nextUrl.clone();
-      homeUrl.pathname = "/";
+      homeUrl.pathname = "/admin";
       homeUrl.search = "";
       const redirectResponse = NextResponse.redirect(homeUrl);
       copyCookies(response, redirectResponse);

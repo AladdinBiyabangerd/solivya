@@ -5,6 +5,42 @@
       "has": [{ "type": "host", "value": "www.solivya.homes" }],
       "destination": "https://solivya.homes/:path*",
       "statusCode": 301
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "app.solivya.homes" }],
+      "destination": "https://solivya.homes/admin",
+      "statusCode": 308
+    },
+    {
+      "source": "/login",
+      "has": [{ "type": "host", "value": "app.solivya.homes" }],
+      "destination": "https://solivya.homes/admin/login",
+      "statusCode": 308
+    },
+    {
+      "source": "/signup",
+      "has": [{ "type": "host", "value": "app.solivya.homes" }],
+      "destination": "https://solivya.homes/admin/signup",
+      "statusCode": 308
+    },
+    {
+      "source": "/admin",
+      "has": [{ "type": "host", "value": "app.solivya.homes" }],
+      "destination": "https://solivya.homes/admin",
+      "statusCode": 308
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [{ "type": "host", "value": "app.solivya.homes" }],
+      "destination": "https://solivya.homes/admin/:path*",
+      "statusCode": 308
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "app.solivya.homes" }],
+      "destination": "https://solivya.homes/admin/:path*",
+      "statusCode": 308
     }
   ]
 }
