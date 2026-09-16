@@ -21,7 +21,8 @@ export const metadata: Metadata = {
     default: SITE.name,
     template: `%s — ${SITE.name}`,
   },
-  description: "Sahib brendli günlük kirayə microsite",
+  description:
+    "Bakıda günlük kirayə üçün sahib brendli səhifə — foto, qiymət, WhatsApp. İndilik pulsuz.",
   authors: [{ name: BUILDER.name, url: BUILDER.portfolioOrigin }],
   creator: BUILDER.name,
   publisher: SITE.name,

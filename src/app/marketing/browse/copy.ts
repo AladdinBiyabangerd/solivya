@@ -24,14 +24,15 @@ export type BrowseCopy = {
 
 export const BROWSE: Record<LocaleCode, BrowseCopy> = {
   az: {
-    metaTitle: "Günlük kirayə mənzillər — Solivya",
+    // Template appends " — Solivya" (see root layout).
+    metaTitle: "Günlük kirayə mənzillər | Bakı",
     metaDescription:
-      "Solivya-da günlük kirayə mənzillərə bax. Foto, qiymət və qaydalar — birbaşa sahibə WhatsApp.",
+      "Bakıda günlük kirayə mənzillər. Foto, qiymət və qaydalar bir səhifədə — birbaşa sahibə WhatsApp. Komissiyasız vitrin.",
     navAria: "Əsas",
     backHome: "Ana səhifə",
     langAria: "Dil",
     label: "Mənzillər",
-    title: "Mənzillər",
+    title: "Bakıda günlük kirayə",
     ownerTitle: "Sahibin mənzilləri",
     lead: "Link gözləmədən bax. Hər mənzilin öz səhifəsi var — foto, qiymət, qaydalar; sonra birbaşa sahibə yazırsan.",
     ownerLead:
@@ -47,14 +48,15 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     footerNote: "Solivya · Bakı",
   },
   ru: {
-    metaTitle: "Квартиры посуточно — Solivya",
+    // Template appends " — Solivya" (see root layout).
+    metaTitle: "Квартиры посуточно | Баку",
     metaDescription:
-      "Смотрите квартиры посуточно на Solivya. Фото, цена и правила — затем WhatsApp хозяину.",
+      "Квартиры посуточно в Баку. Фото, цена и правила на одной странице — затем WhatsApp хозяину. Витрина без комиссии.",
     navAria: "Основное",
     backHome: "На главную",
     langAria: "Язык",
     label: "Квартиры",
-    title: "Квартиры",
+    title: "Посуточно в Баку",
     ownerTitle: "Квартиры хозяина",
     lead: "Без личной ссылки. У каждой квартиры своя страница — фото, цена, правила; потом пишете хозяину напрямую.",
     ownerLead:

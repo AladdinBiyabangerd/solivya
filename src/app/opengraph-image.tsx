@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 
-export const alt = "Solivya — sahib brendli günlük kirayə səhifəsi";
+export const alt = "Solivya — günlük kirayə səhifəsi · Bakı";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -43,7 +43,7 @@ export default function OpenGraphImage() {
               fontWeight: 600,
             }}
           >
-            Sahib brendli günlük kirayə səhifəsi
+            Günlük kirayə üçün öz brendli səhifən
           </div>
           <div
             style={{
@@ -54,7 +54,7 @@ export default function OpenGraphImage() {
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            Foto, qiymət, qaydalar — qonaq birbaşa WhatsApp-a yazır
+            Foto, qiymət, qaydalar — WhatsApp. İndilik pulsuz.
           </div>
         </div>
         <div

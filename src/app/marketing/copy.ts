@@ -43,8 +43,10 @@ export type MarketingCopy = {
   priceLead: string;
   setupLabel: string;
   setupHint: string;
+  setupPrice: string;
   monthlyLabel: string;
   monthlyHint: string;
+  monthlyPrice: string;
   signupCta: string;
   waShort: string;
   faqLabel: string;
@@ -60,9 +62,10 @@ export type MarketingCopy = {
 
 export const MARKETING: Record<LocaleCode, MarketingCopy> = {
   az: {
-    metaTitle: "Sahib brendli günlük kirayə səhifəsi",
+    // Template appends " — Solivya" (see root layout).
+    metaTitle: "Günlük kirayə səhifəsi | Bakı",
     metaDescription:
-      "Günlük kirayə mənzilin üçün öz brendli sayt. WhatsApp ilə sorğu, gözəl foto, aydın qiymət — marketplace komissiyası olmadan.",
+      "Bakıda günlük kirayə mənzilin üçün öz brendli səhifə. Foto, qiymət, qaydalar bir linkdə — qonaq birbaşa WhatsApp-a yazır. İndilik pulsuz, komissiya yoxdur.",
     navAria: "Əsas",
     navHow: "Necə",
     navBrowse: "Mənzillər",
@@ -72,14 +75,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     navPanel: "Panelim",
     langAria: "Dil",
     headline: "Günlük kirayə üçün öz brendli səhifən",
-    lead: "Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra birbaşa sənin WhatsApp-ına yazır.",
+    lead: "Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra birbaşa sənin WhatsApp-ına yazır. İndilik pulsuz.",
     ctaWhatsApp: "WhatsApp ilə sifariş",
     ctaDemo: "Canlı demo",
     ctaBrowse: "Mənzillərə bax",
     waMessage:
       "Salam, Solivya ilə günlük kirayə səhifəsi yaratmaq istəyirəm",
     guestLabel: "Axtarırsan?",
-    guestTitle: "Mənzil axtarırsan",
+    guestTitle: "Bakıda günlük kirayə axtarırsan",
     guestText:
       "Sahibdən link gözləmədən günlük kirayə mənzillərə bax — foto, qiymət, qaydalar bir səhifədə.",
     guestCta: "Mənzillərə bax",
@@ -129,33 +132,43 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
       },
       {
         title: "Linki paylaş",
-        text: "Bio, elan, status. Qonaq oxuyur — sənə yazır. Aylıq 20 ₼.",
+        text: "Bio, elan, status. Qonaq oxuyur — sənə yazır. İndilik pulsuz.",
       },
     ],
     priceLabel: "Qiymət",
-    priceTitle: "Sadə və aydın",
+    priceTitle: "İndilik pulsuz",
     priceLead:
-      "Komissiya yoxdur. Qurulum bir dəfə, sonra aylıq baxım. Bron WhatsApp-ladır — qəsdən.",
+      "Komissiya yoxdur. Qurulum və aylıq baxım hələlik ödənişsiz — sonra tariflər açıqlanacaq. Bron WhatsApp-ladır — qəsdən.",
     setupLabel: "Qurulum",
     setupHint: "dizayn, subdomain, ilk məzmun",
+    setupPrice: "Pulsuz",
     monthlyLabel: "Aylıq",
     monthlyHint: "hosting, SSL, admin",
+    monthlyPrice: "Pulsuz",
     signupCta: "Hesab yarat",
     waShort: "WhatsApp",
     faqLabel: "Suallar",
     faqTitle: "Tez-tez",
     faqs: [
       {
+        q: "Solivya nədir?",
+        a: "Bakıda günlük kirayə sahibləri üçün brendli bir səhifədir: foto, qiymət və qaydalar bir linkdə, qonaq WhatsApp-a yazır.",
+      },
+      {
         q: "Airbnb / bina.az əvəzi?",
-        a: "Xeyr — sənin öz səhifən; marketplace deyil, vitrindir.",
+        a: "Xeyr — sənin öz səhifən; marketplace deyil, vitrindir. Elan platformalarını əvəz etmir, birbaşa qonağı gücləndirir.",
       },
       {
         q: "Saytdan ödəniş?",
         a: "İndilik yox. WhatsApp / nağd / köçürmə.",
       },
       {
+        q: "Solivya özü nə qədərdir?",
+        a: "İndilik pulsuz — qurulum və aylıq. Sonra tariflər dəyişə bilər.",
+      },
+      {
         q: "Özüm dəyişə bilərəm?",
-        a: "Bəli — foto, qiymət, qaydalar admin paneldən.",
+        a: "Bəli — foto, qiymət, qaydalar admin paneldən. Əsas fotonu seçəndə paylaşım preview da onu göstərir.",
       },
       {
         q: "Neçə mənzil?",
@@ -163,19 +176,20 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
       },
       {
         q: "Nə qədər vaxt?",
-        a: "Foto/mətn hazırdırsa adətən 1–3 gün.",
+        a: "Foto/mətn hazırdırsa adətən 15 dəqiqə.",
       },
     ],
     closeLabel: "Başla",
     closeTitle: "Linkini bu həftə paylaş",
-    closeText: "Demo-ya bax, WhatsApp-la yaz və ya hesab yarat.",
+    closeText: "Demo-ya bax, WhatsApp-la yaz və ya hesab yarat — indilik pulsuz.",
     footerNote: "Sahib brendli günlük kirayə səhifələri · Bakı",
     footerCredit: "Dizayn edib hazırlayan",
   },
   ru: {
-    metaTitle: "Брендовая страница для посуточной аренды",
+    // Template appends " — Solivya" (see root layout).
+    metaTitle: "Страница для посуточной аренды | Баку",
     metaDescription:
-      "Своя брендовая страница для вашей квартиры посуточно. Фото, цена, правила и WhatsApp — без комиссии маркетплейса.",
+      "Своя брендовая страница для квартиры посуточно в Баку. Фото, цена, правила в одной ссылке — гость пишет в WhatsApp. Пока бесплатно, без комиссии.",
     navAria: "Основное",
     navHow: "Как",
     navBrowse: "Квартиры",
@@ -185,14 +199,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     navPanel: "Моя панель",
     langAria: "Язык",
     headline: "Своя брендовая страница для посуточной аренды",
-    lead: "Гость видит фото, цену и правила в одной ссылке — и пишет вам прямо в WhatsApp.",
+    lead: "Гость видит фото, цену и правила в одной ссылке — и пишет вам прямо в WhatsApp. Пока бесплатно.",
     ctaWhatsApp: "Заказать в WhatsApp",
     ctaDemo: "Живое демо",
     ctaBrowse: "Смотреть квартиры",
     waMessage:
       "Здравствуйте, хочу создать страницу для посуточной аренды через Solivya",
     guestLabel: "Ищете жильё?",
-    guestTitle: "Нужна квартира",
+    guestTitle: "Нужна квартира посуточно в Баку",
     guestText:
       "Смотрите квартиры посуточно без личной ссылки — фото, цена и правила на одной странице.",
     guestCta: "Смотреть квартиры",
@@ -242,33 +256,43 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
       },
       {
         title: "Делитесь ссылкой",
-        text: "Био, объявление, статус. Гость читает — пишет вам. 20 ₼ в месяц.",
+        text: "Био, объявление, статус. Гость читает — пишет вам. Пока бесплатно.",
       },
     ],
     priceLabel: "Цена",
-    priceTitle: "Просто и понятно",
+    priceTitle: "Пока бесплатно",
     priceLead:
-      "Без комиссии. Разовая настройка, потом ежемесячная поддержка. Бронь через WhatsApp — намеренно.",
+      "Без комиссии. Настройка и ежемесячная поддержка пока бесплатны — тарифы объявим позже. Бронь через WhatsApp — намеренно.",
     setupLabel: "Настройка",
     setupHint: "дизайн, subdomain, первый контент",
+    setupPrice: "Бесплатно",
     monthlyLabel: "В месяц",
     monthlyHint: "хостинг, SSL, админка",
+    monthlyPrice: "Бесплатно",
     signupCta: "Создать аккаунт",
     waShort: "WhatsApp",
     faqLabel: "Вопросы",
     faqTitle: "Частые",
     faqs: [
       {
+        q: "Что такое Solivya?",
+        a: "Брендовая страница для хозяев посуточной аренды в Баку: фото, цена и правила в одной ссылке, гость пишет в WhatsApp.",
+      },
+      {
         q: "Это вместо Airbnb / bina.az?",
-        a: "Нет — это ваша витрина, не маркетплейс.",
+        a: "Нет — это ваша витрина, не маркетплейс. Не заменяет площадки, усиливает прямых гостей.",
       },
       {
         q: "Оплата на сайте?",
         a: "Пока нет. WhatsApp / наличные / перевод.",
       },
       {
+        q: "Сколько стоит Solivya?",
+        a: "Пока бесплатно — настройка и месяц. Тарифы могут измениться позже.",
+      },
+      {
         q: "Сам могу менять?",
-        a: "Да — фото, цену и правила в админке.",
+        a: "Да — фото, цену и правила в админке. Главное фото станет превью при шаринге ссылки.",
       },
       {
         q: "Сколько квартир?",
@@ -276,12 +300,12 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
       },
       {
         q: "Сколько ждать?",
-        a: "Если фото и текст готовы — обычно 1–3 дня.",
+        a: "Если фото и текст готовы — обычно 15 минут.",
       },
     ],
     closeLabel: "Начать",
     closeTitle: "Поделитесь ссылкой на этой неделе",
-    closeText: "Смотрите демо, пишите в WhatsApp или создайте аккаунт.",
+    closeText: "Смотрите демо, пишите в WhatsApp или создайте аккаунт — пока бесплатно.",
     footerNote: "Брендовые страницы для посуточной аренды · Баку",
     footerCredit: "Дизайн и разработка —",
   },

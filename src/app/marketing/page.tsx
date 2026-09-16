@@ -5,6 +5,7 @@ import { resolveLocale } from "@/components/site/i18n";
 import {
   jsonLdScript,
   marketingJsonLd,
+  marketingShareImages,
   marketingUrl,
   pageMetadata,
 } from "@/lib/seo";
@@ -28,6 +29,8 @@ export async function generateMetadata({
     canonical: marketingUrl(locale),
     title: t.metaTitle,
     description: t.metaDescription,
+    // Brand graphic only — never a listing main photo.
+    images: marketingShareImages(t.metaTitle),
   });
 }
 
@@ -276,14 +279,14 @@ export default async function MarketingHome({ searchParams }: Props) {
                   {t.setupLabel}
                   <span className={styles.priceHint}>{t.setupHint}</span>
                 </dt>
-                <dd>100 ₼</dd>
+                <dd>{t.setupPrice}</dd>
               </div>
               <div className={styles.priceItem}>
                 <dt>
                   {t.monthlyLabel}
                   <span className={styles.priceHint}>{t.monthlyHint}</span>
                 </dt>
-                <dd>20 ₼</dd>
+                <dd>{t.monthlyPrice}</dd>
               </div>
             </dl>
             <div className={styles.actions}>

@@ -1,6 +1,6 @@
 # Solivya — outbound satış (Addım 12)
 
-Məqsəd: 20–30 günlük kirayə sahibinə yazmaq → demo göstərmək → **100 ₼ qurulum** almaq → səhifəni canlı etmək → **20 ₼/ay**.
+Məqsəd: 20–30 günlük kirayə sahibinə yazmaq → demo göstərmək → **indilik pulsuz** hesab/səhifə açmaq → səhifəni canlı etmək. (Ödənişli tariflər sonra.)
 
 Hazır linklər (domen alınana qədər local / sonra production):
 
@@ -44,7 +44,7 @@ Solivya ilə öz brendli səhifəniz olur: foto, qiymət, qaydalar bir linkdə,
 WhatsApp birbaşa sizə gəlir. Marketplace komissiyası yoxdur.
 
 Demo: [DEMO_LINK]
-Qiymət: qurulum 100 ₼, sonra 20 ₼/ay.
+Qiymət: indilik pulsuz (qurulum + aylıq).
 
 Baxmaq istəyirsinizsə, 2 dəqiqəlik cavab kifayətdir.
 ```
@@ -70,7 +70,7 @@ Solivya — ваша брендовая страница: фото, цена, п
 WhatsApp сразу вам. Без комиссии маркетплейса.
 
 Демо: [DEMO_LINK]
-Цена: настройка 100 ₼, дальше 20 ₼/мес.
+Цена: пока бесплатно (настройка + месяц).
 
 Если интересно — ответьте, коротко расскажу.
 ```
@@ -90,7 +90,7 @@ Sizə uyğundursa:
 2) gecəlik qiymət
 3) 5–10 foto (WhatsApp-la da olar)
 
-Qurulum 100 ₼ — səhifə adətən 1–3 günə hazır olur.
+İndilik pulsuzdur — səhifə foto/mətn hazırdırsa adətən 15 dəqiqəyə hazır olur.
 Sonra özünüz paneldən foto/qiymət dəyişirsiniz.
 ```
 
@@ -112,7 +112,7 @@ Səhifə məlumat + etibar üçündür.
 ### “Bahadır” / “düşünüm”
 
 ```
-Başa düşürəm. Qurulum bir dəfəlikdir; aylıq 20 ₼ hosting + paneldir.
+Başa düşürəm — indilik həm qurulum, həm aylıq pulsuzdur.
 İstəsəniz əvvəl demo-ya baxın — bəyənməsəniz davam etmirik.
 Sabah qısa yazım?
 ```
@@ -126,13 +126,10 @@ Baxmağa vaxt olmadısa — bir cümlə kifayətdir, bağlayım.
 
 ---
 
-## 4) Bağlama (ödəniş)
+## 4) Bağlama (indilik pulsuz)
 
 ```
-Razılaşırsınızsa:
-Köçürmə: [KART / KAPITAL / M10 — öz rekvizitinizi yazın]
-Məbləğ: 100 ₼ (qurulum)
-Təsdiq screenshot göndərin.
+Razılaşırsınızsa hesab açıb davam edirik — indilik ödəniş yoxdur.
 
 Sonra:
 - subdomain (məs. sahil.solivya.homes)
@@ -140,20 +137,19 @@ Sonra:
 - fotoları birlikdə yerləşdiririk / siz paneldən yükləyirsiniz
 ```
 
-Aylıq: hər ayın əvvəlində 20 ₼ — eyni köçürmə. Avtomatik billing yoxdur (MVP).
+Ödənişli tariflər sonra açıqlanacaq; indilik qurulum və aylıq pulsuzdur.
 
 ---
 
 ## 5) İlk müştəri onboard (checklist)
 
-Ödəniş gələndən sonra:
+Razılaşandan sonra:
 
-1. [ ] `app` panelində hesab yarat (və ya sahib signup edir)
+1. [ ] `admin` panelində hesab yarat (və ya sahib signup edir)
 2. [ ] Property: slug, title AZ/RU, zona, qiymət, qaydalar, WhatsApp nömrəsi
 3. [ ] Fotolar: hero + qalereya (ən azı 5)
 4. [ ] Publish → `https://{slug}.solivya.homes` yoxla (AZ + RU)
 5. [ ] Sahibə göndər: canlı link + admin login + “bio-ya yapışdır”
-6. [ ] Aylıq xatırlatma tarixi yaz (cədvəl / Notes)
 
 Sahibə qısa təlimat:
 
@@ -171,16 +167,16 @@ Linki Instagram bio, WhatsApp status və elana qoyun.
 
 | # | Ad / mənbə | Kontakt | Yazıldı | Demo | Status | Qeyd |
 |---|---|---|---|---|---|---|
-| 1 | | | | | yeni / baxır / razı / ödədi / rədd | |
+| 1 | | | | | yeni / baxır / razı / canlı / rədd | |
 | 2 | | | | | | |
 
-Statuslar: `yeni` → `cavab` → `demo` → `razı` → `ödədi` → `canlı` | `rədd` | `sonra`
+Statuslar: `yeni` → `cavab` → `demo` → `razı` → `canlı` | `rədd` | `sonra`
 
 ---
 
 ## 7) “Hazır” meyarı
 
 - ≥20 nəfərə yazılmayıbsa — hələ outbound bitməyib
-- **≥1 ödənişli sahib canlıdır** → Addım 12 tamam
+- **≥1 sahib canlıdır** → Addım 12 tamam
 
-Domen hələ yoxdursa: demo + landing local/staging linklə sat; production DNS (Addım 3) ödənişdən əvvəl və ya dərhal sonra.
+Domen hələ yoxdursa: demo + landing local/staging linklə sat; production DNS (Addım 3) razılaşmadan əvvəl və ya dərhal sonra.

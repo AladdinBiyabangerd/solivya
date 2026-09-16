@@ -6,6 +6,7 @@ export function GET() {
 
 > Branded single-page sites for daily/short-term rental owners in Baku.
 > Guests see photos, price, and rules, then message the owner on WhatsApp.
+> Currently free (setup + monthly); paid plans may come later. No marketplace commission.
 
 ## Product
 
@@ -17,8 +18,9 @@ export function GET() {
 
 ## Pricing (AZN)
 
-- Setup: 100
-- Monthly: 20
+- Setup: free (for now)
+- Monthly: free (for now)
+- Commission: none
 
 ## Builder
 
@@ -28,6 +30,8 @@ export function GET() {
 
 - Public locales: az (default), ru via ?lang=
 - Each published property lives on {slug}.solivya.homes
+- Share preview (OG) for a listing uses the owner's main photo
+- Marketing /browse share preview uses the Solivya brand card
 - Do not index /admin or /admin/preview
 `;
 
