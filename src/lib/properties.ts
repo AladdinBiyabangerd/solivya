@@ -3,6 +3,7 @@ import { BRAND } from "@/lib/site";
 import type { Amenity, LocaleCode, Photo, Property } from "@/types/database";
 import { SITE_UI } from "@/components/site/i18n";
 import type { SitePropertyView } from "@/components/site/types";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 
 export type PropertyWithPhotos = Property & {
@@ -139,12 +140,10 @@ export async function getPublishedPropertyRecord(slug: string) {
 
 /** Owner-only: draft or published, for admin preview. */
 export async function getOwnerPropertyRecord(slug: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCurrentUser();
   if (!user) return null;
+
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("properties")

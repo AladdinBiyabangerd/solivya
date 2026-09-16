@@ -16,6 +16,18 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   });
 }
 
+function hasSupabaseSessionCookie(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.includes("-auth-token"));
+}
+
+function passthrough(request: NextRequest, rewriteUrl?: URL) {
+  return rewriteUrl
+    ? NextResponse.rewrite(rewriteUrl, { request })
+    : NextResponse.next({ request });
+}
+
 /** Paths that must stay on the root app (not tenant-rewritten). */
 function isRootSeoOrAssetPath(
   pathname: string,
@@ -93,6 +105,15 @@ export async function middleware(request: NextRequest) {
         return url;
       })()
     : undefined;
+
+  // Skip Supabase auth round-trip for anonymous public traffic.
+  // Admin always needs it; logged-in users keep session refresh via cookie.
+  const needsSession =
+    isAdminPath(pathname) || hasSupabaseSessionCookie(request);
+
+  if (!needsSession) {
+    return passthrough(request, rewriteUrl);
+  }
 
   const { response, user } = await updateSession(request, rewriteUrl);
 

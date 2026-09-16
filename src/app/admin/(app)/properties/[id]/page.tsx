@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import type { Photo, Property } from "@/types/database";
 import type { CustomLocation } from "@/lib/azerbaijan-locations";
@@ -39,16 +40,15 @@ type PageProps = {
 
 export default async function EditPropertyPage({ params }: PageProps) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
+  if (!user) redirect("/admin/login");
 
+  const supabase = await createClient();
   const { data: propertyRow } = await supabase
     .from("properties")
     .select("*")
     .eq("id", id)
-    .eq("owner_id", user!.id)
+    .eq("owner_id", user.id)
     .maybeSingle();
 
   const property = (propertyRow as Property | null) ?? null;
@@ -57,7 +57,7 @@ export default async function EditPropertyPage({ params }: PageProps) {
   const { data: ownerRow } = await supabase
     .from("owners")
     .select("custom_locations")
-    .eq("id", user!.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const customLocations = parseCustomLocations(

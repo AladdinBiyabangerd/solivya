@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { SolivyaMark } from "./SolivyaMark";
 import styles from "./SolivyaLogo.module.css";
@@ -13,6 +14,10 @@ type Props = {
   /** When set, the whole mark (+ word) links here (usually marketing landing). */
   href?: string;
 };
+
+function isAppPath(href: string): boolean {
+  return href.startsWith("/") && !href.startsWith("//");
+}
 
 export function SolivyaLogo({
   wordmark = true,
@@ -40,6 +45,13 @@ export function SolivyaLogo({
   );
 
   if (href) {
+    if (isAppPath(href)) {
+      return (
+        <Link className={rootClass} href={href} title={SITE.name}>
+          {inner}
+        </Link>
+      );
+    }
     return (
       <a className={rootClass} href={href} title={SITE.name}>
         {inner}

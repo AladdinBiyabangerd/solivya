@@ -1,18 +1,19 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { signOut } from "../../actions";
 import { ProfileForm } from "./ProfileForm";
 import styles from "../../admin.module.css";
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
+  if (!user) redirect("/admin/login");
 
+  const supabase = await createClient();
   const { data: ownerRow } = await supabase
     .from("owners")
     .select("phone, created_at")
-    .eq("id", user!.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const phone =
@@ -42,7 +43,7 @@ export default async function ProfilePage() {
           <p className={styles.emailLine}>Üzv: {memberSince}</p>
         ) : null}
       </header>
-      <ProfileForm email={user?.email ?? ""} phone={phone} />
+      <ProfileForm email={user.email ?? ""} phone={phone} />
       <form className={styles.profileSignOut} action={signOut}>
         <button className={styles.ghost} type="submit">
           Çıxış

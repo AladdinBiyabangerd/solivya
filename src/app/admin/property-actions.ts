@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { Amenity, LocaleCode } from "@/types/database";
 import type { CustomLocation } from "@/lib/azerbaijan-locations";
 import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS } from "@/lib/photoLayout";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 
 export type EditorState = {
@@ -31,13 +32,11 @@ function parseRules(raw: string): string[] {
 }
 
 async function requireUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) {
     redirect("/admin/login");
   }
+  const supabase = await createClient();
   return { supabase, user };
 }
 

@@ -1,5 +1,3 @@
-import { marketingHomeHref } from "@/lib/site";
-import { headers } from "next/headers";
 import { AdminChrome } from "./AdminChrome";
 
 type Props = {
@@ -7,9 +5,6 @@ type Props = {
 };
 
 export async function AdminShell({ children }: Props) {
-  const host = (await headers()).get("host") ?? "";
-  const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
-  const landingHref = marketingHomeHref({ isLocal });
-
-  return <AdminChrome landingHref={landingHref}>{children}</AdminChrome>;
+  // Same-origin path so soft navigation works (absolute apex URLs force reload).
+  return <AdminChrome landingHref="/">{children}</AdminChrome>;
 }

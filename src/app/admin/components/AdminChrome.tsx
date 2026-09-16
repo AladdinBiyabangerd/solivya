@@ -131,13 +131,13 @@ export function AdminChrome({ landingHref, children }: Props) {
               className={styles.drawerNav}
               onNavigate={() => setOpen(false)}
             />
-            <a
+            <Link
               className={styles.drawerHome}
               href={landingHref}
               onClick={() => setOpen(false)}
             >
               Ana səhifə
-            </a>
+            </Link>
           </aside>
         </div>
       ) : null}
@@ -164,9 +164,9 @@ export function AdminChrome({ landingHref, children }: Props) {
           <TopNav active={active} />
 
           <div className={styles.appTopRight}>
-            <a className={styles.appTopHome} href={landingHref}>
+            <Link className={styles.appTopHome} href={landingHref}>
               Ana səhifə
-            </a>
+            </Link>
             <Link href="/admin/new" className={styles.appTopCta}>
               Yeni
             </Link>

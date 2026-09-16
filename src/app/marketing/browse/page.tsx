@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { headers } from "next/headers";
 import { SolivyaLogo } from "@/components/brand/SolivyaLogo";
 import { resolveLocale, SITE_UI } from "@/components/site/i18n";
@@ -14,7 +15,7 @@ import {
   pageMetadata,
 } from "@/lib/seo";
 import { BUILDER, builderPortfolioUrl } from "@/lib/site";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { MARKETING } from "../copy";
 import { BROWSE } from "./copy";
 import marketing from "../marketing.module.css";
@@ -84,11 +85,7 @@ export default async function BrowsePage({ searchParams }: Props) {
   const demoUrl = isLocal
     ? `http://demo.localhost:3000/?lang=${locale}`
     : `https://demo.${root}/?lang=${locale}`;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const loggedIn = Boolean(user);
+  const loggedIn = Boolean(await getCurrentUser());
   const signupUrl = "/admin/signup";
   const loginUrl = "/admin/login";
   const panelUrl = "/admin";
@@ -130,17 +127,17 @@ export default async function BrowsePage({ searchParams }: Props) {
           <SolivyaLogo size="sm" className={marketing.navBrand} href={homeHref} />
           <div className={marketing.navRight}>
             <nav className={marketing.navLinks} aria-label={t.navAria}>
-              <a className={marketing.navLink} href={homeHref}>
+              <Link className={marketing.navLink} href={homeHref}>
                 {t.backHome}
-              </a>
+              </Link>
               {ownerMode ? (
-                <a className={marketing.navLink} href={allBrowseHref}>
+                <Link className={marketing.navLink} href={allBrowseHref}>
                   {t.title}
-                </a>
+                </Link>
               ) : null}
             </nav>
             <div className={marketing.langSwitch} aria-label={t.langAria}>
-              <a
+              <Link
                 className={
                   locale === "az" ? marketing.langActive : marketing.langLink
                 }
@@ -148,11 +145,11 @@ export default async function BrowsePage({ searchParams }: Props) {
                 hrefLang="az"
               >
                 AZ
-              </a>
+              </Link>
               <span className={marketing.langSep} aria-hidden="true">
                 /
               </span>
-              <a
+              <Link
                 className={
                   locale === "ru" ? marketing.langActive : marketing.langLink
                 }
@@ -160,20 +157,20 @@ export default async function BrowsePage({ searchParams }: Props) {
                 hrefLang="ru"
               >
                 RU
-              </a>
+              </Link>
             </div>
             {loggedIn ? (
-              <a className={marketing.navCta} href={panelUrl}>
+              <Link className={marketing.navCta} href={panelUrl}>
                 {m.navPanel}
-              </a>
+              </Link>
             ) : (
               <>
-                <a className={marketing.navText} href={loginUrl}>
+                <Link className={marketing.navText} href={loginUrl}>
                   {m.navLogin}
-                </a>
-                <a className={marketing.navCta} href={signupUrl}>
+                </Link>
+                <Link className={marketing.navCta} href={signupUrl}>
                   {m.ctaSignup}
-                </a>
+                </Link>
               </>
             )}
           </div>
@@ -197,9 +194,9 @@ export default async function BrowsePage({ searchParams }: Props) {
               <p className={styles.emptyText}>{emptyText}</p>
               <div className={styles.emptyActions}>
                 {ownerMode ? (
-                  <a className={marketing.btnGhost} href={allBrowseHref}>
+                  <Link className={marketing.btnGhost} href={allBrowseHref}>
                     {t.title}
-                  </a>
+                  </Link>
                 ) : null}
                 <a className={marketing.btn} href={demoUrl}>
                   {t.emptyDemo}

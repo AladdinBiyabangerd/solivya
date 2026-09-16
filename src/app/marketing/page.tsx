@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { headers } from "next/headers";
 import { SolivyaLogo } from "@/components/brand/SolivyaLogo";
 import { resolveLocale } from "@/components/site/i18n";
@@ -11,7 +12,7 @@ import {
 } from "@/lib/seo";
 import { BRAND, BUILDER, builderPortfolioUrl } from "@/lib/site";
 import { salesWhatsAppHref } from "@/lib/whatsapp";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
 
@@ -44,11 +45,7 @@ export default async function MarketingHome({ searchParams }: Props) {
   const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
   const isLocal = host.includes("localhost") || host.startsWith("127.0.0.1");
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const loggedIn = Boolean(user);
+  const loggedIn = Boolean(await getCurrentUser());
 
   const demoUrl = isLocal
     ? `http://demo.localhost:3000/?lang=${locale}`
@@ -100,9 +97,9 @@ export default async function MarketingHome({ searchParams }: Props) {
                 <a className={styles.navLink} href={howHref}>
                   {t.navHow}
                 </a>
-                <a className={styles.navLink} href={browseHref}>
+                <Link className={styles.navLink} href={browseHref}>
                   {t.navBrowse}
-                </a>
+                </Link>
                 <a className={styles.navLink} href={demoUrl}>
                   {t.navDemo}
                 </a>
@@ -111,7 +108,7 @@ export default async function MarketingHome({ searchParams }: Props) {
                 </a>
               </nav>
               <div className={styles.langSwitch} aria-label={t.langAria}>
-                <a
+                <Link
                   className={
                     locale === "az" ? styles.langActive : styles.langLink
                   }
@@ -119,11 +116,11 @@ export default async function MarketingHome({ searchParams }: Props) {
                   hrefLang="az"
                 >
                   AZ
-                </a>
+                </Link>
                 <span className={styles.langSep} aria-hidden="true">
                   /
                 </span>
-                <a
+                <Link
                   className={
                     locale === "ru" ? styles.langActive : styles.langLink
                   }
@@ -131,20 +128,20 @@ export default async function MarketingHome({ searchParams }: Props) {
                   hrefLang="ru"
                 >
                   RU
-                </a>
+                </Link>
               </div>
               {loggedIn ? (
-                <a className={styles.navCta} href={panelUrl}>
+                <Link className={styles.navCta} href={panelUrl}>
                   {t.navPanel}
-                </a>
+                </Link>
               ) : (
                 <>
-                  <a className={styles.navText} href={loginUrl}>
+                  <Link className={styles.navText} href={loginUrl}>
                     {t.navLogin}
-                  </a>
-                  <a className={styles.navCta} href={signupUrl}>
+                  </Link>
+                  <Link className={styles.navCta} href={signupUrl}>
                     {t.ctaSignup}
-                  </a>
+                  </Link>
                 </>
               )}
             </div>
@@ -158,9 +155,9 @@ export default async function MarketingHome({ searchParams }: Props) {
           <h1 className={`${styles.headline} ${styles.anim2}`}>{t.headline}</h1>
           <p className={`${styles.lead} ${styles.anim3}`}>{t.lead}</p>
           <div className={`${styles.actions} ${styles.anim4}`}>
-            <a className={styles.btnOnDark} href={primaryHref}>
+            <Link className={styles.btnOnDark} href={primaryHref}>
               {primaryLabel}
-            </a>
+            </Link>
             <a className={styles.btnGhostOnDark} href={demoUrl}>
               {t.ctaDemo}
             </a>
@@ -190,9 +187,9 @@ export default async function MarketingHome({ searchParams }: Props) {
             </h2>
             <p className={styles.sectionText}>{t.guestText}</p>
           </div>
-          <a className={styles.btn} href={browseHref}>
+          <Link className={styles.btn} href={browseHref}>
             {t.guestCta}
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -301,9 +298,9 @@ export default async function MarketingHome({ searchParams }: Props) {
               </div>
             </dl>
             <div className={styles.actions}>
-              <a className={styles.btn} href={primaryHref}>
+              <Link className={styles.btn} href={primaryHref}>
                 {primaryLabel}
-              </a>
+              </Link>
               <a
                 className={styles.btnSecondary}
                 href={wa}
@@ -337,9 +334,9 @@ export default async function MarketingHome({ searchParams }: Props) {
             <p className={styles.sectionText}>{t.closeText}</p>
           </div>
           <div className={styles.actions}>
-            <a className={styles.btn} href={primaryHref}>
+            <Link className={styles.btn} href={primaryHref}>
               {primaryLabel}
-            </a>
+            </Link>
             <a className={styles.btnSecondary} href={demoUrl}>
               {t.ctaDemo}
             </a>
@@ -364,11 +361,11 @@ export default async function MarketingHome({ searchParams }: Props) {
             <p className={styles.footerNote}>{t.footerNote}</p>
           </div>
           <nav className={styles.footerNav} aria-label={t.footerNavAria}>
-            <a href={browseHref}>{t.navBrowse}</a>
+            <Link href={browseHref}>{t.navBrowse}</Link>
             <a href={demoUrl}>{t.navDemo}</a>
             <a href={howHref}>{t.navHow}</a>
             <a href={priceHref}>{t.navPrice}</a>
-            <a href={accountHref}>{accountLabel}</a>
+            <Link href={accountHref}>{accountLabel}</Link>
           </nav>
           <p className={styles.footerCredit}>
             {t.footerCredit}{" "}

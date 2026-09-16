@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -103,15 +104,12 @@ export async function updateProfile(
 ): Promise<AuthState> {
   const phone = String(formData.get("phone") ?? "").trim();
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCurrentUser();
   if (!user) {
     redirect("/admin/login");
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("owners")
     .update({ phone: phone || null })

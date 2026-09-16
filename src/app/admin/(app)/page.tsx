@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
 import { resolvePhotoSrc } from "@/lib/storage";
 import { requestHost } from "@/lib/tenant";
@@ -49,13 +50,11 @@ type PageProps = {
 
 export default async function AdminHome({ searchParams }: PageProps) {
   const { error } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   if (!user) {
     redirect("/admin/login");
   }
+  const supabase = await createClient();
   const hostHeader = requestHost(await headers());
 
   const { data: rows } = await supabase
