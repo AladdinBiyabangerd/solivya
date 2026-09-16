@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { resolvePhotoSrc } from "@/lib/storage";
+import { requestHost } from "@/lib/tenant";
 import type { Property } from "@/types/database";
+import { PropertySiteActions } from "../components/PropertySiteActions";
 import styles from "../admin.module.css";
 
 type PropertyListRow = Property & {
@@ -20,6 +23,24 @@ function formatCount(value: number | null | undefined): string {
   return new Intl.NumberFormat("az-AZ").format(Math.max(0, Math.floor(n)));
 }
 
+function propertyPublicHost(slug: string): string {
+  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
+  return `${slug}.${root}`;
+}
+
+function propertyLiveHref(slug: string, hostHeader: string | null): string {
+  const host = (hostHeader ?? "").toLowerCase();
+  const isLocal =
+    process.env.NODE_ENV === "development" ||
+    host.includes("localhost") ||
+    host.startsWith("127.0.0.1");
+  if (isLocal) {
+    return `http://${slug}.localhost:3000`;
+  }
+  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
+  return `https://${slug}.${root}`;
+}
+
 type PageProps = {
   searchParams: Promise<{ error?: string }>;
 };
@@ -30,6 +51,7 @@ export default async function AdminHome({ searchParams }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const hostHeader = requestHost(await headers());
 
   const { data: rows } = await supabase
     .from("properties")
@@ -87,12 +109,12 @@ export default async function AdminHome({ searchParams }: PageProps) {
               "Adsız mənzil";
             const views = formatCount(property.view_count);
             const waClicks = formatCount(property.whatsapp_click_count);
+            const host = propertyPublicHost(property.slug);
+            const liveHref = propertyLiveHref(property.slug, hostHeader);
+            const editHref = `/admin/properties/${property.id}`;
             return (
-              <li key={property.id}>
-                <Link
-                  href={`/admin/properties/${property.id}`}
-                  className={styles.propertyRow}
-                >
+              <li key={property.id} className={styles.propertyRow}>
+                <Link href={editHref} className={styles.propertyMain}>
                   <span className={styles.propertyThumb} aria-hidden>
                     {cover ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -105,9 +127,7 @@ export default async function AdminHome({ searchParams }: PageProps) {
                     <span className={styles.propertyBrand}>
                       {property.brand_name || title}
                     </span>
-                    <span className={styles.propertySlug}>
-                      {property.slug}.solivya.homes
-                    </span>
+                    <span className={styles.propertySlug}>{host}</span>
                     {property.zone ? (
                       <span className={styles.propertyZone}>
                         {property.zone}
@@ -129,15 +149,20 @@ export default async function AdminHome({ searchParams }: PageProps) {
                       </span>
                     </span>
                   </span>
-                  <span
-                    className={
-                      property.published ? styles.badgeLive : styles.badgeDraft
-                    }
-                  >
-                    {property.published ? "Canlı" : "Qaralama"}
-                  </span>
-                  <span className={styles.propertyAction}>Redaktə</span>
                 </Link>
+                <span
+                  className={
+                    property.published ? styles.badgeLive : styles.badgeDraft
+                  }
+                >
+                  {property.published ? "Canlı" : "Qaralama"}
+                </span>
+                <span className={styles.propertyActions}>
+                  <PropertySiteActions href={liveHref} host={host} />
+                  <Link href={editHref} className={styles.propertyAction}>
+                    Redaktə
+                  </Link>
+                </span>
               </li>
             );
           })}
