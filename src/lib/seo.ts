@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import type { LocaleCode } from "@/types/database";
+import type { LocaleCode, Photo } from "@/types/database";
 import type { SitePropertyView } from "@/components/site/types";
-import { BUILDER, SITE, siteUrl } from "@/lib/site";
+import { mainPhotoShareUrl } from "@/lib/properties";
+import { brandCoverAbsoluteUrl, BUILDER, SITE, siteUrl } from "@/lib/site";
 
 const OG_LOCALE: Record<LocaleCode, string> = {
   az: "az_AZ",
@@ -112,12 +113,17 @@ type MarketingSeoInput = {
   description: string;
 };
 
-/** Organization + WebSite graph with founder → portfolio Person. */
+/** Organization + WebSite + free SoftwareApplication; optional FAQ. */
 export function marketingJsonLd(
   input: MarketingSeoInput & { faqs?: { q: string; a: string }[] },
 ) {
   const origin = siteUrl();
   const pageUrl = marketingUrl(input.locale, origin);
+  const city = input.locale === "ru" ? "Баку" : "Bakı";
+  const appName =
+    input.locale === "ru"
+      ? "Solivya — страница для посуточной аренды"
+      : "Solivya — günlük kirayə səhifəsi";
 
   const graph: Record<string, unknown>[] = [
     {
@@ -134,7 +140,7 @@ export function marketingJsonLd(
       },
       areaServed: {
         "@type": "City",
-        name: input.locale === "ru" ? "Баку" : "Bakı",
+        name: city,
       },
     },
     {
@@ -147,13 +153,38 @@ export function marketingJsonLd(
       publisher: { "@id": `${origin}/#organization` },
     },
     {
+      "@type": "SoftwareApplication",
+      "@id": `${origin}/#app`,
+      name: appName,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: pageUrl,
+      description: input.description,
+      inLanguage: input.locale,
+      offers: {
+        "@type": "Offer",
+        price: 0,
+        priceCurrency: "AZN",
+        description:
+          input.locale === "ru"
+            ? "Пока бесплатно (настройка и месяц)"
+            : "İndilik pulsuz (qurulum və aylıq)",
+        availability: "https://schema.org/InStock",
+      },
+      provider: { "@id": `${origin}/#organization` },
+      areaServed: {
+        "@type": "City",
+        name: city,
+      },
+    },
+    {
       "@type": "WebPage",
       "@id": `${pageUrl}#webpage`,
       url: pageUrl,
       name: input.title,
       description: input.description,
       isPartOf: { "@id": `${origin}/#website` },
-      about: { "@id": `${origin}/#organization` },
+      about: { "@id": `${origin}/#app` },
       inLanguage: input.locale,
     },
   ];
@@ -166,6 +197,69 @@ export function marketingJsonLd(
     "@context": "https://schema.org",
     "@graph": graph,
   };
+}
+
+type BrowseListingSeo = {
+  slug: string;
+  title: string;
+  brandName: string;
+  url: string;
+};
+
+/** CollectionPage + ItemList for /browse (guest catalog). */
+export function browseJsonLd(input: {
+  locale: LocaleCode;
+  title: string;
+  description: string;
+  listings: BrowseListingSeo[];
+}) {
+  const origin = siteUrl();
+  const pageUrl = browseUrl(input.locale, origin);
+
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "CollectionPage",
+      "@id": `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: input.title,
+      description: input.description,
+      inLanguage: input.locale,
+      isPartOf: { "@id": `${origin}/#website` },
+    },
+  ];
+
+  if (input.listings.length > 0) {
+    graph.push({
+      "@type": "ItemList",
+      "@id": `${pageUrl}#itemlist`,
+      numberOfItems: input.listings.length,
+      itemListElement: input.listings.map((listing, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: `${listing.title} · ${listing.brandName}`,
+        url: listing.url,
+      })),
+    });
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": graph,
+  };
+}
+
+/** SERP description when owner left lead empty. */
+export function propertyMetaDescription(property: SitePropertyView): string {
+  const lead = property.lead?.trim();
+  if (lead) return lead;
+
+  const zone = property.zone?.trim();
+  if (property.locale === "ru") {
+    const where = zone ? ` в ${zone}` : " в Баку";
+    return `${property.title} — квартира посуточно${where}. Фото, цена и правила — напишите хозяину в WhatsApp.`;
+  }
+  const where = zone ? ` · ${zone}` : " · Bakı";
+  return `${property.title}${where} — günlük kirayə. Foto, qiymət və qaydalar; WhatsApp ilə sahibə yazın.`;
 }
 
 export function faqJsonLd(
@@ -187,6 +281,40 @@ export function faqJsonLd(
   };
 }
 
+/** Absolute OG/Twitter image for marketing pages (never a listing photo). */
+export function marketingShareImages(alt: string): NonNullable<
+  Metadata["openGraph"]
+>["images"] {
+  return [
+    {
+      url: "/opengraph-image",
+      width: 1200,
+      height: 630,
+      alt,
+    },
+  ];
+}
+
+/**
+ * Absolute OG image for a property subdomain share.
+ * Uses the owner-selected main photo (sort_order 0); brand cover only if none.
+ */
+export function propertyShareImages(
+  photos: Photo[],
+  alt: string,
+): NonNullable<Metadata["openGraph"]>["images"] {
+  const mainUrl = mainPhotoShareUrl(photos);
+  const url = mainUrl ?? brandCoverAbsoluteUrl();
+  return [
+    {
+      url,
+      width: 1200,
+      height: 630,
+      alt,
+    },
+  ];
+}
+
 type PropertyJsonLdInput = {
   property: SitePropertyView;
   canonical: string;
@@ -199,10 +327,17 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
   const lodgingId = `${canonical}#lodging`;
   const city =
     property.locale === "ru" ? "Баку" : "Bakı";
-  const imageRaw = property.photos[0]?.src || property.heroImage;
+  // Prefer owner main photo; brand cover is page chrome, not the listing image.
+  const imageRaw = property.photos[0]?.src || brandCoverAbsoluteUrl(origin);
   const image = imageRaw.startsWith("http")
     ? imageRaw
     : `${origin}${imageRaw}`;
+  const description = propertyMetaDescription(property);
+  const hasGeo =
+    typeof property.lat === "number" &&
+    typeof property.lng === "number" &&
+    Number.isFinite(property.lat) &&
+    Number.isFinite(property.lng);
 
   return {
     "@context": "https://schema.org",
@@ -211,7 +346,7 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
         "@type": "LodgingBusiness",
         "@id": lodgingId,
         name: property.brandName,
-        description: property.lead,
+        description,
         url: canonical,
         image,
         telephone: property.whatsappE164
@@ -223,7 +358,15 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
           addressRegion: city,
           addressCountry: "AZ",
         },
-        geo: undefined,
+        ...(hasGeo
+          ? {
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: property.lat,
+                longitude: property.lng,
+              },
+            }
+          : {}),
         numberOfRooms: property.rooms,
         occupancy: {
           "@type": "QuantitativeValue",
@@ -249,7 +392,7 @@ export function propertyJsonLd(input: PropertyJsonLdInput) {
         "@id": `${canonical}#webpage`,
         url: canonical,
         name: `${property.title} · ${property.brandName}`,
-        description: property.lead,
+        description,
         inLanguage: property.locale,
         isPartOf: { "@id": `${origin}/#website` },
         about: { "@id": lodgingId },

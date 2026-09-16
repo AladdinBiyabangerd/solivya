@@ -27,13 +27,33 @@ function asRules(value: Property["rules"]): string[] {
 
 export { resolvePhotoSrc };
 
+/** Owner-selected main photo is always sort_order 0. */
+export function sortPhotosByOrder<T extends { sort_order: number }>(
+  photos: T[],
+): T[] {
+  return [...photos].sort((a, b) => a.sort_order - b.sort_order);
+}
+
+/** Main (Əsas) photo — the one the owner picks for hero / share preview. */
+export function mainPhotoFromList(photos: Photo[]): Photo | null {
+  const sorted = sortPhotosByOrder(photos);
+  return sorted[0] ?? null;
+}
+
+/** Absolute public URL for share cards (WhatsApp / Telegram / OG). */
+export function mainPhotoShareUrl(photos: Photo[]): string | null {
+  const main = mainPhotoFromList(photos);
+  if (!main) return null;
+  return resolvePhotoSrc(main.storage_path);
+}
+
 export function toSitePropertyView(
   property: Property & { zone_note?: string; lat?: number | null; lng?: number | null },
   photos: Photo[],
   locale: LocaleCode = property.locale_default,
 ): SitePropertyView {
   const ui = SITE_UI[locale];
-  const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order);
+  const sorted = sortPhotosByOrder(photos);
   const gallery = sorted.map((photo) => ({
     src: resolvePhotoSrc(photo.storage_path),
     alt: photo.alt || property.brand_name,
@@ -195,9 +215,8 @@ function mapListingRows(
   locale: LocaleCode,
 ): PublishedListingCard[] {
   return rows.map((row) => {
-    const photos = Array.isArray(row.photos) ? [...row.photos] : [];
-    photos.sort((a, b) => a.sort_order - b.sort_order);
-    const cover = photos[0];
+    const photos = Array.isArray(row.photos) ? row.photos : [];
+    const cover = sortPhotosByOrder(photos)[0];
     const title =
       locale === "ru"
         ? row.title_ru || row.title_az

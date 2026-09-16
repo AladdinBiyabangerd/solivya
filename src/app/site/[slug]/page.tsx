@@ -5,8 +5,14 @@ import {
   listPublishedSiblings,
   toSitePropertyView,
 } from "@/lib/properties";
-import { resolvePhotoSrc } from "@/lib/storage";
-import { jsonLdScript, pageMetadata, propertyJsonLd, propertyUrl } from "@/lib/seo";
+import {
+  jsonLdScript,
+  pageMetadata,
+  propertyJsonLd,
+  propertyMetaDescription,
+  propertyShareImages,
+  propertyUrl,
+} from "@/lib/seo";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -46,26 +52,15 @@ export async function generateMetadata({
     locale,
   );
   const canonical = propertyUrl(slug, locale);
-  const ogImage = record.photos[0]
-    ? resolvePhotoSrc(
-        [...record.photos].sort((a, b) => a.sort_order - b.sort_order)[0]
-          .storage_path,
-      )
-    : localized.heroImage;
+  const title = `${localized.title} · ${localized.brandName}`;
 
   return pageMetadata({
     locale,
     canonical,
-    title: `${localized.title} · ${localized.brandName}`,
-    description: localized.lead,
-    images: [
-      {
-        url: ogImage,
-        width: 1200,
-        height: 630,
-        alt: localized.title,
-      },
-    ],
+    title,
+    description: propertyMetaDescription(localized),
+    // Owner main photo — not the Solivya brand cover used as page chrome.
+    images: propertyShareImages(record.photos, title),
   });
 }
 

@@ -7,8 +7,10 @@ import {
   listPublishedListings,
 } from "@/lib/properties";
 import {
+  browseJsonLd,
   browseUrl,
   jsonLdScript,
+  marketingShareImages,
   pageMetadata,
 } from "@/lib/seo";
 import { BUILDER, builderPortfolioUrl } from "@/lib/site";
@@ -49,13 +51,19 @@ export async function generateMetadata({
   const locale = resolveLocale(lang, "az");
   const t = BROWSE[locale];
   const ownerMode = isOwnerId(owner);
-  return pageMetadata({
+  const title = ownerMode ? t.ownerTitle : t.metaTitle;
+  const meta = pageMetadata({
     locale,
     canonical: browseUrl(locale),
-    title: ownerMode ? t.ownerTitle : t.metaTitle,
+    title,
     description: ownerMode ? t.ownerLead : t.metaDescription,
-    absoluteTitle: !ownerMode,
+    images: marketingShareImages(title),
   });
+  // Owner-filtered catalog is thin/duplicate of /browse — keep out of the index.
+  if (ownerMode) {
+    return { ...meta, robots: { index: false, follow: true } };
+  }
+  return meta;
 }
 
 export default async function BrowsePage({ searchParams }: Props) {
@@ -97,19 +105,17 @@ export default async function BrowsePage({ searchParams }: Props) {
   const emptyTitle = ownerMode ? t.ownerEmptyTitle : t.emptyTitle;
   const emptyText = ownerMode ? t.ownerEmptyText : t.emptyText;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: pageTitle,
+  const jsonLd = browseJsonLd({
+    locale,
+    title: pageTitle,
     description: pageLead,
-    url: browseUrl(locale),
-    inLanguage: locale === "ru" ? "ru" : "az",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "Solivya",
-      url: `${browseUrl(locale).replace(/\/browse.*/, "")}/`,
-    },
-  };
+    listings: listings.map((listing) => ({
+      slug: listing.slug,
+      title: listing.title,
+      brandName: listing.brandName,
+      url: listingHref(listing.slug, locale, isLocal, root),
+    })),
+  });
 
   return (
     <div className={`${marketing.page} ${styles.page}`} lang={locale}>

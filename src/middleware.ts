@@ -17,7 +17,10 @@ function copyCookies(from: NextResponse, to: NextResponse) {
 }
 
 /** Paths that must stay on the root app (not tenant-rewritten). */
-function isRootSeoOrAssetPath(pathname: string): boolean {
+function isRootSeoOrAssetPath(
+  pathname: string,
+  tenantZone: "marketing" | "admin-legacy" | "site",
+): boolean {
   if (
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
@@ -29,11 +32,17 @@ function isRootSeoOrAssetPath(pathname: string): boolean {
     pathname === "/icon" ||
     pathname.startsWith("/icon/") ||
     pathname === "/apple-icon" ||
-    pathname.startsWith("/apple-icon") ||
+    pathname.startsWith("/apple-icon")
+  ) {
+    return true;
+  }
+  // Apex marketing OG stays at /opengraph-image.
+  // Tenant subdomains must rewrite to /site/[slug]/opengraph-image (main photo).
+  if (
     pathname.includes("opengraph-image") ||
     pathname.includes("twitter-image")
   ) {
-    return true;
+    return tenantZone !== "site";
   }
   return false;
 }
@@ -73,7 +82,7 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  const rewritePath = isRootSeoOrAssetPath(pathname)
+  const rewritePath = isRootSeoOrAssetPath(pathname, tenant.zone)
     ? null
     : tenantRewritePath(tenant, pathname);
 
