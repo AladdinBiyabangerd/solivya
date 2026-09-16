@@ -10,6 +10,7 @@ import {
   pageMetadata,
 } from "@/lib/seo";
 import { BRAND, BUILDER, builderPortfolioUrl } from "@/lib/site";
+import { salesWhatsAppHref } from "@/lib/whatsapp";
 import { createClient } from "@/utils/supabase/server";
 import { MARKETING } from "./copy";
 import styles from "./marketing.module.css";
@@ -32,13 +33,6 @@ export async function generateMetadata({
     // Brand graphic only — never a listing main photo.
     images: marketingShareImages(t.metaTitle),
   });
-}
-
-function salesWhatsAppHref(message: string): string {
-  const phone = (
-    process.env.NEXT_PUBLIC_SALES_WHATSAPP || "994501234567"
-  ).replace(/\D/g, "");
-  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
 export default async function MarketingHome({ searchParams }: Props) {

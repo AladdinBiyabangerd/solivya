@@ -34,10 +34,7 @@ export type SitePropertyView = {
   ui: SiteUiCopy;
 };
 
-export function whatsappHref(e164: string, message: string): string {
-  const phone = e164.replace(/\D/g, "");
-  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-}
+export { whatsappHref } from "@/lib/whatsapp";
 
 export function formatPriceAz(amount: number): string {
   return `${Math.round(amount)} ₼`;
