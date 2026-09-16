@@ -782,6 +782,119 @@
   cursor: wait;
 }
 
+.confirmModal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: end center;
+  padding: 0;
+}
+
+@media (min-width: 520px) {
+  .confirmModal {
+    place-items: center;
+    padding: 1.25rem;
+  }
+}
+
+.confirmModalBackdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(28, 25, 23, 0.45);
+  cursor: pointer;
+}
+
+.confirmModalBackdrop:disabled {
+  cursor: wait;
+}
+
+.confirmModalSheet {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.15rem 1.1rem 1.25rem;
+  background: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: var(--shadow);
+}
+
+@media (min-width: 520px) {
+  .confirmModalSheet {
+    border-radius: var(--radius);
+  }
+}
+
+.confirmModalHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.confirmModalTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.confirmModalBody {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.confirmModalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+}
+
+.confirmModalCancel,
+.confirmModalDanger {
+  flex: 1 1 auto;
+  min-height: 2.5rem;
+  min-width: 5.5rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.confirmModalCancel {
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--text);
+}
+
+.confirmModalDanger {
+  border: 1px solid #7f1d1d;
+  background: #7f1d1d;
+  color: #fffaf8;
+}
+
+.confirmModalDanger:hover:not(:disabled) {
+  background: #641616;
+  border-color: #641616;
+}
+
+.confirmModalCancel:disabled,
+.confirmModalDanger:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .panelWide {
   width: 100%;
   margin: 0;
