@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { BUILDER, SITE, siteUrl } from "@/lib/site";
 import "./globals.css";
@@ -38,7 +39,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="az"
       className={`${fraunces.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
