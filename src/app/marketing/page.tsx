@@ -56,14 +56,16 @@ export default async function MarketingHome({ searchParams }: Props) {
   const signupUrl = "/admin/signup";
   const loginUrl = "/admin/login";
   const panelUrl = "/admin";
+  const primaryHref = loggedIn ? panelUrl : signupUrl;
+  const primaryLabel = loggedIn ? t.navPanel : t.ctaSignup;
   const accountHref = loggedIn ? panelUrl : loginUrl;
   const accountLabel = loggedIn ? t.navPanel : t.navLogin;
-  const priceCtaHref = loggedIn ? panelUrl : signupUrl;
-  const priceCtaLabel = loggedIn ? t.navPanel : t.signupCta;
   const wa = salesWhatsAppHref(t.waMessage);
   const langAzHref = "/?lang=az";
   const langRuHref = "/?lang=ru";
   const browseHref = `/browse?lang=${locale}`;
+  const howHref = "#necə";
+  const priceHref = "#qiymet";
 
   const jsonLd = marketingJsonLd({
     locale,
@@ -95,7 +97,7 @@ export default async function MarketingHome({ searchParams }: Props) {
             />
             <div className={styles.navRight}>
               <nav className={styles.navLinks} aria-label={t.navAria}>
-                <a className={styles.navLink} href="#necə">
+                <a className={styles.navLink} href={howHref}>
                   {t.navHow}
                 </a>
                 <a className={styles.navLink} href={browseHref}>
@@ -104,7 +106,7 @@ export default async function MarketingHome({ searchParams }: Props) {
                 <a className={styles.navLink} href={demoUrl}>
                   {t.navDemo}
                 </a>
-                <a className={styles.navLink} href="#qiymet">
+                <a className={styles.navLink} href={priceHref}>
                   {t.navPrice}
                 </a>
               </nav>
@@ -131,9 +133,20 @@ export default async function MarketingHome({ searchParams }: Props) {
                   RU
                 </a>
               </div>
-              <a className={styles.navLogin} href={accountHref}>
-                {accountLabel}
-              </a>
+              {loggedIn ? (
+                <a className={styles.navCta} href={panelUrl}>
+                  {t.navPanel}
+                </a>
+              ) : (
+                <>
+                  <a className={styles.navText} href={loginUrl}>
+                    {t.navLogin}
+                  </a>
+                  <a className={styles.navCta} href={signupUrl}>
+                    {t.ctaSignup}
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -145,18 +158,22 @@ export default async function MarketingHome({ searchParams }: Props) {
           <h1 className={`${styles.headline} ${styles.anim2}`}>{t.headline}</h1>
           <p className={`${styles.lead} ${styles.anim3}`}>{t.lead}</p>
           <div className={`${styles.actions} ${styles.anim4}`}>
+            <a className={styles.btnOnDark} href={primaryHref}>
+              {primaryLabel}
+            </a>
+            <a className={styles.btnGhostOnDark} href={demoUrl}>
+              {t.ctaDemo}
+            </a>
             <a
-              className={styles.btn}
+              className={styles.btnTextOnDark}
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
             >
               {t.ctaWhatsApp}
             </a>
-            <a className={styles.btnGhost} href={browseHref}>
-              {t.ctaBrowse}
-            </a>
           </div>
+          <p className={`${styles.heroTrust} ${styles.anim4}`}>{t.heroTrust}</p>
         </div>
 
         <div className={styles.scrollHint} aria-hidden="true">
@@ -284,8 +301,8 @@ export default async function MarketingHome({ searchParams }: Props) {
               </div>
             </dl>
             <div className={styles.actions}>
-              <a className={styles.btn} href={priceCtaHref}>
-                {priceCtaLabel}
+              <a className={styles.btn} href={primaryHref}>
+                {primaryLabel}
               </a>
               <a
                 className={styles.btnSecondary}
@@ -320,16 +337,19 @@ export default async function MarketingHome({ searchParams }: Props) {
             <p className={styles.sectionText}>{t.closeText}</p>
           </div>
           <div className={styles.actions}>
+            <a className={styles.btn} href={primaryHref}>
+              {primaryLabel}
+            </a>
+            <a className={styles.btnSecondary} href={demoUrl}>
+              {t.ctaDemo}
+            </a>
             <a
-              className={styles.btn}
+              className={styles.btnSecondary}
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
             >
               {t.ctaWhatsApp}
-            </a>
-            <a className={styles.btnSecondary} href={demoUrl}>
-              {t.navDemo}
             </a>
           </div>
         </div>
@@ -343,6 +363,13 @@ export default async function MarketingHome({ searchParams }: Props) {
             </p>
             <p className={styles.footerNote}>{t.footerNote}</p>
           </div>
+          <nav className={styles.footerNav} aria-label={t.footerNavAria}>
+            <a href={browseHref}>{t.navBrowse}</a>
+            <a href={demoUrl}>{t.navDemo}</a>
+            <a href={howHref}>{t.navHow}</a>
+            <a href={priceHref}>{t.navPrice}</a>
+            <a href={accountHref}>{accountLabel}</a>
+          </nav>
           <p className={styles.footerCredit}>
             {t.footerCredit}{" "}
             <a

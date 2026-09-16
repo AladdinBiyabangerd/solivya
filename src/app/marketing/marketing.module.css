@@ -161,6 +161,44 @@
   background: var(--bg-soft);
 }
 
+.navText {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.navText:hover {
+  color: var(--text);
+  border-bottom-color: rgba(28, 25, 23, 0.28);
+}
+
+.navCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.95rem;
+  background: var(--cta);
+  border: 1px solid var(--cta);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--surface);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navCta:hover {
+  background: var(--cta-hover);
+  transform: translateY(-1px);
+}
+
 .heroContent {
   position: relative;
   z-index: 2;
@@ -260,6 +298,80 @@
 .btnSecondary:hover {
   background: var(--bg-soft);
   transform: translateY(-1px);
+}
+
+.btnOnDark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.25rem;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: 1px solid var(--surface);
+  border-radius: var(--radius);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btnOnDark:hover {
+  background: #f0ebe4;
+  transform: translateY(-1px);
+}
+
+.btnGhostOnDark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.25rem;
+  background: transparent;
+  border: 1px solid rgba(255, 252, 250, 0.55);
+  color: rgba(255, 252, 250, 0.95);
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: var(--radius);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btnGhostOnDark:hover {
+  background: rgba(255, 252, 250, 0.1);
+  border-color: rgba(255, 252, 250, 0.85);
+  transform: translateY(-1px);
+}
+
+.btnTextOnDark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.35rem;
+  color: rgba(255, 252, 250, 0.88);
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-bottom: 1px solid rgba(255, 252, 250, 0.35);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btnTextOnDark:hover {
+  color: var(--white);
+  border-bottom-color: rgba(255, 252, 250, 0.85);
+}
+
+.heroTrust {
+  margin: 1rem 0 0;
+  max-width: 42ch;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  color: rgba(255, 252, 250, 0.62);
 }
 
 .scrollHint {
@@ -612,11 +724,10 @@
 }
 
 .footerInner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1.5rem;
-  align-items: baseline;
-  justify-content: space-between;
+  display: grid;
+  gap: 1rem 1.5rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: start;
 }
 
 .footerMeta {
@@ -636,10 +747,34 @@
   margin: 0;
 }
 
+.footerNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  justify-content: flex-end;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.footerNav a {
+  color: var(--muted);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.footerNav a:hover {
+  color: var(--text);
+  border-bottom-color: rgba(28, 25, 23, 0.28);
+}
+
 .footerCredit {
   margin: 0;
   color: var(--muted);
   font-size: 0.85rem;
+  grid-column: 1 / -1;
 }
 
 .footerCredit a {
@@ -764,6 +899,24 @@
     min-height: 2rem;
     padding: 0.3rem 0.7rem;
     font-size: 0.82rem;
+  }
+
+  .navCta {
+    min-height: 2rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  .navText {
+    font-size: 0.82rem;
+  }
+
+  .footerInner {
+    grid-template-columns: 1fr;
+  }
+
+  .footerNav {
+    justify-content: flex-start;
   }
 
   .splitBand,

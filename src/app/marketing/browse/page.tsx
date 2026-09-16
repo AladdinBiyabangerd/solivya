@@ -89,7 +89,10 @@ export default async function BrowsePage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
   const loggedIn = Boolean(user);
-  const accountHref = loggedIn ? "/admin" : "/admin/login";
+  const signupUrl = "/admin/signup";
+  const loginUrl = "/admin/login";
+  const panelUrl = "/admin";
+  const accountHref = loggedIn ? panelUrl : loginUrl;
   const accountLabel = loggedIn ? m.navPanel : m.navLogin;
   const homeHref = `/?lang=${locale}`;
   const allBrowseHref = `/browse?lang=${locale}`;
@@ -161,9 +164,20 @@ export default async function BrowsePage({ searchParams }: Props) {
                 RU
               </a>
             </div>
-            <a className={marketing.navLogin} href={accountHref}>
-              {accountLabel}
-            </a>
+            {loggedIn ? (
+              <a className={marketing.navCta} href={panelUrl}>
+                {m.navPanel}
+              </a>
+            ) : (
+              <>
+                <a className={marketing.navText} href={loginUrl}>
+                  {m.navLogin}
+                </a>
+                <a className={marketing.navCta} href={signupUrl}>
+                  {m.ctaSignup}
+                </a>
+              </>
+            )}
           </div>
         </div>
       </header>

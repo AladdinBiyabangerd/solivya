@@ -16,7 +16,10 @@ export type MarketingCopy = {
   ctaWhatsApp: string;
   ctaDemo: string;
   ctaBrowse: string;
+  ctaSignup: string;
+  heroTrust: string;
   waMessage: string;
+  footerNavAria: string;
   guestLabel: string;
   guestTitle: string;
   guestText: string;
@@ -76,11 +79,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     langAria: "Dil",
     headline: "Günlük kirayə üçün öz brendli səhifən",
     lead: "Qonaq fotoları, qiyməti və qaydaları bir linkdə görür — sonra birbaşa sənin WhatsApp-ına yazır. İndilik pulsuz.",
-    ctaWhatsApp: "WhatsApp ilə sifariş",
+    ctaWhatsApp: "WhatsApp-la yaz",
     ctaDemo: "Canlı demo",
     ctaBrowse: "Mənzillərə bax",
+    ctaSignup: "Hesab yarat",
+    heroTrust: "İndilik pulsuz · Komissiya yoxdur · ~15 dəqiqəyə hazır",
     waMessage:
       "Salam, Solivya ilə günlük kirayə səhifəsi yaratmaq istəyirəm",
+    footerNavAria: "Alt keçidlər",
     guestLabel: "Axtarırsan?",
     guestTitle: "Azərbaycanda günlük kirayə axtarırsan",
     guestText:
@@ -146,7 +152,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     monthlyHint: "hosting, SSL, admin",
     monthlyPrice: "Pulsuz",
     signupCta: "Hesab yarat",
-    waShort: "WhatsApp",
+    waShort: "WhatsApp-la yaz",
     faqLabel: "Suallar",
     faqTitle: "Tez-tez",
     faqs: [
@@ -204,11 +210,14 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     langAria: "Язык",
     headline: "Своя брендовая страница для посуточной аренды",
     lead: "Гость видит фото, цену и правила в одной ссылке — и пишет вам прямо в WhatsApp. Пока бесплатно.",
-    ctaWhatsApp: "Заказать в WhatsApp",
+    ctaWhatsApp: "Написать в WhatsApp",
     ctaDemo: "Живое демо",
     ctaBrowse: "Смотреть квартиры",
+    ctaSignup: "Создать аккаунт",
+    heroTrust: "Пока бесплатно · Без комиссии · ~15 минут до готовности",
     waMessage:
       "Здравствуйте, хочу создать страницу для посуточной аренды через Solivya",
+    footerNavAria: "Нижние ссылки",
     guestLabel: "Ищете жильё?",
     guestTitle: "Ищете посуточную аренду в Азербайджане",
     guestText:
@@ -274,7 +283,7 @@ export const MARKETING: Record<LocaleCode, MarketingCopy> = {
     monthlyHint: "хостинг, SSL, админка",
     monthlyPrice: "Бесплатно",
     signupCta: "Создать аккаунт",
-    waShort: "WhatsApp",
+    waShort: "Написать в WhatsApp",
     faqLabel: "Вопросы",
     faqTitle: "Частые",
     faqs: [
