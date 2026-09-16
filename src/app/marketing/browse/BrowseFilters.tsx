@@ -12,7 +12,7 @@ import type { ListingFilters } from "@/lib/properties";
 import { browseQueryString } from "./filterParams";
 import styles from "./browse.module.css";
 
-const AMENITY_PREVIEW = 10;
+const AMENITY_PREVIEW = 9;
 
 /** Strings only — never pass BrowseCopy (has functions) into a client component. */
 export type BrowseFilterCopy = {
