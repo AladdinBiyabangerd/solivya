@@ -220,7 +220,21 @@ export default async function BrowsePage({ searchParams }: Props) {
             locale={locale}
             owner={ownerMode ? owner : undefined}
             filters={filters}
-            copy={t}
+            copy={{
+              filtersAria: t.filtersAria,
+              filtersToggle: t.filtersToggle,
+              filtersApply: t.filtersApply,
+              filtersClear: t.filtersClear,
+              filterAny: t.filterAny,
+              filterCity: t.filterCity,
+              filterRayon: t.filterRayon,
+              filterNish: t.filterNish,
+              filterPriceMin: t.filterPriceMin,
+              filterPriceMax: t.filterPriceMax,
+              filterRooms: t.filterRooms,
+              filterGuests: t.filterGuests,
+              filterAmenities: t.filterAmenities,
+            }}
           />
 
           {listings.length === 0 ? (

@@ -5,16 +5,32 @@ import Link from "next/link";
 import { AMENITIES, type AmenityId } from "@/lib/amenities";
 import { AZ_LOCATIONS } from "@/lib/azerbaijan-locations";
 import type { LocaleCode } from "@/types/database";
-import type { BrowseCopy } from "./copy";
 import type { ListingFilters } from "@/lib/properties";
 import { browseQueryString } from "./filterParams";
 import styles from "./browse.module.css";
+
+/** Strings only — never pass BrowseCopy (has functions) into a client component. */
+export type BrowseFilterCopy = {
+  filtersAria: string;
+  filtersToggle: string;
+  filtersApply: string;
+  filtersClear: string;
+  filterAny: string;
+  filterCity: string;
+  filterRayon: string;
+  filterNish: string;
+  filterPriceMin: string;
+  filterPriceMax: string;
+  filterRooms: string;
+  filterGuests: string;
+  filterAmenities: string;
+};
 
 type Props = {
   locale: LocaleCode;
   owner?: string;
   filters: ListingFilters;
-  copy: BrowseCopy;
+  copy: BrowseFilterCopy;
 };
 
 export function BrowseFilters({ locale, owner, filters, copy }: Props) {
