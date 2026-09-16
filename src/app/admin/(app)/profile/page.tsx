@@ -36,7 +36,7 @@ export default async function ProfilePage({
     : null;
 
   return (
-    <div className={styles.panelWide}>
+    <div className={`${styles.panelWide} ${styles.panelCentered}`}>
       <header className={styles.panelHeader}>
         <div className={styles.panelHeaderRow}>
           <div>

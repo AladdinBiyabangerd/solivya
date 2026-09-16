@@ -934,15 +934,15 @@
 
 .panelWide {
   width: 100%;
-  max-width: 34rem;
-  margin: 0 auto;
+  margin: 0;
   padding: 1.35rem 1.35rem 3rem;
   box-sizing: border-box;
 }
 
-/* Property editor needs room for fields + photo column */
-.panelWide:has(.editorSplit) {
-  max-width: 72rem;
+/* Empty apartments / profile: centered column */
+.panelCentered {
+  max-width: 34rem;
+  margin-inline: auto;
 }
 
 .panelHeader {

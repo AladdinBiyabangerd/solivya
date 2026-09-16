@@ -80,7 +80,7 @@ export async function createDraftProperty(): Promise<never> {
     redirect("/admin?error=create");
   }
 
-  revalidatePath("/admin");
+  // Skip revalidatePath: called during /admin/new render (unsupported in Next 16).
   redirect(`/admin/properties/${data.id}`);
 }
 

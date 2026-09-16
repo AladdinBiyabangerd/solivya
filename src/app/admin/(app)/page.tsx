@@ -66,7 +66,13 @@ export default async function AdminHome({ searchParams }: PageProps) {
   const properties = (rows as PropertyListRow[] | null) ?? [];
 
   return (
-    <div className={styles.panelWide}>
+    <div
+      className={
+        properties.length === 0
+          ? `${styles.panelWide} ${styles.panelCentered}`
+          : styles.panelWide
+      }
+    >
       <header className={styles.panelHeader}>
         <div className={styles.panelHeaderRow}>
           <div>
