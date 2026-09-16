@@ -3,8 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { parseAmenityIds } from "@/lib/amenities";
+import {
+  resolveZoneSelection,
+  type CustomLocation,
+} from "@/lib/azerbaijan-locations";
 import type { LocaleCode } from "@/types/database";
-import type { CustomLocation } from "@/lib/azerbaijan-locations";
 import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS } from "@/lib/photoLayout";
 import { getCurrentUser } from "@/utils/supabase/auth";
 import { createClient } from "@/utils/supabase/server";
@@ -147,6 +150,19 @@ export async function saveProperty(
     }
   }
 
+  const zone = String(formData.get("zone") ?? "").trim();
+  let cityId = String(formData.get("city_id") ?? "").trim();
+  let rayonId = String(formData.get("rayon_id") ?? "").trim();
+  let nishangahId = String(formData.get("nishangah_id") ?? "").trim();
+  if (zone && !cityId) {
+    const resolved = resolveZoneSelection(zone);
+    if (resolved) {
+      cityId = resolved.cityId;
+      rayonId = resolved.rayonId;
+      nishangahId = resolved.nishangahId;
+    }
+  }
+
   const { error } = await supabase
     .from("properties")
     .update({
@@ -156,11 +172,11 @@ export async function saveProperty(
       title_ru: String(formData.get("title_ru") ?? "").trim(),
       lead_az: String(formData.get("lead_az") ?? "").trim(),
       lead_ru: String(formData.get("lead_ru") ?? "").trim(),
-      zone: String(formData.get("zone") ?? "").trim(),
+      zone,
       zone_note: String(formData.get("zone_note") ?? "").trim(),
-      city_id: String(formData.get("city_id") ?? "").trim(),
-      rayon_id: String(formData.get("rayon_id") ?? "").trim(),
-      nishangah_id: String(formData.get("nishangah_id") ?? "").trim(),
+      city_id: cityId,
+      rayon_id: rayonId,
+      nishangah_id: nishangahId,
       lat,
       lng,
       rooms: Number(formData.get("rooms") ?? 1),

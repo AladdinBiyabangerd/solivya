@@ -13,10 +13,11 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import type { Photo, Property } from "@/types/database";
+import { AMENITIES, parseAmenityIds } from "@/lib/amenities";
 import type { CustomLocation } from "@/lib/azerbaijan-locations";
 import { resolvePhotoSrc } from "@/lib/storage";
 import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS, sitePhotoPlan } from "@/lib/photoLayout";
+import type { Photo, Property } from "@/types/database";
 import {
   deletePhoto,
   saveProperty,
@@ -72,8 +73,7 @@ const STEPS = [
 ] as const;
 
 function selectedAmenityIds(value: Property["amenities"]): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is string => typeof item === "string");
+  return parseAmenityIds(value);
 }
 
 function rulesToText(value: Property["rules"]): string {
@@ -1332,32 +1332,49 @@ function EditForm({
             data-step="4"
           >
             <FieldGroup title="Detallar">
-              <div className={styles.grid2}>
-                <label className={styles.label}>
-                  Təchizat
-                  <textarea
-                    className={styles.textarea}
-                    name="amenities"
-                    rows={4}
-                    defaultValue={selectedAmenityIds(property.amenities).join(
-                      ", ",
-                    )}
-                  />
-                  <span className={styles.fieldHint}>
-                    Vergüllə id: wifi, ac, kitchen…
-                  </span>
-                </label>
-                <label className={styles.label}>
-                  Qaydalar
-                  <textarea
-                    className={styles.textarea}
-                    name="rules"
-                    rows={4}
-                    defaultValue={rulesToText(property.rules)}
-                  />
-                  <span className={styles.fieldHint}>Hər sətir bir qayda</span>
-                </label>
+              <div className={styles.label}>
+                Təchizat
+                <div className={styles.amenityGrid} role="group" aria-label="Təchizat">
+                  {AMENITIES.map((item) => {
+                    const checked = selectedAmenityIds(
+                      property.amenities,
+                    ).includes(item.id);
+                    return (
+                      <label key={item.id} className={styles.amenityCheck}>
+                        <input
+                          type="checkbox"
+                          name="amenities"
+                          value={item.id}
+                          defaultChecked={checked}
+                        />
+                        <span>{item.az}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <span className={styles.fieldHint}>
+                  Filter üçün sabit siyahı — qonaqlar bunlara görə axtaracaq
+                </span>
               </div>
+              <label className={styles.label}>
+                Digər təchizat (ixtiyari)
+                <input
+                  className={styles.input}
+                  name="amenities_extra"
+                  defaultValue={property.amenities_extra ?? ""}
+                  placeholder="Siyahıda olmayan qısa qeyd"
+                />
+              </label>
+              <label className={styles.label}>
+                Qaydalar
+                <textarea
+                  className={styles.textarea}
+                  name="rules"
+                  rows={4}
+                  defaultValue={rulesToText(property.rules)}
+                />
+                <span className={styles.fieldHint}>Hər sətir bir qayda</span>
+              </label>
               <div className={styles.grid2}>
                 <label className={styles.label}>
                   Dil

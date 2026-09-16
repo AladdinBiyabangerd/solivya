@@ -574,6 +574,9 @@ export function ZonePicker({
   return (
     <div className={styles.zonePicker}>
       <input type="hidden" name={name} value={savedValue} />
+      <input type="hidden" name="city_id" value={cityId} />
+      <input type="hidden" name="rayon_id" value={rayonId} />
+      <input type="hidden" name="nishangah_id" value={nishangahId} />
 
       <SearchableSelect
         level="city"

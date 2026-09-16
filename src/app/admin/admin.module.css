@@ -1712,6 +1712,36 @@
   margin-top: 0.15rem;
 }
 
+.amenityGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.75rem;
+  margin-top: 0.45rem;
+}
+
+.amenityCheck {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--text);
+  cursor: pointer;
+  min-height: 2.5rem;
+}
+
+.amenityCheck input {
+  accent-color: var(--accent);
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 720px) {
+  .amenityGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .saveBar {
   display: flex;
   flex-wrap: wrap;
