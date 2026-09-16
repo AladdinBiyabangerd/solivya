@@ -30,15 +30,6 @@ function parseRules(raw: string): string[] {
     .filter(Boolean);
 }
 
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48);
-}
-
 async function requireUser() {
   const supabase = await createClient();
   const {
@@ -50,59 +41,48 @@ async function requireUser() {
   return { supabase, user };
 }
 
-export async function createProperty(
-  _prev: EditorState,
-  formData: FormData,
-): Promise<EditorState> {
+/** Create a draft and open the full editor immediately. */
+export async function createDraftProperty(): Promise<never> {
   const { supabase, user } = await requireUser();
+  const suffix = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
+  const slug = `menzil-${suffix}`;
+  const brandName = "Yeni mənzil";
 
-  const brandName = String(formData.get("brand_name") ?? "").trim();
-  let slug = String(formData.get("slug") ?? "").trim().toLowerCase();
-  if (!slug && brandName) slug = slugify(brandName);
+  const { data, error } = await supabase
+    .from("properties")
+    .insert({
+      owner_id: user.id,
+      slug,
+      brand_name: brandName,
+      title_az: brandName,
+      title_ru: brandName,
+      lead_az: "",
+      lead_ru: "",
+      zone: "",
+      zone_note: "",
+      lat: null,
+      lng: null,
+      rooms: 1,
+      guests: 2,
+      price_night: 0,
+      price_note: "gecədən başlayaraq",
+      min_nights: 1,
+      deposit: 0,
+      amenities: [],
+      rules: [],
+      whatsapp_e164: "",
+      locale_default: "az",
+      published: false,
+    })
+    .select("id")
+    .single();
 
-  if (!brandName || !slug) {
-    return { error: "Brend adı və slug lazımdır." };
-  }
-
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-    return { error: "Slug yalnız kiçik hərf, rəqəm və tire ola bilər." };
-  }
-
-  const { error } = await supabase.from("properties").insert({
-    owner_id: user.id,
-    slug,
-    brand_name: brandName,
-    title_az: brandName,
-    title_ru: brandName,
-    lead_az: "",
-    lead_ru: "",
-    zone: "",
-    zone_note: "",
-    lat: null,
-    lng: null,
-    rooms: 1,
-    guests: 2,
-    price_night: 0,
-    price_note: "gecədən başlayaraq",
-    min_nights: 1,
-    deposit: 0,
-    amenities: [],
-    rules: [],
-    whatsapp_e164: "",
-    locale_default: "az",
-    published: false,
-  });
-
-  if (error) {
-    if (error.code === "23505") {
-      return { error: "Bu slug artıq mövcuddur." };
-    }
-    return { error: error.message };
+  if (error || !data?.id) {
+    redirect("/admin?error=create");
   }
 
   revalidatePath("/admin");
-  revalidatePath(`/site/${slug}`);
-  return { ok: "Mənzil yaradıldı." };
+  redirect(`/admin/properties/${data.id}`);
 }
 
 export async function saveProperty(

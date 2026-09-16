@@ -3,7 +3,7 @@ import { marketingHomeHref } from "@/lib/site";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { SignupForm } from "./SignupForm";
-import styles from "../admin.module.css";
+import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 

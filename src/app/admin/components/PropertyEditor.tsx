@@ -18,13 +18,12 @@ import type { CustomLocation } from "@/lib/azerbaijan-locations";
 import { resolvePhotoSrc } from "@/lib/storage";
 import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS, sitePhotoPlan } from "@/lib/photoLayout";
 import {
-  createProperty,
   deletePhoto,
   saveProperty,
   replacePhotoCrop,
   uploadPhoto,
   type EditorState,
-} from "./property-actions";
+} from "../property-actions";
 import {
   PhotoCropQueue,
   PhotoCropSingle,
@@ -40,7 +39,7 @@ import {
 import dynamic from "next/dynamic";
 import { ZonePicker } from "./ZonePicker";
 import type { LatLng } from "./MapPinPicker";
-import styles from "./admin.module.css";
+import styles from "../admin.module.css";
 
 const MapPinPicker = dynamic(
   () =>
@@ -89,17 +88,6 @@ function rulesToText(value: Property["rules"]): string {
   return value.filter((item) => typeof item === "string").join("\n");
 }
 
-function liveUrl(slug: string): string {
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host.endsWith(".localhost") || host === "localhost") {
-      return `http://${slug}.localhost:3000`;
-    }
-  }
-  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
-  return `https://${slug}.${root}`;
-}
-
 function previewPath(slug: string): string {
   return `/admin/preview/${slug}`;
 }
@@ -123,6 +111,8 @@ type Props = {
   photos: Photo[];
   email: string;
   customLocations?: CustomLocation[];
+  /** Absolute public site URL — computed on the server to avoid hydration drift. */
+  liveHref: string;
 };
 
 function Status({ state }: { state: EditorState }) {
@@ -143,43 +133,6 @@ function FieldGroup({
       <h2 className={styles.sectionHeading}>{title}</h2>
       <div className={styles.fieldGroupBody}>{children}</div>
     </section>
-  );
-}
-
-export function CreateForm() {
-  const [state, action, pending] = useActionState(createProperty, empty);
-
-  return (
-    <form className={styles.createForm} action={action}>
-      <FieldGroup title="Yeni mənzil">
-        <label className={styles.label}>
-          Brend adı
-          <input
-            className={styles.input}
-            name="brand_name"
-            required
-            placeholder="Sahil Stay"
-          />
-        </label>
-        <label className={styles.label}>
-          Slug (subdomain)
-          <input
-            className={styles.input}
-            name="slug"
-            required
-            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-            placeholder="sahil"
-          />
-          <span className={styles.fieldHint}>
-            Link: sahil.solivya.homes — yalnız kiçik hərf və tire
-          </span>
-        </label>
-        <Status state={state} />
-        <button className={styles.submit} type="submit" disabled={pending}>
-          {pending ? "Yaradılır…" : "Mənzil yarat"}
-        </button>
-      </FieldGroup>
-    </form>
   );
 }
 
@@ -1065,11 +1018,13 @@ function EditForm({
   photos,
   email,
   customLocations = [],
+  liveHref,
 }: {
   property: Property;
   photos: Photo[];
   email: string;
   customLocations?: CustomLocation[];
+  liveHref: string;
 }) {
   const router = useRouter();
   const [saveState, setSaveState] = useState<EditorState>(empty);
@@ -1090,7 +1045,7 @@ function EditForm({
     return null;
   });
   const [mapOpen, setMapOpen] = useState(false);
-  const url = liveUrl(property.slug);
+  const url = liveHref;
   const last = STEPS.length - 1;
 
   useEffect(() => {
@@ -1502,6 +1457,7 @@ export function PropertyEditor({
   photos,
   email,
   customLocations = [],
+  liveHref,
 }: Props) {
   return (
     <>
@@ -1517,6 +1473,7 @@ export function PropertyEditor({
         photos={photos}
         email={email}
         customLocations={customLocations}
+        liveHref={liveHref}
       />
     </>
   );

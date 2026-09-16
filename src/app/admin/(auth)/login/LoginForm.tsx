@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { signIn, type AuthState } from "../actions";
-import styles from "../admin.module.css";
+import { signIn, type AuthState } from "../../actions";
+import styles from "../../admin.module.css";
 
 const initial: AuthState = {};
 

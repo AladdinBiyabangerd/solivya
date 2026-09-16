@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateProfile, type AuthState } from "../actions";
-import styles from "../admin.module.css";
+import { updateProfile, type AuthState } from "../../actions";
+import styles from "../../admin.module.css";
 
 const empty: AuthState = {};
 

@@ -20,8 +20,8 @@ import {
   type CustomLocation,
   type LocationNode,
 } from "@/lib/azerbaijan-locations";
-import { addOwnerCustomLocation } from "./property-actions";
-import styles from "./admin.module.css";
+import { addOwnerCustomLocation } from "../property-actions";
+import styles from "../admin.module.css";
 
 type Props = {
   name?: string;

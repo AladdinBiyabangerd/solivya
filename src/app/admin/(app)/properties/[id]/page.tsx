@@ -1,11 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import type { Photo, Property } from "@/types/database";
 import type { CustomLocation } from "@/lib/azerbaijan-locations";
-import { AdminShell } from "../../AdminShell";
-import { PropertyEditor } from "../../PropertyEditor";
-import styles from "../../admin.module.css";
+import { requestHost } from "@/lib/tenant";
+import { PropertyEditor } from "../../../components/PropertyEditor";
+import styles from "../../../admin.module.css";
 
 function parseCustomLocations(raw: unknown): CustomLocation[] {
   if (!Array.isArray(raw)) return [];
@@ -18,6 +18,19 @@ function parseCustomLocations(raw: unknown): CustomLocation[] {
       typeof row.name === "string"
     );
   });
+}
+
+function propertyLiveHref(slug: string, hostHeader: string | null): string {
+  const host = (hostHeader ?? "").toLowerCase();
+  const isLocal =
+    process.env.NODE_ENV === "development" ||
+    host.includes("localhost") ||
+    host.startsWith("127.0.0.1");
+  if (isLocal) {
+    return `http://${slug}.localhost:3000`;
+  }
+  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "solivya.homes";
+  return `https://${slug}.${root}`;
 }
 
 type PageProps = {
@@ -58,22 +71,17 @@ export default async function EditPropertyPage({ params }: PageProps) {
     .order("sort_order", { ascending: true });
 
   const photos = (photoRows as Photo[]) ?? [];
+  const liveHref = propertyLiveHref(property.slug, requestHost(await headers()));
 
   return (
-    <AdminShell active="edit">
-      <div className={styles.panelWide}>
-        <p className={styles.backLinkWrap}>
-          <Link href="/admin" className={styles.backLink}>
-            ← Mənzillər
-          </Link>
-        </p>
-        <PropertyEditor
-          property={property}
-          photos={photos}
-          email={user?.email ?? ""}
-          customLocations={customLocations}
-        />
-      </div>
-    </AdminShell>
+    <div className={styles.panelWide}>
+      <PropertyEditor
+        property={property}
+        photos={photos}
+        email={user?.email ?? ""}
+        customLocations={customLocations}
+        liveHref={liveHref}
+      />
+    </div>
   );
 }

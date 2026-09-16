@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { createPortal } from "react-dom";
 import { cropImageToFile } from "@/lib/cropImage";
-import styles from "./admin.module.css";
+import styles from "../admin.module.css";
 
 export type CropQueueItem = {
   key: string;

@@ -5,7 +5,10 @@ import {
   listPublishedSiblings,
   toSitePropertyView,
 } from "@/lib/properties";
+import { marketingHomeHref } from "@/lib/site";
+import { requestHost } from "@/lib/tenant";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -64,12 +67,16 @@ export default async function AdminPreviewPage({
     href: `/admin/preview/${item.slug}?lang=${locale}`,
   }));
 
+  const host = (requestHost(await headers()) ?? "").toLowerCase();
+  const isLocal =
+    host.includes("localhost") || host.startsWith("127.0.0.1");
+
   return (
     <PropertySite
       property={property}
       siblings={siblings}
-      ownerListingsHref={`/admin?lang=${locale}`}
-      platformHomeHref="http://localhost:3000/"
+      ownerListingsHref="/admin"
+      platformHomeHref={marketingHomeHref({ isLocal })}
       preview
       draft={!record.property.published}
     />

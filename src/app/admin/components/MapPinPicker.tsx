@@ -11,7 +11,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { mapCenterForZonePath } from "@/lib/azerbaijan-locations";
-import styles from "./admin.module.css";
+import styles from "../admin.module.css";
 import "leaflet/dist/leaflet.css";
 
 export type LatLng = { lat: number; lng: number };
