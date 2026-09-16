@@ -1,5 +1,6 @@
 import type { CustomLocation } from "@/lib/azerbaijan-locations";
 
+/** Display row on microsite (derived from amenity ids + optional extra). */
 export type Amenity = {
   title: string;
   subtitle?: string;
@@ -26,6 +27,9 @@ export type Property = {
   lead_ru: string;
   zone: string;
   zone_note: string;
+  city_id: string;
+  rayon_id: string;
+  nishangah_id: string;
   lat: number | null;
   lng: number | null;
   rooms: number;
@@ -34,7 +38,9 @@ export type Property = {
   price_note: string;
   min_nights: number;
   deposit: number;
-  amenities: Amenity[];
+  /** Fixed taxonomy ids (see src/lib/amenities.ts). */
+  amenities: string[];
+  amenities_extra: string;
   rules: string[];
   whatsapp_e164: string;
   locale_default: LocaleCode;

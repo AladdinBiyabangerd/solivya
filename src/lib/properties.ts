@@ -1,3 +1,4 @@
+import { amenitiesToView, guessAmenityIdsFromText, parseAmenityIds } from "@/lib/amenities";
 import { resolvePhotoSrc } from "@/lib/storage";
 import { BRAND } from "@/lib/site";
 import type { Amenity, LocaleCode, Photo, Property } from "@/types/database";
@@ -10,15 +11,34 @@ export type PropertyWithPhotos = Property & {
   photos: Photo[];
 };
 
-function asAmenities(value: Property["amenities"]): Amenity[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (item): item is Amenity =>
+/** Resolve stored amenity ids (or legacy {title} objects) for display. */
+function asAmenities(
+  value: Property["amenities"],
+  locale: LocaleCode,
+  extra?: string,
+): Amenity[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    return amenitiesToView([], locale, extra);
+  }
+  if (typeof value[0] === "string") {
+    return amenitiesToView(value, locale, extra);
+  }
+  // Legacy rows not yet migrated
+  const titles: string[] = [];
+  for (const item of value) {
+    if (
+      item &&
       typeof item === "object" &&
-      item !== null &&
       "title" in item &&
-      typeof (item as Amenity).title === "string",
-  );
+      typeof (item as Amenity).title === "string"
+    ) {
+      titles.push((item as Amenity).title);
+    }
+  }
+  const ids = titles.flatMap((t) => guessAmenityIdsFromText(t));
+  const unmatched = titles.filter((t) => guessAmenityIdsFromText(t).length === 0);
+  const note = [extra?.trim(), ...unmatched].filter(Boolean).join(", ");
+  return amenitiesToView(parseAmenityIds(ids), locale, note || undefined);
 }
 
 function asRules(value: Property["rules"]): string[] {
@@ -49,7 +69,12 @@ export function mainPhotoShareUrl(photos: Photo[]): string | null {
 }
 
 export function toSitePropertyView(
-  property: Property & { zone_note?: string; lat?: number | null; lng?: number | null },
+  property: Property & {
+    zone_note?: string;
+    amenities_extra?: string;
+    lat?: number | null;
+    lng?: number | null;
+  },
   photos: Photo[],
   locale: LocaleCode = property.locale_default,
 ): SitePropertyView {
@@ -92,7 +117,11 @@ export function toSitePropertyView(
     priceNote: property.price_note || (locale === "ru" ? "за ночь" : "gecədən başlayaraq"),
     minNights: property.min_nights,
     deposit: Number(property.deposit),
-    amenities: asAmenities(property.amenities),
+    amenities: asAmenities(
+      property.amenities,
+      locale,
+      property.amenities_extra,
+    ),
     rules: asRules(property.rules),
     whatsappE164: property.whatsapp_e164,
     whatsappMessage:

@@ -71,16 +71,9 @@ const STEPS = [
   { id: "fotolar", title: "Fotolar" },
 ] as const;
 
-function amenitiesToText(value: Property["amenities"]): string {
-  if (!Array.isArray(value)) return "";
-  return value
-    .map((item) => {
-      if (!item || typeof item !== "object" || !("title" in item)) return "";
-      const row = item as { title: string; subtitle?: string };
-      return row.subtitle ? `${row.title} | ${row.subtitle}` : row.title;
-    })
-    .filter(Boolean)
-    .join(", ");
+function selectedAmenityIds(value: Property["amenities"]): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
 }
 
 function rulesToText(value: Property["rules"]): string {
@@ -1346,10 +1339,12 @@ function EditForm({
                     className={styles.textarea}
                     name="amenities"
                     rows={4}
-                    defaultValue={amenitiesToText(property.amenities)}
+                    defaultValue={selectedAmenityIds(property.amenities).join(
+                      ", ",
+                    )}
                   />
                   <span className={styles.fieldHint}>
-                    Vergüllə ayır · istəsən: Başlıq | alt mətn
+                    Vergüllə id: wifi, ac, kitchen…
                   </span>
                 </label>
                 <label className={styles.label}>

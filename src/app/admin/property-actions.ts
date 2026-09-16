@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Amenity, LocaleCode } from "@/types/database";
+import { parseAmenityIds } from "@/lib/amenities";
+import type { LocaleCode } from "@/types/database";
 import type { CustomLocation } from "@/lib/azerbaijan-locations";
 import { MIN_SITE_PHOTOS, MAX_SITE_PHOTOS } from "@/lib/photoLayout";
 import { getCurrentUser } from "@/utils/supabase/auth";
@@ -13,15 +14,21 @@ export type EditorState = {
   ok?: string;
 };
 
-function parseAmenities(raw: string): Amenity[] {
-  return raw
-    .split(/[\n,]+/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [title, subtitle] = line.split("|").map((p) => p.trim());
-      return subtitle ? { title, subtitle } : { title };
-    });
+function parseAmenitiesFromForm(formData: FormData): string[] {
+  const fromChecks = formData
+    .getAll("amenities")
+    .map((v) => String(v).trim())
+    .filter(Boolean);
+  if (fromChecks.length > 0) {
+    return parseAmenityIds(fromChecks);
+  }
+  // Legacy single textarea (comma-separated ids)
+  return parseAmenityIds(
+    String(formData.get("amenities") ?? "")
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
 }
 
 function parseRules(raw: string): string[] {
@@ -59,6 +66,9 @@ export async function createDraftProperty(): Promise<never> {
       lead_ru: "",
       zone: "",
       zone_note: "",
+      city_id: "",
+      rayon_id: "",
+      nishangah_id: "",
       lat: null,
       lng: null,
       rooms: 1,
@@ -68,6 +78,7 @@ export async function createDraftProperty(): Promise<never> {
       min_nights: 1,
       deposit: 0,
       amenities: [],
+      amenities_extra: "",
       rules: [],
       whatsapp_e164: "",
       locale_default: "az",
@@ -147,6 +158,9 @@ export async function saveProperty(
       lead_ru: String(formData.get("lead_ru") ?? "").trim(),
       zone: String(formData.get("zone") ?? "").trim(),
       zone_note: String(formData.get("zone_note") ?? "").trim(),
+      city_id: String(formData.get("city_id") ?? "").trim(),
+      rayon_id: String(formData.get("rayon_id") ?? "").trim(),
+      nishangah_id: String(formData.get("nishangah_id") ?? "").trim(),
       lat,
       lng,
       rooms: Number(formData.get("rooms") ?? 1),
@@ -155,7 +169,8 @@ export async function saveProperty(
       price_note: String(formData.get("price_note") ?? "").trim(),
       min_nights: Number(formData.get("min_nights") ?? 1),
       deposit: Number(formData.get("deposit") ?? 0),
-      amenities: parseAmenities(String(formData.get("amenities") ?? "")),
+      amenities: parseAmenitiesFromForm(formData),
+      amenities_extra: String(formData.get("amenities_extra") ?? "").trim(),
       rules: parseRules(String(formData.get("rules") ?? "")),
       whatsapp_e164: String(formData.get("whatsapp_e164") ?? "").replace(
         /\D/g,
