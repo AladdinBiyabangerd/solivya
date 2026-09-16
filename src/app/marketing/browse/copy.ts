@@ -35,6 +35,9 @@ export type BrowseCopy = {
   filterRooms: string;
   filterGuests: string;
   filterAmenities: string;
+  filterAmenitySearch: string;
+  filterAmenityEmpty: string;
+  filterAmenityMore: string;
 };
 
 export const BROWSE: Record<LocaleCode, BrowseCopy> = {
@@ -77,6 +80,9 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     filterRooms: "Min otaq",
     filterGuests: "Min qonaq",
     filterAmenities: "Təchizat",
+    filterAmenitySearch: "Təchizat axtar…",
+    filterAmenityEmpty: "Uyğun təchizat yoxdur",
+    filterAmenityMore: "Daha {n} — axtarışla tap",
   },
   ru: {
     // Template appends " — Solivya" (see root layout).
@@ -117,5 +123,8 @@ export const BROWSE: Record<LocaleCode, BrowseCopy> = {
     filterRooms: "Комнат от",
     filterGuests: "Гостей от",
     filterAmenities: "Удобства",
+    filterAmenitySearch: "Искать удобство…",
+    filterAmenityEmpty: "Ничего не найдено",
+    filterAmenityMore: "Ещё {n} — через поиск",
   },
 };

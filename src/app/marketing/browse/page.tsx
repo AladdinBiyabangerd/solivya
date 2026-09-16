@@ -207,19 +207,17 @@ export default async function BrowsePage({ searchParams }: Props) {
 
       <main className={styles.main}>
         <div className={marketing.wrap}>
-          <header className={styles.intro}>
-            <p className={marketing.sectionLabel}>{t.label}</p>
-            <h1 className={styles.title}>{pageTitle}</h1>
-            <p className={styles.lead}>{pageLead}</p>
-            {listings.length > 0 ? (
-              <p className={styles.count}>{t.countLabel(listings.length)}</p>
-            ) : null}
-          </header>
-
           <BrowseFilters
             locale={locale}
             owner={ownerMode ? owner : undefined}
             filters={filters}
+            intro={{
+              label: t.label,
+              title: pageTitle,
+              lead: pageLead,
+              count:
+                listings.length > 0 ? t.countLabel(listings.length) : null,
+            }}
             copy={{
               filtersAria: t.filtersAria,
               filtersToggle: t.filtersToggle,
@@ -234,6 +232,9 @@ export default async function BrowsePage({ searchParams }: Props) {
               filterRooms: t.filterRooms,
               filterGuests: t.filterGuests,
               filterAmenities: t.filterAmenities,
+              filterAmenitySearch: t.filterAmenitySearch,
+              filterAmenityEmpty: t.filterAmenityEmpty,
+              filterAmenityMore: t.filterAmenityMore,
             }}
           />
 
